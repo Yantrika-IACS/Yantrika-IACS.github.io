@@ -81,6 +81,34 @@ typebot-standard{display:block;width:100%;height:600px}
 .cta .ov .btn{pointer-events:auto}
 @media(max-width:600px){.cta .slider{margin:0 -14px;width:calc(100% + 28px)}.cta .sl{width:200px}.cta{min-height:260px}}
 /*CSS part end*/
+
+/* About page: interactive pillars */
+.pil{display:block;width:100%;text-align:left;font:inherit;cursor:pointer;border:3px solid var(--dk);border-radius:10px;box-shadow:5px 5px 0 var(--dk);padding:18px;transition:transform .15s ease,box-shadow .15s ease}
+.pil:hover{transform:translate(-3px,-3px);box-shadow:8px 8px 0 var(--dk)}
+.pil[aria-pressed="true"]{transform:translate(4px,4px);box-shadow:1px 1px 0 var(--dk)}
+.pil small{display:block;margin-top:8px;font-weight:700}
+.pil:focus-visible,.chip:focus-visible,.btn:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
+.pp.open{animation:pop .25s ease}
+@keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.chip{border:3px solid var(--dk);border-radius:20px;background:var(--card);color:var(--ink);font:inherit;font-weight:700;padding:6px 14px;cursor:pointer;margin:4px 6px 4px 0;box-shadow:3px 3px 0 var(--dk)}
+.chip[aria-pressed="true"]{background:var(--yel);color:#17171d}
+.info{background:var(--soft);border:3px dashed var(--dk);border-radius:10px;padding:14px;margin-top:12px}
+.slots{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+.slot{width:64px;height:64px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;border:3px dashed var(--dk);border-radius:10px;opacity:.35;transition:opacity .2s,background .2s}
+.slot.on{opacity:1;border-style:solid;background:var(--yel);box-shadow:3px 3px 0 var(--dk)}
+.bar{height:16px;border:3px solid var(--dk);border-radius:10px;overflow:hidden;background:var(--soft);max-width:420px}
+.bar i{display:block;height:100%;width:0;background:var(--cy);transition:width .3s}
+#rx{width:100%;padding:28px 14px;font-size:1.3rem;margin:12px 0 6px}
+.dbwrap{display:flex;justify-content:center;margin:12px 0;padding:0;height:auto;overflow:visible}
+dbox-widget{display:block;width:100%;max-width:560px;margin:0 auto}
+dbox-widget iframe{max-width:100%!important;border:0}
+button.tag{font:inherit;font-weight:700;cursor:pointer;box-shadow:3px 3px 0 var(--dk);transition:transform .15s ease}
+button.tag:hover{transform:translate(-2px,-2px)}
+button.tag[aria-pressed="true"]{background:var(--pc);color:var(--pf);transform:translate(2px,2px);box-shadow:1px 1px 0 var(--dk)}
+button.tag:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
+.pp{scroll-margin-top:90px}
+@media(prefers-reduced-motion:reduce){button.tag{transition:none}}
+@media(prefers-reduced-motion:reduce){.pp.open{animation:none}.pil,.slot,.bar i{transition:none}}
 </style>
 </head>
 <body>
@@ -143,15 +171,26 @@ const slides=()=>G.filter(Boolean).map((u,i)=>`<div class="sl" style="background
 const evCard=e=>`<a class="box" href="#/${e.id}" style="display:block;text-decoration:none;color:inherit"><span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><h3 class="m" style="margin:8px 0 2px">${esc(e.t)}</h3><b>${e.d}</b><p style="margin:6px 0 0">${esc(e.x)}</p><small><b>${e.s==='done'?'See photos':'See poster'} &rarr;</b></small></a>`;
 const person=p=>`<div class="box"><b style="font-size:1.1rem">${esc(p[0])}</b><br>${esc(p[1])}<div style="margin-top:8px;font-size:1.2rem">${p[2]?`<a href="mailto:${p[2]}" title="Email" style="text-decoration:none;margin-right:8px">✉️</a>`:''}${p[3]?`<a href="${p[3]}" target="_blank" rel="noopener" title="Website" style="text-decoration:none">🌐</a>`:''}</div></div>`;
 
+/* About page pillars: the four buttons */
+const PIL=[
+ {k:'learn',t:'Learn',c:'var(--red)',f:'#fff',d:'Workshops and talks that turn theory into practice.'},
+ {k:'build',t:'Build',c:'var(--bl)',f:'#fff',d:'Real hardware, real projects, student-led.'},
+ {k:'compete',t:'Compete',c:'var(--or)',f:'#17171d',d:'Hackathons and team challenges.'},
+ {k:'share',t:'Share',c:'var(--cy)',f:'#17171d',d:'Outreach to schools and local youth.'}
+];
+
 const V={
-home:()=>`<div class="hero2"><div class="txt"><h1 class="m ytitle"><img src="images/text.png" alt="YANTRIKA" onerror="this.replaceWith(document.createTextNode('YANTRIKA'))"></h1><h2>Robotics &amp; Coding Club</h2><p><b>RSA, Indian Association for the Cultivation of Science (IACS), Kolkata</b></p><span class="tag">LEARN.</span><span class="tag">BUILD.</span><span class="tag">COMPETE.</span><span class="tag">SHARE.</span><p style="margin-top:18px"><a class="btn" href="#/join">Join the club</a><a class="btn cy" href="#/events">See events</a></p></div></div>
+home:()=>`<div class="hero2"><div class="txt"><h1 class="m ytitle"><img src="images/text.png" alt="YANTRIKA" onerror="this.replaceWith(document.createTextNode('YANTRIKA'))"></h1><h2>Robotics &amp; Coding Club</h2><p><b>RSA, Indian Association for the Cultivation of Science (IACS), Kolkata</b></p>${PIL.map(p=>`<button class="tag" type="button" aria-pressed="false" aria-controls="pp" data-k="${p.k}" style="--pc:${p.c};--pf:${p.f}">${p.t.toUpperCase()}.</button>`).join('')}<small style="display:block"><b>Tap a word to try it</b></small><p style="margin-top:18px"><a class="btn" href="#/join">Join the club</a><a class="btn cy" href="#/events">See events</a></p></div></div>
+<div class="card pp" id="pp" hidden aria-live="polite"></div>
 <div class="card"><h2 class="m">Learning through making</h2><p>Yantrika is a student-led club that believes students learn best when they move beyond theory: work with real hardware, experiment, and solve problems together.</p></div>
 <div class="grid" style="margin-bottom:36px"><div class="box stat"><b style="color:var(--red)">40+</b>students per workshop</div><div class="box stat"><b style="color:var(--bl)">14</b>events, done and planned</div><div class="box stat"><b style="color:var(--or)">2+</b>community outreaches planned</div></div>
 <div class="card"><h2 class="m">Where we are now</h2><div class="tl">${EV.filter(e=>e.s!=='prop').map(e=>`<div class="ti"><b>${e.d} | <a class="ev" href="#/${e.id}">${esc(e.t)}</a></b> <span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><br>${esc(e.x)}</div>`).join('')}</div><a class="btn" href="#/events">All events &rarr;</a></div>
 <h2 class="m">Promo Video</h2><div class="vid"><video id="pv" src="images/intro_vid.mp4" autoplay muted loop playsinline preload="metadata">Your browser does not support video.</video><button class="btn" id="pm" type="button" aria-label="Mute or unmute video">&#128263; Unmute</button></div>
 <div class="cta"><div class="slider"><div class="track">${slides()}${slides()}</div></div><div class="ov"><h2 class="m">COME BUILD WITH US....</h2><p>No experience needed. Curiosity is enough.</p><a class="btn" href="#/join">Join Yantrika &rarr;</a></div></div>`,
 about:()=>`<div class="card"><h1 class="m">About Yantrika</h1><p>Yantrika is the Robotics &amp; Coding Club of the Research Scholars' Association at IACS, Kolkata. We run workshops, hackathons, talks and outreach so that more students can get hands-on with robotics, electronics and code.</p></div>
-<div class="grid" style="margin-bottom:36px"><div class="box" style="background:var(--red);color:#fff"><h3 class="m">Learn</h3>Workshops and talks that turn theory into practice.</div><div class="box" style="background:var(--bl);color:#fff"><h3 class="m">Build</h3>Real hardware, real projects, student-led.</div><div class="box" style="background:var(--or);color:#17171d"><h3 class="m">Compete</h3>Hackathons and team challenges.</div><div class="box" style="background:var(--cy);color:#17171d"><h3 class="m">Share</h3>Outreach to schools and local youth.</div></div>
+<h2 class="m">Tap a pillar to try it</h2>
+<div class="grid" style="margin-bottom:24px">${PIL.map(p=>`<button class="pil" type="button" aria-pressed="false" aria-controls="pp" data-k="${p.k}" style="background:${p.c};color:${p.f}"><h3 class="m" style="margin:0 0 6px">${p.t}</h3>${p.d}<small>Tap to explore &darr;</small></button>`).join('')}</div>
+<div class="card pp" id="pp" hidden aria-live="polite"></div>
 <div class="card"><h2 class="m">What we aim for</h2><ul><li>500-800+ student participations across events.</li><li>100+ active hackers in competitive problem-solving.</li><li>2+ outreaches for underprivileged and local youth.</li><li>Reusable equipment that stays with the club for future batches.</li></ul></div>`,
 events:()=>`<div class="card"><h1 class="m">Events</h1><p>From induction to hackathons. Dates for 2027 are planned and may shift.</p></div>${['done','plan','prop'].map(s=>`<h2 class="m">${ST[s][0]}</h2><div class="grid" style="margin-bottom:36px">${EV.filter(e=>e.s===s).map(evCard).join('')}</div>`).join('')}`,
 materials:()=>`<div class="card"><h1 class="m">Club Materials</h1><p>Slides, code, circuit diagrams, datasheets and posters.</p><input id="q" type="search" placeholder="Search materials..." aria-label="Search materials"><div class="grid" id="mg"></div></div>`,
@@ -164,7 +203,8 @@ join:()=>`<div class="card"><h1 class="m">Join &amp; Contact</h1><p>Want to join
 <div class="card foot"><h2 class="m">Find us</h2><p><a class="btn" href="mailto:${LINKS.mail}">✉️ Email</a><a class="btn" href="${LINKS.web}" target="_blank" rel="noopener">🌐 Website</a><a class="btn" href="${LINKS.ig}" target="_blank" rel="noopener">📸 Instagram</a><a class="btn" href="${LINKS.li}" target="_blank" rel="noopener">💼 LinkedIn</a></p></div>`,
 donate:()=>`<div class="card"><h1 class="m">Donate to Yantrika</h1><p>Yantrika is a student-led club. Every contribution helps us buy kits and components, run free workshops and hackathons, and take robotics to school students who would otherwise never get to touch real hardware.</p>
 <div class="grid" style="margin:20px 0"><div class="box" style="background:var(--red);color:#fff"><h3 class="m">Kits &amp; hardware</h3>Reusable equipment that stays with the club for future batches.</div><div class="box" style="background:var(--bl);color:#fff"><h3 class="m">Workshops</h3>Hands-on sessions and expert talks open to all students.</div><div class="box" style="background:var(--cy);color:#17171d"><h3 class="m">Outreach</h3>Free workshops for underprivileged and local youth.</div></div>
-<h2 class="m">How to donate</h2><p>Pay via UPI:</p><div class="upi">${esc(DON.upi)}</div>
+<h2 class="m">Donate online</h2><p>Give securely through our Donorbox form.</p><div class="dbwrap"><dbox-widget campaign="yantrika" type="donation_form" enable-auto-scroll="true"></dbox-widget></div>
+<h2 class="m" style="margin-top:28px">Or pay via UPI</h2><p>Scan or use the UPI ID:</p><div class="upi">${esc(DON.upi)}</div>
 <img src="${DON.qr}" alt="UPI QR code" style="max-width:240px;width:100%;border:3px solid var(--dk);border-radius:10px;display:block;margin:10px 0" onerror="this.remove()">
 <p>Companies, institutions or individuals who would like to sponsor an event, or need a receipt, can write to us directly.</p>
 <a class="btn cy" href="mailto:${LINKS.mail}?subject=${encodeURIComponent('Donation / Sponsorship for Yantrika')}">✉️ Email us about donating</a><a class="btn" href="#/join">Chat with us &rarr;</a></div>`
@@ -185,6 +225,90 @@ function mats(){
  const g=document.getElementById('mg'),q=document.getElementById('q');
  const d=()=>{const s=q.value.toLowerCase();g.innerHTML=MAT.filter(m=>(m.t+m.d+m.k).toLowerCase().includes(s)).map(m=>`<a class="box" href="${m.u}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><span class="badge" style="background:var(--yel)">${m.k}</span><h3 class="m" style="margin:8px 0 2px">${esc(m.t)}</h3>${esc(m.d)}</a>`).join('')||'<b>Nothing matches that.</b>';};
  q.oninput=d;d();
+}
+
+/* ---------- About pillars: panel content + behaviour ---------- */
+const LT={Arduino:'The tiny brain of most of our bots. Start with the UNO and Nano pinouts.',Sensors:'How a robot sees: distance, light and line sensors, starting with the ultrasonic one.',Motors:'Drivers, power and speed control, plus the LiPo battery safety rules.',Code:'Your first sketches: blink an LED, read a sensor, make a decision. Examples from Workshop I.'};
+const BP=[['Arduino Nano','The brain. It reads sensors and decides what the motors do.','🧠'],['Ultrasonic sensor','Sends out a sound pulse and times the echo to measure distance.','📡'],['Motor driver','Lets the small Arduino pins control power-hungry motors.','⚙️'],['DC motors','Turn the wheels. Speed is set with PWM signals.','🛞'],['LiPo battery','Powers everything. Read the safety sheet before charging.','🔋']];
+const SH=[['Mentor a newcomer','Walk a first-timer through their first circuit. Everyone you help becomes a builder too.','Join as a mentor','#/join'],['Teach at a school','Help run the free hands-on workshop for school students planned for Dec 2026.','Volunteer with us','#/join'],['Sponsor an event','Companies and individuals can back a workshop or a hackathon.','Support the club','#/donate'],['Spread the word','Follow us and show a friend what you built.','Follow on Instagram',LINKS.ig]];
+let best=Infinity;
+
+const PN={
+learn:()=>`<h2 class="m">Learn: flip the switch</h2><p>Every robot starts with a circuit. Close the switch and watch the current light the LED.</p>
+<svg viewBox="0 0 320 120" style="width:100%;max-width:460px;display:block;color:var(--ink)" role="img" aria-label="Circuit with a battery, a switch, a resistor and an LED">
+<g fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 30H70M120 30H150l8-14 12 28 12-28 12 28 8-14H236M264 30H300V90H20V30"/><circle cx="70" cy="30" r="4"/><circle cx="120" cy="30" r="4"/><line id="bl" x1="70" y1="30" x2="112" y2="8"/><rect x="145" y="72" width="30" height="36" style="fill:var(--card);stroke:none"/><path d="M152 74V106M168 82V98" stroke-width="6"/><circle id="led" cx="250" cy="30" r="14" style="fill:var(--soft)"/></g></svg>
+<button class="btn cy" id="sw" type="button" aria-pressed="false">Close the switch</button>
+<h3 class="m" style="margin-top:20px">What you will pick up</h3>
+<div>${Object.keys(LT).map(k=>`<button class="chip" type="button" aria-pressed="false" data-t="${k}">${k}</button>`).join('')}</div>
+<div class="info" id="li">Tap a topic to see what we cover.</div>
+<a class="btn" href="#/materials" style="margin-top:12px">Open Materials</a>`,
+build:()=>`<h2 class="m">Build: assemble an obstacle-avoiding bot</h2><p>Tap each part to add it to your robot. Tap again to take it off.</p>
+<div>${BP.map((b,i)=>`<button class="chip" type="button" aria-pressed="false" data-i="${i}">${b[0]}</button>`).join('')}</div>
+<div class="slots" aria-hidden="true">${BP.map(b=>`<div class="slot">${b[2]}</div>`).join('')}</div>
+<div class="bar"><i></i></div><p style="margin:6px 0 0"><b id="bc">0 of 5 parts</b></p>
+<div class="info" id="bi">Start with the brain: tap Arduino Nano.</div>`,
+compete:()=>`<h2 class="m">Compete: reaction duel</h2><p>Hackathons reward quick thinking. Warm up: tap the big button, wait for GO, then tap as fast as you can.</p>
+<button class="btn" id="rx" type="button">Start the duel</button>
+<p id="rs" aria-live="polite" style="margin:6px 0 16px"><b>Your time shows up here.</b></p>
+<h3 class="m">Where to use it</h3>
+${['robotics-hackathon','game-theory-hackathon','technical-hackathon','team-challenge'].map(id=>{const e=EV.find(x=>x.id===id);return `<a class="btn" href="#/${id}">${esc(e.t)} (${e.d})</a>`}).join('')}`,
+share:()=>`<h2 class="m">Share: how will you pass it on?</h2><p>What we learn is worth more when it travels. Pick a way to share.</p>
+<div>${SH.map((s,i)=>`<button class="chip" type="button" aria-pressed="false" data-i="${i}">${s[0]}</button>`).join('')}</div>
+<div class="info" id="si">Choose one above and we will point you to the next step.</div>`
+};
+
+const PI={
+learn:root=>{
+ const sw=root.querySelector('#sw'),bl=root.querySelector('#bl'),led=root.querySelector('#led'),li=root.querySelector('#li');
+ sw.onclick=()=>{const on=sw.getAttribute('aria-pressed')!=='true';sw.setAttribute('aria-pressed',on);sw.textContent=on?'Open the switch':'Close the switch';bl.setAttribute('x2',on?120:112);bl.setAttribute('y2',on?30:8);led.style.fill=on?'#f1c40f':'var(--soft)';led.style.filter=on?'drop-shadow(0 0 8px #f1c40f)':'none';};
+ root.querySelectorAll('[data-t]').forEach(c=>c.onclick=()=>{root.querySelectorAll('[data-t]').forEach(x=>x.setAttribute('aria-pressed',x===c));li.innerHTML='<b>'+c.dataset.t+'</b><br>'+LT[c.dataset.t];});
+},
+build:root=>{
+ const on=new Set(),sl=root.querySelectorAll('.slot'),bar=root.querySelector('.bar i'),ct=root.querySelector('#bc'),inf=root.querySelector('#bi');
+ root.querySelectorAll('[data-i]').forEach(c=>c.onclick=()=>{
+  const i=+c.dataset.i,was=on.has(i);was?on.delete(i):on.add(i);
+  c.setAttribute('aria-pressed',!was);sl[i].classList.toggle('on',!was);
+  bar.style.width=on.size*20+'%';ct.textContent=on.size+' of 5 parts';
+  inf.innerHTML=on.size===5?'<b>Your obstacle-avoiding bot is assembled!</b><br>The wiring guide and battery safety sheet are in Materials.<br><a class="btn cy" href="#/materials">Open Materials</a>':(was?'Removed '+BP[i][0]+'.':'<b>'+BP[i][0]+'</b><br>'+BP[i][1]);
+ });
+},
+compete:root=>{
+ const rx=root.querySelector('#rx'),out=root.querySelector('#rs');let st=0,t0=0,to=0;
+ rx.onclick=()=>{
+  if(st===0){st=1;rx.textContent='Wait for green...';rx.style.background='var(--or)';out.innerHTML='<b>Get ready...</b>';to=setTimeout(()=>{st=2;t0=performance.now();rx.textContent='GO! Tap now';rx.style.background='var(--cy)';},1200+Math.random()*2000);}
+  else if(st===1){clearTimeout(to);st=0;rx.textContent='Too early! Try again';rx.style.background='var(--pk)';out.innerHTML='<b>Wait for the green GO.</b>';}
+  else{const ms=Math.round(performance.now()-t0);st=0;best=Math.min(best,ms);rx.textContent='Go again';rx.style.background='var(--yel)';out.innerHTML='<b>'+ms+' ms.</b> Best this visit: '+best+' ms. '+(ms<250?'Hackathon ready!':ms<400?'Solid reflexes.':'Warm up and go again.');}
+ };
+},
+share:root=>{
+ const inf=root.querySelector('#si');
+ root.querySelectorAll('[data-i]').forEach(c=>c.onclick=()=>{
+  root.querySelectorAll('[data-i]').forEach(x=>x.setAttribute('aria-pressed',x===c));
+  const s=SH[+c.dataset.i],ext=s[3].startsWith('http');
+  inf.innerHTML='<b>'+s[0]+'</b><br>'+s[1]+'<br><a class="btn cy" href="'+s[3]+'"'+(ext?' target="_blank" rel="noopener"':'')+'>'+s[2]+'</a>';
+ });
+}
+};
+
+function pillars(){
+ const pp=document.getElementById('pp');if(!pp)return;
+ const bs=[...document.querySelectorAll('[data-k]')];
+ bs.forEach(b=>b.onclick=()=>{
+  const k=b.dataset.k,same=b.getAttribute('aria-pressed')==='true';
+  bs.forEach(x=>x.setAttribute('aria-pressed',String(!same&&x===b)));
+  if(same){pp.hidden=true;return;}
+  pp.hidden=false;pp.innerHTML=PN[k]();pp.classList.remove('open');void pp.offsetWidth;pp.classList.add('open');
+  PI[k](pp);
+  pp.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'start'});
+ });
+}
+
+/* Donorbox widget: load the script once; the dbox-widget element upgrades when it appears */
+function donorbox(){
+ if(document.getElementById('dbx-js'))return;
+ const s=document.createElement('script');
+ s.id='dbx-js';s.type='module';s.async=true;s.src='https://donorbox.org/widgets.js';
+ document.head.append(s);
 }
 
 function promo(){
@@ -214,6 +338,8 @@ function r(){
  document.getElementById('bgal').innerHTML=(p==='home'&&!e)?gal():'';
  document.getElementById('th').onclick=()=>{const R=document.documentElement;const isDark=getComputedStyle(R).getPropertyValue('--bg').trim()==='#101015';R.setAttribute('data-theme',isDark?'light':'dark');};
  if(p==='home'&&!e)promo();
+ if(p==='about'||(p==='home'&&!e))pillars();
+ if(p==='donate')donorbox();
  if(p==='materials')mats();
  if(p==='join')joinBot();
  scrollTo(0,0);
