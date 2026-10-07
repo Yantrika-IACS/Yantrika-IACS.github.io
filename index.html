@@ -47,7 +47,6 @@ nav a.l:hover,nav a.l.on{border-color:var(--dk);background:#fff}
 .pill{display:inline-flex;margin:4px;padding:8px 16px;border:3px solid var(--dk);border-radius:20px;background:var(--yel);color:#17171d;font-weight:700}
 #q{width:100%;max-width:420px;border:3px solid var(--dk);border-radius:8px;padding:9px 14px;font:inherit;font-weight:700;background:var(--card);color:var(--ink);box-shadow:4px 4px 0 var(--dk);margin-bottom:16px}
 input,textarea{font:inherit}
-.fm input,.fm textarea{display:block;width:100%;box-sizing:border-box;border:3px solid var(--dk);border-radius:8px;padding:9px 12px;margin-bottom:14px;background:var(--card);color:var(--ink)}
 .gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;margin-top:16px}
 .gal img,.ph{width:100%;aspect-ratio:4/3;object-fit:cover;border:3px solid var(--dk);border-radius:8px;box-sizing:border-box}
 .ph{display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;background:var(--soft);border-style:dashed;font-size:.85rem}
@@ -55,21 +54,11 @@ input,textarea{font:inherit}
 .poster img{width:100%;height:100%;object-fit:cover}
 .poster.has{padding:0;overflow:hidden}
 .poster h2{font-size:2rem;text-shadow:3px 3px 0 var(--dk);margin:0}
-table{width:100%;border-collapse:collapse;margin-top:16px;font-weight:700}
-th,td{border:3px solid var(--dk);padding:12px;text-align:left}
-th{background:var(--bl);color:#fff}
-tr:nth-child(even){background:var(--soft)}
-tr:hover td{background:var(--yel);color:#17171d}
-.tot td{background:var(--dk);color:#fff}
 a.ev{text-decoration:underline wavy var(--red)}
+.tbwrap{border:3px solid var(--dk);border-radius:10px;overflow:hidden;margin-top:16px}
+typebot-standard{display:block;width:100%;height:600px}
+.upi{font-size:1.3rem;word-break:break-all;background:var(--soft);border:3px dashed var(--dk);border-radius:8px;padding:10px 14px;margin:10px 0;font-weight:700}
 @media(max-width:600px){.c{padding-left:14px;padding-right:14px}nav{margin-left:-14px;margin-right:-14px}.card{padding:20px}nav .logo{width:100%;margin-right:0}.bgal{height:560px}.hero2{min-height:420px}.hero2 .txt{padding:30px 10px}}
-
-.slider{overflow:hidden;margin:20px -28px;padding:6px 0;-webkit-mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent)}
-.track{display:flex;width:max-content;animation:slide 45s linear infinite}
-.slider:hover .track{animation-play-state:paused}
-.sl{flex:0 0 auto;width:240px;aspect-ratio:4/3;margin-right:14px;border:3px solid var(--dk);border-radius:10px;overflow:hidden;box-shadow:4px 4px 0 var(--dk)}
-.sl img{width:100%;height:100%;object-fit:cover;display:block}
-@keyframes slide{to{transform:translateX(-50%)}}
 
 /*CSS part*/
 .slider{overflow:hidden;margin:20px -28px;padding:6px 0;-webkit-mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent)}
@@ -78,8 +67,6 @@ a.ev{text-decoration:underline wavy var(--red)}
 .sl{flex:0 0 auto;width:240px;aspect-ratio:4/3;margin-right:14px;border:3px solid var(--dk);border-radius:10px;overflow:hidden;box-shadow:4px 4px 0 var(--dk)}
 .sl img{width:100%;height:100%;object-fit:cover;display:block}
 @keyframes slide{to{transform:translateX(-50%)}}
-@media(max-width:600px){.slider{margin-left:-20px;margin-right:-20px}.sl{width:180px}}
-@media(prefers-reduced-motion:reduce){.track{animation:none}.slider{overflow-x:auto}}
 @media(max-width:600px){.slider{margin-left:-20px;margin-right:-20px}.sl{width:180px}}
 @media(prefers-reduced-motion:reduce){.track{animation:none}.slider{overflow-x:auto}}
 .vid{position:relative;border:4px solid var(--dk);border-radius:20px;box-shadow:8px 8px 0 var(--dk);overflow:hidden;background:#000;margin:0 0 40px;line-height:0}
@@ -105,16 +92,16 @@ const EV=[
 {id:'workshop-1',d:'28 Sep 2026',t:'Hands-on Robotics Workshop I',s:'done',n:8,x:'Interactive session introducing practical robotics and electronics.'},
 {id:'expert-talks',d:'29 Oct 2026',t:'Expert Talks',s:'plan',x:'Planned interactions with IIEST professors offering technical insights.'},
 {id:'workshop-2',d:'31 Oct 2026',t:'Hands-on Robotics Workshop II',s:'plan',x:'Follow-up practical workshop building on the initial exposure.'},
-{id:'schools-outreach',d:'Dec 2026',t:'Schools Outreach',s:'prop',x:'A free hands-on workshop for approx. 70 underprivileged students.',c:600,b:[['Kits & consumables',300],['Printed material & certificates',80],['Transport & logistics',120],['Refreshments',100]]},
-{id:'robotics-hackathon',d:'Jan 2027',t:'Robotics Hackathon',s:'prop',x:'A hardware and software challenge for 100+ participants.',c:950,b:[['Hardware kits & components',400],['Prizes',200],['Venue & AV',100],['Food',150],['Printing & certificates',100]]},
-{id:'game-theory-hackathon',d:'Feb 2027',t:'Game Theory Hackathon',s:'prop',x:'Strategy, logic, and problem-solving challenges.',c:400,b:[['Prizes',150],['Materials & printing',80],['Refreshments',120],['Platform & misc.',50]]},
-{id:'ai-robotics-workshop',d:'Mar 2027',t:'AI & Robotics Workshop',s:'prop',x:'An applied, hands-on technical learning session.',c:450,b:[['Components',220],['Compute / cloud credits',80],['Speaker & printing',50],['Refreshments',100]]},
-{id:'technical-hackathon',d:'Apr 2027',t:'Technical Hackathon',s:'prop',x:'Designing and building intelligent systems.',c:500,b:[['Components',200],['Prizes',150],['Refreshments',100],['Printing',50]]},
-{id:'prototyping-session',d:'May 2027',t:'Prototyping Session',s:'prop',x:'Supporting student-led technical projects.',c:350,b:[['Components & materials',250],['Tools & consumables',100]]},
-{id:'talks-mentorship',d:'Jun 2027',t:'Talks & Mentorship',s:'prop',x:'Connecting students with engineers and researchers.',c:250,b:[['Speaker hospitality & travel',150],['Refreshments',60],['Printing & media',40]]},
-{id:'summer-camp',d:'Jul 2027',t:'Summer Robotics Camp',s:'prop',x:'An immersive robotics learning programme.',c:350,b:[['Kits',200],['Handouts',50],['Refreshments',100]]},
-{id:'team-challenge',d:'Aug 2027',t:'Team Challenge',s:'prop',x:'A collaborative and competitive robotics event.',c:350,b:[['Arena materials',150],['Prizes',100],['Refreshments',100]]},
-{id:'semester-outreach',d:'Sep 2027',t:'Semester Outreach',s:'prop',x:'A community technology workshop for local youth.',c:500,b:[['Kits',280],['Printing',70],['Transport',70],['Refreshments',80]]}
+{id:'schools-outreach',d:'Dec 2026',t:'Schools Outreach',s:'prop',x:'A free hands-on workshop for approx. 70 underprivileged students.'},
+{id:'robotics-hackathon',d:'Jan 2027',t:'Robotics Hackathon',s:'prop',x:'A hardware and software challenge for 100+ participants.'},
+{id:'game-theory-hackathon',d:'Feb 2027',t:'Game Theory Hackathon',s:'prop',x:'Strategy, logic, and problem-solving challenges.'},
+{id:'ai-robotics-workshop',d:'Mar 2027',t:'AI & Robotics Workshop',s:'prop',x:'An applied, hands-on technical learning session.'},
+{id:'technical-hackathon',d:'Apr 2027',t:'Technical Hackathon',s:'prop',x:'Designing and building intelligent systems.'},
+{id:'prototyping-session',d:'May 2027',t:'Prototyping Session',s:'prop',x:'Supporting student-led technical projects.'},
+{id:'talks-mentorship',d:'Jun 2027',t:'Talks & Mentorship',s:'prop',x:'Connecting students with engineers and researchers.'},
+{id:'summer-camp',d:'Jul 2027',t:'Summer Robotics Camp',s:'prop',x:'An immersive robotics learning programme.'},
+{id:'team-challenge',d:'Aug 2027',t:'Team Challenge',s:'prop',x:'A collaborative and competitive robotics event.'},
+{id:'semester-outreach',d:'Sep 2027',t:'Semester Outreach',s:'prop',x:'A community technology workshop for local youth.'}
 ];
 const ST={done:['Completed','done'],plan:['Upcoming','plan'],prop:['Coming 2026-27','prop']};
 const MAT=[
@@ -132,12 +119,14 @@ const MAT=[
 const TEAM={
 adv:[['Prof. Rajarshi Ray','Faculty Advisor','','https://scholar.google.com/citations?user=IfVWgecAAAAJ&hl=en']],
 core:[['Pritam Dutta','President','pritamdutta.pixel@gmail.com','https://dutta-pritam.github.io/'],['Arnab Roy','Secretary','ug24ar3219@iacs.res.in','https://github.com/arOy1011'],['Sudeep Das','Treasurer','ug24sd3240@iacs.res.in',''],['Aniket Dinda','PR and Outreach Head','ug25ad3412@iacs.res.in','https://github.com/001-Long-Fingers']],
-lead:[['Akshat Chakerverty','Chief Editor','','http://github.com/Akshat-Chakarverty'],['Rwitinkar Sinha','Media and Technical Lead'],['Sampreet Das','Content Lead'],
+lead:[['Akshat Chakerverty','Chief Editor','','http://github.com/Akshat-Chakarverty'],['Rwitinkar Sinha','Media and Technical Lead'],['Sampreet Das','Content Lead']],
 back:['Dipchandan Bera','Aryan Lohar','Debarpan','Arjun M','Aditya Menon','Bhaskar Das']
 };
 const LINKS={web:'https://yantrika-iacs.github.io/',mail:'iacsroboticsclub@gmail.com',ig:'https://www.instagram.com/yantrika_official/',li:'https://www.linkedin.com/company/yantrika-iacs/'};
+/* DONATE: put your real UPI ID here (and optionally a QR image at images/donate-qr.png) */
+const DON={upi:'YOUR-UPI-ID@bank',qr:'images/donate-qr.png'};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const PAGES=[['home','Home'],['about','About'],['events','Events'],['materials','Materials'],['team','Team'],['join','Join']];
+const PAGES=[['home','Home'],['about','About'],['events','Events'],['materials','Materials'],['team','Team'],['join','Join'],['donate','Donate']];
 const PC=['#ec3750','#338eda','#ff8c37','#33d6a6','#ff5a5f','#8e44ad'];
 
 /* HERO GALLERY: replace these 16 image URLs (relative paths or full https links) */
@@ -151,7 +140,7 @@ const gal=()=>G.map((u,i)=>`<div class="gt" style="background:${PC[i%6]}">${u?`<
 
 const slides=()=>G.filter(Boolean).map((u,i)=>`<div class="sl" style="background:${PC[i%6]}"><img src="${u}" alt="Yantrika photo ${i+1}" loading="lazy" onerror="this.remove()"></div>`).join('');
 
-const evCard=e=>`<a class="box" href="#/${e.id}" style="display:block;text-decoration:none;color:inherit"><span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><h3 class="m" style="margin:8px 0 2px">${esc(e.t)}</h3><b>${e.d}</b><p style="margin:6px 0 0">${esc(e.x)}</p><small><b>${e.s==='done'?'See photos':e.s==='plan'?'See poster':'See funding breakdown'} &rarr;</b></small></a>`;
+const evCard=e=>`<a class="box" href="#/${e.id}" style="display:block;text-decoration:none;color:inherit"><span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><h3 class="m" style="margin:8px 0 2px">${esc(e.t)}</h3><b>${e.d}</b><p style="margin:6px 0 0">${esc(e.x)}</p><small><b>${e.s==='done'?'See photos':'See poster'} &rarr;</b></small></a>`;
 const person=p=>`<div class="box"><b style="font-size:1.1rem">${esc(p[0])}</b><br>${esc(p[1])}<div style="margin-top:8px;font-size:1.2rem">${p[2]?`<a href="mailto:${p[2]}" title="Email" style="text-decoration:none;margin-right:8px">✉️</a>`:''}${p[3]?`<a href="${p[3]}" target="_blank" rel="noopener" title="Website" style="text-decoration:none">🌐</a>`:''}</div></div>`;
 
 const V={
@@ -171,8 +160,14 @@ team:()=>`<div class="card"><h1 class="m">Meet the Team</h1><p>The students and 
 <h3 class="m" style="color:var(--pk);margin-top:24px">Core Committee</h3><div class="grid">${TEAM.core.map(person).join('')}</div>
 <h3 class="m" style="color:var(--cy);margin-top:24px">Leads &amp; Editors</h3><div class="grid">${TEAM.lead.map(person).join('')}</div>
 <h3 class="m" style="color:var(--or);margin-top:24px">Backend Core Members</h3>${TEAM.back.map(n=>`<span class="pill">${esc(n)}</span>`).join('')}</div>`,
-join:()=>`<div class="card"><h1 class="m">Join &amp; Contact</h1><p>Want to join, sponsor, or collaborate? Write to us and we will reply.</p><form class="fm" id="fm"><label>Your name<input id="n" required></label><label>Message<textarea id="b" rows="4" required placeholder="I'd like to join / support / collaborate..."></textarea></label><button class="btn cy" type="submit">Open email &rarr;</button></form></div>
-<div class="card foot"><h2 class="m">Find us</h2><p><a class="btn" href="mailto:${LINKS.mail}">✉️ Email</a><a class="btn" href="${LINKS.web}" target="_blank" rel="noopener">🌐 Website</a><a class="btn" href="${LINKS.ig}" target="_blank" rel="noopener">📸 Instagram</a><a class="btn" href="${LINKS.li}" target="_blank" rel="noopener">💼 LinkedIn</a></p></div>`
+join:()=>`<div class="card"><h1 class="m">Join &amp; Contact</h1><p>Want to join, sponsor, or collaborate? Chat with us below and we will get back to you.</p><div class="tbwrap"><typebot-standard></typebot-standard></div></div>
+<div class="card foot"><h2 class="m">Find us</h2><p><a class="btn" href="mailto:${LINKS.mail}">✉️ Email</a><a class="btn" href="${LINKS.web}" target="_blank" rel="noopener">🌐 Website</a><a class="btn" href="${LINKS.ig}" target="_blank" rel="noopener">📸 Instagram</a><a class="btn" href="${LINKS.li}" target="_blank" rel="noopener">💼 LinkedIn</a></p></div>`,
+donate:()=>`<div class="card"><h1 class="m">Donate to Yantrika</h1><p>Yantrika is a student-led club. Every contribution helps us buy kits and components, run free workshops and hackathons, and take robotics to school students who would otherwise never get to touch real hardware.</p>
+<div class="grid" style="margin:20px 0"><div class="box" style="background:var(--red);color:#fff"><h3 class="m">Kits &amp; hardware</h3>Reusable equipment that stays with the club for future batches.</div><div class="box" style="background:var(--bl);color:#fff"><h3 class="m">Workshops</h3>Hands-on sessions and expert talks open to all students.</div><div class="box" style="background:var(--cy);color:#17171d"><h3 class="m">Outreach</h3>Free workshops for underprivileged and local youth.</div></div>
+<h2 class="m">How to donate</h2><p>Pay via UPI:</p><div class="upi">${esc(DON.upi)}</div>
+<img src="${DON.qr}" alt="UPI QR code" style="max-width:240px;width:100%;border:3px solid var(--dk);border-radius:10px;display:block;margin:10px 0" onerror="this.remove()">
+<p>Companies, institutions or individuals who would like to sponsor an event, or need a receipt, can write to us directly.</p>
+<a class="btn cy" href="mailto:${LINKS.mail}?subject=${encodeURIComponent('Donation / Sponsorship for Yantrika')}">✉️ Email us about donating</a><a class="btn" href="#/join">Chat with us &rarr;</a></div>`
 };
 
 const ix=e=>EV.indexOf(e);
@@ -181,8 +176,7 @@ const poster=e=>`<div class="poster has" style="background:${PC[ix(e)%6]}"><img 
 function evPage(e){
  let b='';
  if(e.s==='done')b=`<h3 class="m">Photos</h3><div class="gal">${Array.from({length:e.n},(_,i)=>`<img src="images/${e.id}-${i+1}.jpg" alt="${esc(e.t)} photo${i+1}" onerror="this.outerHTML='<div class=ph>Image ${i+1} missing</div>'">`).join('')}</div>`;
- else if(e.s==='plan')b=`<h3 class="m">Event Poster</h3>${poster(e)}<p>Already planned and funded, not part of the US$5,500 request.</p>`;
- else{const t=e.b.reduce((a,r)=>a+r[1],0);b=`<h3 class="m">Funding Breakdown</h3><table><tr><th>Item</th><th>Cost</th></tr>${e.b.map(r=>`<tr><td>${esc(r[0])}</td><td>$${r[1]}</td></tr>`).join('')}<tr class="tot"><td style="text-align:right"><b>Total</b></td><td>$${t}</td></tr></table><p><small>Indicative breakdown; final amounts follow vendor quotes.</small></p><h3 class="m" style="margin-top:24px">Poster</h3>${poster(e)}`;}
+ else b=`<h3 class="m">Event Poster</h3>${poster(e)}`;
  const n=EV[ix(e)+1],p=EV[ix(e)-1];
  return `<p><a class="btn" href="#/events">&larr; All events</a></p><div class="card"><span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><h1 class="m">${esc(e.t)}</h1><p><b>${e.d}</b> | Yantrika, RSA, IACS Kolkata</p><p>${esc(e.x)}</p>${b}</div><p>${p?`<a class="btn" href="#/${p.id}">&larr; ${esc(p.t)}</a>`:''}${n?`<a class="btn" href="#/${n.id}">${esc(n.t)} &rarr;</a>`:''}</p>`;
 }
@@ -200,6 +194,17 @@ function promo(){
  new IntersectionObserver(en=>en.forEach(x=>{if(x.isIntersecting){v.play().catch(()=>{})}else{v.pause()}}),{threshold:.25}).observe(v);
 }
 
+/* Typebot standard embed for the Join page */
+function joinBot(){
+ const typebotInitScript = document.createElement("script");
+ typebotInitScript.type = "module";
+ typebotInitScript.innerHTML = `import Typebot from 'https://cdn.jsdelivr.net/npm/@typebot.io/js@0/dist/web.js'
+
+Typebot.initStandard({ typebot: "yantrika" });
+`;
+ document.body.append(typebotInitScript);
+}
+
 function r(){
  const id=location.hash.replace('#/','')||'home';
  const e=EV.find(x=>x.id===id);
@@ -210,7 +215,7 @@ function r(){
  document.getElementById('th').onclick=()=>{const R=document.documentElement;const isDark=getComputedStyle(R).getPropertyValue('--bg').trim()==='#101015';R.setAttribute('data-theme',isDark?'light':'dark');};
  if(p==='home'&&!e)promo();
  if(p==='materials')mats();
- if(p==='join')document.getElementById('fm').onsubmit=ev=>{ev.preventDefault();location.href=`mailto:${LINKS.mail}?subject=${encodeURIComponent('Message from '+document.getElementById('n').value)}&body=${encodeURIComponent(document.getElementById('b').value)}`;};
+ if(p==='join')joinBot();
  scrollTo(0,0);
  document.title=(e&&!V[id]?e.t+' | ':p==='home'?'':PAGES.find(x=>x[0]===p)[1]+' | ')+'YANTRIKA';
 }
