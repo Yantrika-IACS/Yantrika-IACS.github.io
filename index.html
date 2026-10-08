@@ -109,6 +109,47 @@ button.tag:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
 .pp{scroll-margin-top:90px}
 @media(prefers-reduced-motion:reduce){button.tag{transition:none}}
 @media(prefers-reduced-motion:reduce){.pp.open{animation:none}.pil,.slot,.bar i{transition:none}}
+
+/* Prisoner's Dilemma */
+.pdm{border-collapse:collapse;margin:12px 0;text-align:center;max-width:100%}
+.pdm th,.pdm td{border:3px solid var(--dk);padding:8px 12px}
+.pdm td{transition:background .2s}
+.pdm td.hl{background:var(--yel);color:#17171d;font-weight:700;animation:pop .3s ease}
+.pdo{display:block;width:100%;text-align:left;font:inherit;cursor:pointer;background:var(--card);color:var(--ink);border:3px solid var(--dk);border-radius:10px;box-shadow:4px 4px 0 var(--dk);padding:12px;transition:transform .15s ease}
+.pdo:hover{transform:translate(-3px,-3px)}
+.pdo b{font-size:1.1rem}.pdo span{font-size:1.8rem;float:right}
+.pdgo{font-size:1.15rem;padding:14px 20px;flex:1 1 200px;margin:6px 0}
+.pdgo.d{background:var(--red);color:#fff}
+.pdgo:disabled{opacity:.45;cursor:wait;transform:none}
+.pdsc{display:flex;gap:14px;flex-wrap:wrap;margin:10px 0}
+.pdsc>div{flex:1 1 200px}
+.pdsc .bar{max-width:none;margin-top:4px}
+.pdsc .bar i.o{background:var(--or)}
+.hist{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.hr{border:2px solid var(--dk);border-radius:8px;padding:0 8px;background:var(--card);font-size:1.1rem}
+.pdbig{font-size:1.15rem;min-height:3.2em}
+.shake{animation:shk .35s}
+@keyframes shk{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@media(prefers-reduced-motion:reduce){.pdm td.hl,.shake{animation:none}.pdo{transition:none}}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:360px;margin:12px 0}
+.sg button{height:90px;border:3px solid var(--dk);border-radius:12px;box-shadow:4px 4px 0 var(--dk);cursor:pointer;transition:filter .1s,transform .1s}
+.echo{position:relative;height:60px;border:3px solid var(--dk);border-radius:10px;background:var(--soft);overflow:hidden}
+.echo #wl{transition:left .1s}
+.pdo[aria-pressed="true"]{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--dk)}
+.wire{height:320vh;margin:0 0 36px;position:relative}
+.wst{position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px)}
+.wst .card{margin-bottom:0}
+.wt,.ws,.flow{fill:none;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+.wt{stroke:currentColor;opacity:.15}
+.ws{stroke:var(--bl);stroke-dasharray:1 1;stroke-dashoffset:1;opacity:0}
+.wn{fill:var(--card);stroke:var(--bl);stroke-width:4;opacity:0;transition:opacity .2s}.wn.on{opacity:1}
+.led{fill:var(--soft);stroke:currentColor;stroke-width:3;transition:fill .3s,filter .3s,stroke .3s}
+.led.con{stroke:var(--bl)}
+.led.lit{fill:var(--c);filter:drop-shadow(0 0 10px var(--c))}
+.flow{stroke:#fff;stroke-width:4;stroke-dasharray:1 16;opacity:0;transition:opacity .3s;animation:fl 1s linear infinite}
+.flow.on{opacity:1}
+@keyframes fl{to{stroke-dashoffset:-17}}
+@media(prefers-reduced-motion:reduce){.flow{animation:none}}
 </style>
 </head>
 <body>
@@ -154,7 +195,7 @@ const LINKS={web:'https://yantrika-iacs.github.io/',mail:'iacsroboticsclub@gmail
 /* DONATE: put your real UPI ID here (and optionally a QR image at images/donate-qr.png) */
 const DON={upi:'yantrika5100@pnb',qr:'images/donate-qr.png'};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const PAGES=[['home','Home'],['about','About'],['events','Events'],['materials','Materials'],['team','Team'],['join','Join'],['donate','Donate']];
+const PAGES=[['home','Home'],['about','About'],['games','Games'],['events','Events'],['materials','Materials'],['team','Team'],['join','Join'],['donate','Donate']];
 const PC=['#ec3750','#338eda','#ff8c37','#33d6a6','#ff5a5f','#8e44ad'];
 
 /* HERO GALLERY: replace these 16 image URLs (relative paths or full https links) */
@@ -179,10 +220,46 @@ const PIL=[
  {k:'share',t:'Share',c:'var(--cy)',f:'#17171d',d:'Outreach to schools and local youth.'}
 ];
 
+/* ---------- Scroll-built LED circuit (home) ---------- */
+const WD=['M60 100V60H130','M130 60H150l10-14 20 28 20-28 20 28 10-14H270','M270 60H330','M330 60H450','M450 60H570','M570 60H610V200H60V160'];
+const WL=[[330,'#ec3750','LED 1'],[450,'#f1c40f','LED 2'],[570,'#33d6a6','LED 3']];
+const WC=['Scroll down to build the circuit. LEDs only glow when the loop is closed.','Wire 1: from the battery (+) up and toward the resistor.','Wire 2: through the resistor, which limits the current so the LEDs survive.','Wire 3: the wire reaches LED 1, our first node.','Wire 4: LED 1 connects to LED 2. The same current flows through both (a series circuit).','Wire 5: LED 2 connects to LED 3.','Wire 6: the return wire goes back to the battery (−) to close the loop.','✅ Loop closed! Current flows and all three LEDs light up.'];
+const WIRE=()=>`<div class="wire" id="wire"><div class="wst"><div class="card"><h2 class="m">Connect the nodes: build a circuit by scrolling</h2>
+<svg viewBox="0 0 660 230" style="width:100%;max-width:760px;display:block;margin:0 auto;color:var(--ink)" role="img" aria-label="A battery, a resistor and three LEDs connected in a loop as you scroll">
+${WD.map(d=>`<path class="wt" d="${d}"/>`).join('')}${WD.map(d=>`<path class="ws" d="${d}" pathLength="1"/>`).join('')}<path class="flow" d="${WD.join(' ')}"/>
+<circle class="wn" cx="130" cy="60" r="7"/><circle class="wn" cx="270" cy="60" r="7"/>
+${WL.map(l=>`<circle class="led" cx="${l[0]}" cy="60" r="17" style="--c:${l[1]}"/><text x="${l[0]}" y="104" text-anchor="middle" fill="currentColor" font-size="14" font-weight="700">${l[2]}</text>`).join('')}
+<text x="190" y="104" text-anchor="middle" fill="currentColor" font-size="14" font-weight="700">220Ω</text>
+<rect x="38" y="100" width="44" height="60" rx="6" style="fill:var(--card);stroke:currentColor;stroke-width:3"/><text x="60" y="122" text-anchor="middle" fill="currentColor" font-size="18" font-weight="700">+</text><text x="60" y="150" text-anchor="middle" fill="currentColor" font-size="18" font-weight="700">−</text></svg>
+<div class="info" id="wcap" aria-live="polite" style="min-height:3.6em">${WC[0]}</div>
+<div class="bar" style="max-width:none;margin-top:10px"><i id="wbar" style="transition:none"></i></div><p style="margin:6px 0 0"><b id="wcnt">0 of 6 wires connected</b> <small>(keep scrolling ↓)</small></p></div></div></div>`;
+
+let wH=null;
+function wireInit(){
+ if(wH){removeEventListener('scroll',wH);removeEventListener('resize',wH);wH=null;}
+ const box=document.getElementById('wire');if(!box)return;
+ const S=[...box.querySelectorAll('.ws')],N=[...box.querySelectorAll('.wn')],L=[...box.querySelectorAll('.led')],cap=box.querySelector('#wcap'),bar=box.querySelector('#wbar'),cnt=box.querySelector('#wcnt'),fl=box.querySelector('.flow');
+ const T=(p,i)=>Math.min(1,Math.max(0,p*6-i));
+ const set=p=>{
+  let done=0;
+  S.forEach((s,i)=>{const t=T(p,i);s.style.strokeDashoffset=1-t;s.style.opacity=t>0?1:0;if(t>=1)done++;});
+  N.forEach((n,i)=>n.classList.toggle('on',T(p,i)>=1));
+  const full=p>=.999;
+  L.forEach((l,j)=>{l.classList.toggle('con',T(p,j+2)>=1);l.classList.toggle('lit',full);});
+  fl.classList.toggle('on',full);
+  const k=full?7:p<=0?0:Math.min(6,1+Math.floor(p*6));
+  if(cap.dataset.k!=k){cap.dataset.k=k;cap.textContent=WC[k];}
+  bar.style.width=p*100+'%';cnt.textContent=done+' of 6 wires connected';
+ };
+ if(matchMedia('(prefers-reduced-motion:reduce)').matches){box.style.height='auto';set(1);return;}
+ wH=()=>{if(!box.isConnected)return;const h=box.offsetHeight-innerHeight;set(Math.min(1,Math.max(0,-box.getBoundingClientRect().top/h)));};
+ addEventListener('scroll',wH,{passive:true});addEventListener('resize',wH);wH();
+}
+
 const V={
-home:()=>`<div class="hero2"><div class="txt"><h1 class="m ytitle"><img src="images/text.png" alt="YANTRIKA" onerror="this.replaceWith(document.createTextNode('YANTRIKA'))"></h1><h2>Robotics &amp; Coding Club</h2><p><b>RSA, Indian Association for the Cultivation of Science (IACS), Kolkata</b></p>${PIL.map(p=>`<button class="tag" type="button" aria-pressed="false" aria-controls="pp" data-k="${p.k}" style="--pc:${p.c};--pf:${p.f}">${p.t.toUpperCase()}.</button>`).join('')}<small style="display:block"><b>Tap a word to try it</b></small><p style="margin-top:18px"><a class="btn" href="#/join">Join the club</a><a class="btn cy" href="#/events">See events</a></p></div></div>
-<div class="card pp" id="pp" hidden aria-live="polite"></div>
+home:()=>`<div class="hero2"><div class="txt"><h1 class="m ytitle"><img src="images/text.png" alt="YANTRIKA" onerror="this.replaceWith(document.createTextNode('YANTRIKA'))"></h1><h2>Robotics &amp; Coding Club</h2><p><b>RSA, Indian Association for the Cultivation of Science (IACS), Kolkata</b></p>${PIL.map(p=>`<button class="tag" type="button" aria-pressed="false" data-k="${p.k}" style="--pc:${p.c};--pf:${p.f}">${p.t.toUpperCase()}.</button>`).join('')}<small style="display:block"><b>Tap a word to play its game</b></small><p style="margin-top:18px"><a class="btn" href="#/join">Join the club</a><a class="btn cy" href="#/events">See events</a></p></div></div>
 <div class="card"><h2 class="m">Learning through making</h2><p>Yantrika is a student-led club that believes students learn best when they move beyond theory: work with real hardware, experiment, and solve problems together.</p></div>
+${WIRE()}
 <div class="grid" style="margin-bottom:36px"><div class="box stat"><b style="color:var(--red)">40+</b>students per workshop</div><div class="box stat"><b style="color:var(--bl)">14</b>events, done and planned</div><div class="box stat"><b style="color:var(--or)">2+</b>community outreaches planned</div></div>
 <div class="card"><h2 class="m">Where we are now</h2><div class="tl">${EV.filter(e=>e.s!=='prop').map(e=>`<div class="ti"><b>${e.d} | <a class="ev" href="#/${e.id}">${esc(e.t)}</a></b> <span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><br>${esc(e.x)}</div>`).join('')}</div><a class="btn" href="#/events">All events &rarr;</a></div>
 <h2 class="m">Promo Video</h2><div class="vid"><video id="pv" src="images/intro_vid.mp4" autoplay muted loop playsinline preload="metadata">Your browser does not support video.</video><button class="btn" id="pm" type="button" aria-label="Mute or unmute video">&#128263; Unmute</button></div>
@@ -191,7 +268,9 @@ about:()=>`<div class="card"><h1 class="m">About Yantrika</h1><p>Yantrika is the
 <h2 class="m">Tap a pillar to try it</h2>
 <div class="grid" style="margin-bottom:24px">${PIL.map(p=>`<button class="pil" type="button" aria-pressed="false" aria-controls="pp" data-k="${p.k}" style="background:${p.c};color:${p.f}"><h3 class="m" style="margin:0 0 6px">${p.t}</h3>${p.d}<small>Tap to explore &darr;</small></button>`).join('')}</div>
 <div class="card pp" id="pp" hidden aria-live="polite"></div>
+<p><a class="btn cy" href="#/games">Open the full Games Arcade &rarr;</a></p>
 <div class="card"><h2 class="m">What we aim for</h2><ul><li>500-800+ student participations across events.</li><li>100+ active hackers in competitive problem-solving.</li><li>2+ outreaches for underprivileged and local youth.</li><li>Reusable equipment that stays with the club for future batches.</li></ul></div>`,
+games:()=>`<div class="card"><h1 class="m">Games Arcade</h1><p>Every game here connects to a Yantrika event. Pick a pillar, play, then jump to the event it prepares you for.</p><div id="gf"></div></div><div class="grid" id="gg" style="margin-bottom:36px"></div><div class="card pp" id="gp" hidden aria-live="polite"></div>`,
 events:()=>`<div class="card"><h1 class="m">Events</h1><p>From induction to hackathons. Dates for 2027 are planned and may shift.</p></div>${['done','plan','prop'].map(s=>`<h2 class="m">${ST[s][0]}</h2><div class="grid" style="margin-bottom:36px">${EV.filter(e=>e.s===s).map(evCard).join('')}</div>`).join('')}`,
 materials:()=>`<div class="card"><h1 class="m">Club Materials</h1><p>Slides, code, circuit diagrams, datasheets and posters.</p><input id="q" type="search" placeholder="Search materials..." aria-label="Search materials"><div class="grid" id="mg"></div></div>`,
 team:()=>`<div class="card"><h1 class="m">Meet the Team</h1><p>The students and faculty driving Yantrika.</p>
@@ -218,7 +297,7 @@ function evPage(e){
  if(e.s==='done')b=`<h3 class="m">Photos</h3><div class="gal">${Array.from({length:e.n},(_,i)=>`<img src="images/${e.id}-${i+1}.jpg" alt="${esc(e.t)} photo${i+1}" onerror="this.outerHTML='<div class=ph>Image ${i+1} missing</div>'">`).join('')}</div>`;
  else b=`<h3 class="m">Event Poster</h3>${poster(e)}`;
  const n=EV[ix(e)+1],p=EV[ix(e)-1];
- return `<p><a class="btn" href="#/events">&larr; All events</a></p><div class="card"><span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><h1 class="m">${esc(e.t)}</h1><p><b>${e.d}</b> | Yantrika, RSA, IACS Kolkata</p><p>${esc(e.x)}</p>${b}</div><p>${p?`<a class="btn" href="#/${p.id}">&larr; ${esc(p.t)}</a>`:''}${n?`<a class="btn" href="#/${n.id}">${esc(n.t)} &rarr;</a>`:''}</p>`;
+ return `<p><a class="btn" href="#/events">&larr; All events</a></p><div class="card"><span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><h1 class="m">${esc(e.t)}</h1><p><b>${e.d}</b> | Yantrika, RSA, IACS Kolkata</p><p>${esc(e.x)}</p>${b}${GM.filter(g=>g.ev.includes(e.id)).length?`<h3 class="m" style="margin-top:28px">Games that prepare you for this</h3>${GM.filter(g=>g.ev.includes(e.id)).map(g=>`<button class="btn cy" type="button" data-g="${g.id}">${g.i} ${esc(g.t)}</button>`).join('')}`:''}</div><p>${p?`<a class="btn" href="#/${p.id}">&larr; ${esc(p.t)}</a>`:''}${n?`<a class="btn" href="#/${n.id}">${esc(n.t)} &rarr;</a>`:''}</p>`;
 }
 
 function mats(){
@@ -233,6 +312,20 @@ const BP=[['Arduino Nano','The brain. It reads sensors and decides what the moto
 const SH=[['Mentor a newcomer','Walk a first-timer through their first circuit. Everyone you help becomes a builder too.','Join as a mentor','#/join'],['Teach at a school','Help run the free hands-on workshop for school students planned for Dec 2026.','Volunteer with us','#/join'],['Sponsor an event','Companies and individuals can back a workshop or a hackathon.','Support the club','#/donate'],['Spread the word','Follow us and show a friend what you built.','Follow on Instagram',LINKS.ig]];
 let best=Infinity;
 
+/* ---------- Prisoner's Dilemma data ---------- */
+/* Payoffs (you, them): both cooperate 3/3, you defect on a cooperator 5/0, both defect 1/1. T(5)>R(3)>P(1)>S(0) and 2R>T+S, so this is a valid dilemma. */
+const PAY={CC:[3,3],CD:[0,5],DC:[5,0],DD:[1,1]};
+const OPP=[
+ {k:'tft',n:'Mirror Mike',e:'🪞',h:'Plays nice, then copies you.',r:'Tit for Tat: cooperates first, then repeats your last move. Nice, retaliating and forgiving.',f:(h)=>h.length?h[h.length-1]:'C'},
+ {k:'allc',n:'Kind Kim',e:'😇',h:'Always hopeful.',r:'Always Cooperate: never defects, which makes her easy to exploit.',f:()=>'C'},
+ {k:'alld',n:'Sly Sam',e:'😈',h:'Out for himself.',r:'Always Defect: betrays every round, no matter what you do.',f:()=>'D'},
+ {k:'grudge',n:'Grudge Gary',e:'😠',h:'Never forgets.',r:'Grudger: cooperates until you defect once, then defects forever.',f:(h)=>h.includes('D')?'D':'C'},
+ {k:'pav',n:'Pavlov Pat',e:'🔁',h:'Repeats what works.',r:'Win-Stay, Lose-Shift: keeps his move after a good outcome and switches after a bad one.',f:(h,o)=>{if(!h.length)return 'C';return h[h.length-1]===o[o.length-1]?'C':'D';}},
+ {k:'rand',n:'Chaos Chip',e:'🎲',h:'Flips a coin.',r:'Random: cooperates or defects 50/50, ignoring you completely.',f:()=>Math.random()<.5?'C':'D'}
+];
+const pdBest={};
+const pdMx=l=>`<div style="overflow-x:auto"><table class="pdm" aria-label="Payoff matrix: your points, then their points"><tr><th></th><th>They cooperate 🤝</th><th>They defect 🗡️</th></tr><tr><th>You cooperate 🤝</th><td class="${l==='CC'?'hl':''}">${PAY.CC.join(' , ')}</td><td class="${l==='CD'?'hl':''}">${PAY.CD.join(' , ')}</td></tr><tr><th>You defect 🗡️</th><td class="${l==='DC'?'hl':''}">${PAY.DC.join(' , ')}</td><td class="${l==='DD'?'hl':''}">${PAY.DD.join(' , ')}</td></tr></table></div>`;
+
 const PN={
 learn:()=>`<h2 class="m">Learn: flip the switch</h2><p>Every robot starts with a circuit. Close the switch and watch the current light the LED.</p>
 <svg viewBox="0 0 320 120" style="width:100%;max-width:460px;display:block;color:var(--ink)" role="img" aria-label="Circuit with a battery, a switch, a resistor and an LED">
@@ -246,7 +339,9 @@ build:()=>`<h2 class="m">Build: assemble an obstacle-avoiding bot</h2><p>Tap eac
 <div>${BP.map((b,i)=>`<button class="chip" type="button" aria-pressed="false" data-i="${i}">${b[0]}</button>`).join('')}</div>
 <div class="slots" aria-hidden="true">${BP.map(b=>`<div class="slot">${b[2]}</div>`).join('')}</div>
 <div class="bar"><i></i></div><p style="margin:6px 0 0"><b id="bc">0 of 5 parts</b></p>
-<div class="info" id="bi">Start with the brain: tap Arduino Nano.</div>`,
+<div class="info" id="bi">Start with the brain: tap Arduino Nano.</div>
+<hr style="border:0;border-top:4px dashed var(--dk);margin:32px 0 24px">
+<div id="pd"></div>`,
 compete:()=>`<h2 class="m">Compete: reaction duel</h2><p>Hackathons reward quick thinking. Warm up: tap the big button, wait for GO, then tap as fast as you can.</p>
 <button class="btn" id="rx" type="button">Start the duel</button>
 <p id="rs" aria-live="polite" style="margin:6px 0 16px"><b>Your time shows up here.</b></p>
@@ -257,6 +352,67 @@ share:()=>`<h2 class="m">Share: how will you pass it on?</h2><p>What we learn is
 <div class="info" id="si">Choose one above and we will point you to the next step.</div>`
 };
 
+/* ---------- Prisoner's Dilemma game ---------- */
+function pdInit(el){
+ let N=10,S=null,lock=false;
+ const menu=()=>{
+  el.innerHTML=`<h2 class="m">Build trust: the Prisoner's Dilemma</h2>
+  <p>Good robots (and good teams) must decide whether to trust each other. Two suspects are questioned separately. Each can <b>cooperate</b> (stay silent) or <b>defect</b> (betray the other). Defecting always pays more in a single round, yet two defectors do worse than two cooperators. Can you build trust and still win?</p>
+  ${pdMx('')}
+  <p style="margin:0"><small>Each cell shows <b>your points , their points</b>.</small></p>
+  <h3 class="m" style="margin-top:18px">1. Pick the number of rounds</h3>
+  <div>${[5,10,15,20].map(n=>`<button class="chip" type="button" data-n="${n}" aria-pressed="${n===N}">${n} rounds</button>`).join('')}</div>
+  <h3 class="m" style="margin-top:18px">2. Choose your opponent</h3>
+  <div class="grid" style="gap:14px">${OPP.map((o,i)=>`<button class="pdo" type="button" data-o="${i}"><span>${o.e}</span><b>${o.n}</b><br>${o.h}${pdBest[o.k]!=null?`<br><small>Your best: <b>${pdBest[o.k]}</b> pts</small>`:''}</button>`).join('')}<button class="pdo" type="button" data-o="-1"><span>❓</span><b>Mystery Opponent</b><br>A hidden strategy. Work it out!</button></div>`;
+  el.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{N=+b.dataset.n;el.querySelectorAll('[data-n]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));});
+  el.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{const i=+b.dataset.o;start(i<0?Math.floor(Math.random()*OPP.length):i,i<0);});
+ };
+ const start=(i,mys)=>{S={o:OPP[i],i,mys,h:[],p:[],ys:0,os:0,last:'',msg:'Make your move. Will you trust them?'};lock=false;play();};
+ const play=()=>{
+  const r=S.h.length,mx=5*N;
+  el.innerHTML=`<h2 class="m">${S.mys?'❓ Mystery Opponent':S.o.e+' '+S.o.n}</h2>
+  <p style="margin:0"><b>Round ${Math.min(r+1,N)} of ${N}</b></p>
+  <div class="pdsc"><div><b>You: <span id="ys">${S.ys}</span></b><div class="bar"><i id="yb" style="width:${S.ys/mx*100}%"></i></div></div><div><b>${S.mys?'Them':S.o.n}: <span id="os">${S.os}</span></b><div class="bar"><i class="o" id="ob" style="width:${S.os/mx*100}%"></i></div></div></div>
+  ${pdMx(S.last)}
+  <p class="pdbig" id="pm2" aria-live="polite">${S.msg}</p>
+  <div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn cy pdgo" type="button" data-m="C">🤝 Cooperate</button><button class="btn pdgo d" type="button" data-m="D">🗡️ Defect</button></div>
+  <div class="hist" id="hs" aria-label="Round history">${S.h.map((m,k)=>`<span class="hr" title="Round ${k+1}">${m==='C'?'🤝':'🗡️'}${S.p[k]==='C'?'🤝':'🗡️'}</span>`).join('')}</div>
+  <p style="margin:6px 0 0"><small>History shows you, then them. </small><button class="chip" type="button" id="qt">Quit game</button></p>`;
+  el.querySelector('#qt').onclick=menu;
+  el.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>move(b.dataset.m));
+ };
+ const move=m=>{
+  if(lock)return;lock=true;
+  const bs=el.querySelectorAll('[data-m]');bs.forEach(b=>b.disabled=true);
+  const msg=el.querySelector('#pm2');msg.textContent='🤔 '+(S.mys?'They are':S.o.n+' is')+' deciding...';
+  setTimeout(()=>{
+   const t=S.o.f(S.h,S.p),k=m+t,[a,b]=PAY[k];
+   S.h.push(m);S.p.push(t);S.ys+=a;S.os+=b;S.last=k;
+   const who=S.mys?'They':S.o.n;
+   S.msg={CC:`🤝 Both cooperated. +${a} each. Trust pays!`,CD:`😬 You cooperated but ${who} defected. You get ${a}, they get ${b}.`,DC:`😏 You defected on a cooperator. You get ${a}, they get ${b}. They will remember...`,DD:`💥 Both defected. Only +${a} each. Nobody wins.`}[k];
+   if(S.h.length>=N){end();return;}
+   lock=false;play();
+   if(k==='CD'||k==='DD')el.querySelector('#pm2').classList.add('shake');
+  },550);
+ };
+ const end=()=>{
+  const mx=5*N,coop=Math.round(S.h.filter(x=>x==='C').length/N*100),tc=Math.round(S.p.filter(x=>x==='C').length/N*100);
+  const prev=pdBest[S.o.k];if(prev==null||S.ys>prev)pdBest[S.o.k]=S.ys;
+  const win=S.ys>S.os?'🏆 You outscored them!':S.ys<S.os?'They outscored you this time.':'🤝 It is a tie.';
+  const cc=S.h.filter((x,i)=>x==='C'&&S.p[i]==='C').length;
+  const tip=cc===N?'Perfect trust: you both cooperated every round and earned the maximum shared score together.':S.o.k==='alld'?'Against a pure defector, defecting back is the only way to avoid being exploited.':S.o.k==='allc'?'Kind Kim can be exploited, but notice how much you could have earned by simply cooperating with a friendly partner.':S.ys>=3*N?'Excellent! You averaged at least the cooperative score.':'Tip: repeated games reward being nice, retaliating when needed, and forgiving. Try building trust early.';
+  el.innerHTML=`<h2 class="m">Game over!</h2>
+  <div class="info pdbig"><b>${win}</b><br>You: <b>${S.ys}</b> pts &nbsp;|&nbsp; ${S.mys?'Them':S.o.n}: <b>${S.os}</b> pts<br><small>Max possible: ${mx}. Perfect mutual cooperation: ${3*N} each. Your best vs ${S.o.n}: ${pdBest[S.o.k]}.</small></div>
+  <p>You cooperated <b>${coop}%</b> of the time; they cooperated <b>${tc}%</b>.</p>
+  <div class="hist">${S.h.map((m,k)=>`<span class="hr">${m==='C'?'🤝':'🗡️'}${S.p[k]==='C'?'🤝':'🗡️'}</span>`).join('')}</div>
+  <div class="info"><b>${S.o.e} ${S.o.n} revealed:</b> ${S.o.r}<br><br>💡 ${tip}</div>
+  <p style="margin-top:14px"><button class="btn cy" type="button" id="ag">Play again</button><button class="btn" type="button" id="ch">Choose another opponent</button><a class="btn" href="#/game-theory-hackathon">Game Theory Hackathon</a></p>`;
+  el.querySelector('#ag').onclick=()=>start(S.i,S.mys);
+  el.querySelector('#ch').onclick=menu;
+ };
+ menu();
+}
+
 const PI={
 learn:root=>{
  const sw=root.querySelector('#sw'),bl=root.querySelector('#bl'),led=root.querySelector('#led'),li=root.querySelector('#li');
@@ -265,12 +421,13 @@ learn:root=>{
 },
 build:root=>{
  const on=new Set(),sl=root.querySelectorAll('.slot'),bar=root.querySelector('.bar i'),ct=root.querySelector('#bc'),inf=root.querySelector('#bi');
- root.querySelectorAll('[data-i]').forEach(c=>c.onclick=()=>{
+ root.querySelectorAll(':scope > div > [data-i]').forEach(c=>c.onclick=()=>{
   const i=+c.dataset.i,was=on.has(i);was?on.delete(i):on.add(i);
   c.setAttribute('aria-pressed',!was);sl[i].classList.toggle('on',!was);
   bar.style.width=on.size*20+'%';ct.textContent=on.size+' of 5 parts';
   inf.innerHTML=on.size===5?'<b>Your obstacle-avoiding bot is assembled!</b><br>The wiring guide and battery safety sheet are in Materials.<br><a class="btn cy" href="#/materials">Open Materials</a>':(was?'Removed '+BP[i][0]+'.':'<b>'+BP[i][0]+'</b><br>'+BP[i][1]);
  });
+ const pd=root.querySelector('#pd');if(pd)pdInit(pd);
 },
 compete:root=>{
  const rx=root.querySelector('#rx'),out=root.querySelector('#rs');let st=0,t0=0,to=0;
@@ -290,9 +447,120 @@ share:root=>{
 }
 };
 
+/* ---------- Games Arcade: registry (2-3 games per pillar, each tied to events) ---------- */
+const PCOL={learn:'var(--red)',build:'var(--bl)',compete:'var(--or)',share:'var(--cy)'};
+const evL=ids=>ids.map(id=>{const e=EV.find(x=>x.id===id);return `<a class="btn" href="#/${id}">${esc(e.t)} (${e.d})</a>`}).join('');
+let pendG=null;
+
+function bin(el){
+ let b=[0,0,0,0],t=0,sc=0,done=false;
+ const nt=()=>{t=1+Math.floor(Math.random()*15);done=false};nt();
+ const val=()=>b[0]*8+b[1]*4+b[2]*2+b[3];
+ const draw=()=>{const v=val(),ok=v===t;
+  el.innerHTML=`<h2 class="m">Binary LEDs</h2><p>Microcontrollers count in binary. Each LED is a bit worth 8, 4, 2 or 1. Light them to make <b style="font-size:1.6rem">${t}</b>.</p>
+  <div class="slots">${b.map((x,i)=>`<div style="text-align:center"><button class="slot ${x?'on':''}" type="button" data-b="${i}" aria-pressed="${!!x}" aria-label="Bit worth ${8>>i}" style="opacity:1;cursor:pointer;font:inherit;color:inherit;background-color:${x?'var(--yel)':'transparent'}">${x?'💡':'⚫'}</button><br><b>${8>>i}</b></div>`).join('')}</div>
+  <div class="info"><b>Current value: ${v}</b> ${ok?'✅ Match!':''}<br>Solved: <b>${sc}</b></div>${ok?'<button class="btn cy" type="button" id="nx">Next number</button>':''}`;
+  el.querySelectorAll('[data-b]').forEach(c=>c.onclick=()=>{b[+c.dataset.b]^=1;if(val()===t&&!done){done=true;sc++;}draw();});
+  const n=el.querySelector('#nx');if(n)n.onclick=()=>{b=[0,0,0,0];nt();draw();};
+ };
+ draw();
+}
+
+function echo(el){
+ el.innerHTML=`<h2 class="m">Echo Distance Lab</h2><p>An ultrasonic sensor sends a ping and times the echo. Distance = speed of sound × time ÷ 2. Drag the echo time and watch the wall move. Challenge: make the bot stop at about 20 cm.</p>
+ <label for="et"><b>Echo time: <span id="etv"></span> ms</b></label><input id="et" type="range" min="0.5" max="20" step="0.1" value="8" style="width:100%;max-width:460px;display:block;margin:6px 0 14px">
+ <div class="echo" aria-hidden="true"><span style="position:absolute;left:6px;top:8px;font-size:1.6rem">🤖</span><span id="wl" style="position:absolute;top:8px;font-size:1.6rem">🧱</span></div>
+ <div class="info" id="eo"></div>`;
+ const s=el.querySelector('#et'),wl=el.querySelector('#wl'),eo=el.querySelector('#eo'),tv=el.querySelector('#etv');
+ const u=()=>{const t=+s.value,d=t*17.15;tv.textContent=t.toFixed(1);wl.style.left=(10+d/343*82)+'%';
+  eo.innerHTML='<b>Distance: '+d.toFixed(0)+' cm</b><br>'+(d<20?'🛑 Obstacle too close! Turn the motors.':d<=30?'🎯 Nice, just about at the stopping distance.':'✅ Path clear. Keep driving.');};
+ s.oninput=u;u();
+}
+
+function simon(el){
+ const C=['#ec3750','#338eda','#33d6a6','#f1c40f'],N=['Red','Blue','Green','Yellow'];let seq=[],pos=0,lock=true,bl=0,g=0;
+ el.innerHTML=`<h2 class="m">Pattern Memory</h2><p>Watch the sequence, then repeat it. Every level adds one more step, like debugging a longer program.</p><div class="sg">${C.map((c,i)=>`<button type="button" data-s="${i}" aria-label="${N[i]}" style="background:${c}"></button>`).join('')}</div><p class="pdbig" id="ss" aria-live="polite">Press start.</p><button class="btn cy" id="go" type="button">Start</button>`;
+ const bs=el.querySelectorAll('[data-s]'),ss=el.querySelector('#ss');
+ const fl=i=>{bs[i].style.filter='brightness(1.7) saturate(1.4)';bs[i].style.transform='scale(.94)';setTimeout(()=>{bs[i].style.filter='';bs[i].style.transform='';},300);};
+ const show=()=>{const my=++g;lock=true;pos=0;ss.textContent='Watch... level '+seq.length;seq.forEach((s,k)=>setTimeout(()=>{if(my===g)fl(s)},700*k+500));setTimeout(()=>{if(my===g){lock=false;ss.textContent='Your turn!';}},700*seq.length+500);};
+ const nxt=()=>{seq.push(Math.floor(Math.random()*4));show();};
+ el.querySelector('#go').onclick=()=>{seq=[];el.querySelector('#go').textContent='Restart';nxt();};
+ bs.forEach(b=>b.onclick=()=>{if(lock)return;const i=+b.dataset.s;fl(i);
+  if(i!==seq[pos]){lock=true;const l=seq.length-1;bl=Math.max(bl,l);ss.textContent='❌ Wrong! You cleared '+l+' level'+(l===1?'':'s')+'. Best: '+bl+'.';seq=[];return;}
+  pos++;if(pos===seq.length){lock=true;const my=g;ss.textContent='✅ Level '+seq.length+' cleared!';setTimeout(()=>{if(my===g)nxt()},900);}});
+}
+
+function rps(el){
+ const M=['🪨','📄','✂️'],NM=['Rock','Paper','Scissors'];let cnt=[0,0,0],w=0,l=0,d=0,n=0;
+ el.innerHTML=`<h2 class="m">Rock Paper Scissors vs a learning bot</h2><p>This bot watches your habits and tries to counter your favourite move. Game theory says the unbeatable strategy is to be random. Can you stay unpredictable?</p>
+ <div style="display:flex;gap:12px;flex-wrap:wrap">${M.map((m,i)=>`<button class="btn pdgo" type="button" data-r="${i}" aria-label="${NM[i]}">${m} ${NM[i]}</button>`).join('')}</div>
+ <p class="pdbig" id="rr" aria-live="polite">Pick your move.</p><div class="info" id="rt"></div><button class="chip" type="button" id="rz">Reset</button>`;
+ const rr=el.querySelector('#rr'),rt=el.querySelector('#rt'),sc=()=>{rt.innerHTML='Wins: <b>'+w+'</b> | Losses: <b>'+l+'</b> | Ties: <b>'+d+'</b>'+(n>=8?'<br><small>🧠 The bot has learned your favourite move. Try mixing it up randomly!</small>':'');};sc();
+ el.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{
+  const me=+b.dataset.r;let bot=Math.floor(Math.random()*3);
+  if(n>=3&&Math.random()<.7)bot=(cnt.indexOf(Math.max(...cnt))+1)%3;
+  cnt[me]++;n++;const r=(me-bot+3)%3;
+  r===0?d++:r===1?w++:l++;
+  rr.textContent=M[me]+' vs '+M[bot]+' → '+(r===0?'Tie.':r===1?'You win! 🎉':'Bot wins. 🤖');sc();
+ });
+ el.querySelector('#rz').onclick=()=>{cnt=[0,0,0];w=l=d=n=0;rr.textContent='Fresh start. Pick your move.';sc();};
+}
+
+function plan(el){
+ el.innerHTML=`<h2 class="m">Outreach Planner</h2><p>The Schools Outreach workshop hosts about 70 students. Can you plan the kits and mentors so nobody is left watching?</p>
+ <label for="kv"><b>Kits: <span id="kvv"></span></b></label><input id="kv" type="range" min="4" max="20" value="10" style="width:100%;max-width:460px;display:block;margin:6px 0 14px">
+ <label for="vl"><b>Volunteer mentors: <span id="vlv"></span></b></label><input id="vl" type="range" min="2" max="20" value="6" style="width:100%;max-width:460px;display:block;margin:6px 0 14px">
+ <div class="info" id="po"></div>`;
+ const k=el.querySelector('#kv'),v=el.querySelector('#vl'),o=el.querySelector('#po');
+ const u=()=>{const K=+k.value,V=+v.value,pk=Math.ceil(70/K),pm=Math.ceil(70/V),km=Math.ceil(K/V);
+  el.querySelector('#kvv').textContent=K;el.querySelector('#vlv').textContent=V;
+  const c=[[pk<=5,'Students per kit: '+pk+' (aim for 5 or fewer)'],[pm<=8,'Students per mentor: '+pm+' (aim for 8 or fewer)'],[km<=2,'Kits per mentor: '+km+' (aim for 2 or fewer)']];
+  o.innerHTML=c.map(x=>(x[0]?'✅ ':'⚠️ ')+x[1]).join('<br>')+'<br><br><b>'+(c.every(x=>x[0])?'🎉 Ready to run a great workshop!':'Keep adjusting the sliders.')+'</b>';};
+ k.oninput=v.oninput=u;u();
+}
+
+const GM=[
+{id:'circuit',p:'learn',i:'💡',t:'Circuit Switch',d:'Close the switch and light the LED.',ev:['induction','workshop-1','workshop-2'],run:el=>{el.innerHTML=PN.learn();PI.learn(el);}},
+{id:'binary',p:'learn',i:'🔢',t:'Binary LEDs',d:'Light the bits to match the target number.',ev:['workshop-1','ai-robotics-workshop'],run:bin},
+{id:'echo',p:'learn',i:'📡',t:'Echo Distance Lab',d:'Turn echo time into distance and decide when to turn.',ev:['expert-talks','workshop-2'],run:echo},
+{id:'bot',p:'build',i:'🤖',t:'Bot Builder',d:'Assemble an obstacle-avoiding bot part by part.',ev:['workshop-2','prototyping-session','summer-camp'],run:el=>{el.innerHTML=PN.build();el.querySelector('hr').remove();el.querySelector('#pd').remove();PI.build(el);}},
+{id:'pd',p:'build',i:'🤝',t:"Prisoner's Dilemma",d:'Build trust against six strategies.',ev:['game-theory-hackathon','technical-hackathon','team-challenge'],run:el=>{el.innerHTML='<div id="pd"></div>';pdInit(el.firstChild);}},
+{id:'duel',p:'compete',i:'⚡',t:'Reaction Duel',d:'Tap the moment the button turns green.',ev:['robotics-hackathon','team-challenge'],run:el=>{el.innerHTML=PN.compete();PI.compete(el);}},
+{id:'simon',p:'compete',i:'🧠',t:'Pattern Memory',d:'Repeat a growing colour sequence.',ev:['robotics-hackathon','technical-hackathon'],run:simon},
+{id:'rps',p:'compete',i:'✂️',t:'Rock Paper Scissors vs Bot',d:'Outsmart a bot that learns your habits.',ev:['game-theory-hackathon','team-challenge'],run:rps},
+{id:'pick',p:'share',i:'📣',t:'Pass It On',d:'Choose how you will share what you learn.',ev:['schools-outreach','semester-outreach','talks-mentorship'],run:el=>{el.innerHTML=PN.share();PI.share(el);}},
+{id:'plan',p:'share',i:'🏫',t:'Outreach Planner',d:'Balance kits and mentors for 70 students.',ev:['schools-outreach','summer-camp','semester-outreach'],run:plan}
+];
+
+function gamesPage(){
+ const gf=document.getElementById('gf'),gg=document.getElementById('gg'),gp=document.getElementById('gp');
+ let f='all',cur=null;
+ const cards=()=>{
+  gf.innerHTML=[['all','All ('+GM.length+')'],...PIL.map(p=>[p.k,p.t+' ('+GM.filter(g=>g.p===p.k).length+')'])].map(x=>`<button class="chip" type="button" data-f="${x[0]}" aria-pressed="${x[0]===f}">${x[1]}</button>`).join('');
+  gg.innerHTML=GM.filter(g=>f==='all'||g.p===f).map(g=>`<button class="pdo" type="button" data-play="${g.id}" aria-pressed="${g.id===cur}" style="border-top:12px solid ${PCOL[g.p]}"><span>${g.i}</span><span class="badge" style="background:${PCOL[g.p]};color:#fff;float:none;font-size:.8rem;margin-bottom:6px">${g.p.toUpperCase()}</span><br><b>${esc(g.t)}</b><br>${esc(g.d)}<br><small>🔗 ${g.ev.map(id=>esc(EV.find(e=>e.id===id).t)).join(' · ')}</small></button>`).join('');
+  gf.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{f=b.dataset.f;cards();});
+  gg.querySelectorAll('[data-play]').forEach(b=>b.onclick=()=>open(b.dataset.play));
+ };
+ const open=id=>{
+  const g=GM.find(x=>x.id===id);if(!g)return;cur=id;
+  if(f!=='all'&&g.p!==f)f='all';
+  cards();
+  gp.hidden=false;
+  gp.innerHTML=`<span class="badge" style="background:${PCOL[g.p]};color:#fff">${g.p.toUpperCase()}</span><div id="gb" style="margin-top:8px"></div><hr style="border:0;border-top:4px dashed var(--dk);margin:24px 0 16px"><h3 class="m">Events this game prepares you for</h3><p>${evL(g.ev)}</p>`;
+  g.run(gp.querySelector('#gb'));
+  gp.classList.remove('open');void gp.offsetWidth;gp.classList.add('open');
+  gp.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'start'});
+ };
+ cards();
+ if(pendG){const id=pendG;pendG=null;setTimeout(()=>open(id),60);}
+}
+
+/* Home buttons jump to the About page and open the matching game */
+let pend=null;
 function pillars(){
- const pp=document.getElementById('pp');if(!pp)return;
+ const pp=document.getElementById('pp');
  const bs=[...document.querySelectorAll('[data-k]')];
+ if(!pp){bs.forEach(b=>b.onclick=()=>{pend=b.dataset.k;location.hash='#/about';});return;}
  bs.forEach(b=>b.onclick=()=>{
   const k=b.dataset.k,same=b.getAttribute('aria-pressed')==='true';
   bs.forEach(x=>x.setAttribute('aria-pressed',String(!same&&x===b)));
@@ -301,6 +569,7 @@ function pillars(){
   PI[k](pp);
   pp.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'start'});
  });
+ if(pend){const t=bs.find(x=>x.dataset.k===pend);pend=null;if(t)setTimeout(()=>t.click(),60);}
 }
 
 /* Donorbox widget: load the script once; the dbox-widget element upgrades when it appears */
@@ -337,7 +606,9 @@ function r(){
  document.getElementById('app').innerHTML=(e&&!V[id])?evPage(e):V[p]();
  document.getElementById('bgal').innerHTML=(p==='home'&&!e)?gal():'';
  document.getElementById('th').onclick=()=>{const R=document.documentElement;const isDark=getComputedStyle(R).getPropertyValue('--bg').trim()==='#101015';R.setAttribute('data-theme',isDark?'light':'dark');};
- if(p==='home'&&!e)promo();
+ document.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{pendG=b.dataset.g;location.hash='#/games';});
+ if(p==='games')gamesPage();
+ if(p==='home'&&!e){promo();wireInit();}
  if(p==='about'||(p==='home'&&!e))pillars();
  if(p==='donate')donorbox();
  if(p==='materials')mats();
