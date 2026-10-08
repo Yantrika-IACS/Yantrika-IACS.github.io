@@ -137,8 +137,19 @@ button.tag:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
 .echo{position:relative;height:60px;border:3px solid var(--dk);border-radius:10px;background:var(--soft);overflow:hidden}
 .echo #wl{transition:left .1s}
 .pdo[aria-pressed="true"]{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--dk)}
+
+/* fullscreen game screen */
+#gov{position:fixed;inset:0;z-index:50;background:var(--bg);background-image:radial-gradient(rgba(128,128,128,.45) 1px,transparent 1px);background-size:24px 24px;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);animation:pop .25s ease}
+.gbar{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--yel);color:#17171d;border-bottom:4px solid var(--dk);padding:10px 20px;margin-bottom:24px}
+.gbar .btn{margin:0}
+/* score popup */
+.smod{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:20px}
+.smod .card{max-width:420px;width:100%;margin:0}
+#un{width:100%;box-sizing:border-box;border:3px solid var(--dk);border-radius:8px;padding:9px 14px;font-weight:700;background:var(--card);color:var(--ink);margin:6px 0 10px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;width:calc(100% - 32px);max-width:420px;box-sizing:border-box;background:var(--card);color:var(--ink);border:4px solid var(--dk);border-radius:12px;box-shadow:6px 6px 0 var(--dk);padding:12px 16px}
+.toast .chip{margin:6px 0 0}
+@media(prefers-reduced-motion:reduce){#gov{animation:none}}
 </style>
-<link rel="stylesheet" href="animations.css">
 <link rel="stylesheet" href="animations.css">
 <link rel="stylesheet" href="bg-slider.css">
 </head>
@@ -185,7 +196,7 @@ const LINKS={web:'https://yantrika-iacs.github.io/',mail:'iacsroboticsclub@gmail
 /* DONATE: put your real UPI ID here (and optionally a QR image at images/donate-qr.png) */
 const DON={upi:'yantrika5100@pnb',qr:'images/donate-qr.png'};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const PAGES=[['home','Home'],['about','About'],['games','Games'],['events','Events'],['materials','Materials'],['team','Team'],['join','Join'],['donate','Donate']];
+const PAGES=[['home','Home'],['about','About'],['games','Games'],['leaderboard','Leaderboard'],['events','Events'],['materials','Materials'],['team','Team'],['join','Join'],['donate','Donate']];
 const PC=['#ec3750','#338eda','#ff8c37','#33d6a6','#ff5a5f','#8e44ad'];
 
 /* HERO GALLERY: replace these 16 image URLs (relative paths or full https links) */
@@ -222,7 +233,8 @@ about:()=>`<div class="card"><h1 class="m">About Yantrika</h1><p>Yantrika is the
 <div class="grid" style="margin-bottom:24px">${PIL.map(p=>`<button class="pil" type="button" aria-pressed="false" data-k="${p.k}" style="background:${p.c};color:${p.f}"><h3 class="m" style="margin:0 0 6px">${p.t}</h3>${p.d}<small>See games &rarr;</small></button>`).join('')}</div>
 <p><a class="btn cy" href="#/games">Open the full Games Arcade &rarr;</a></p>
 <div class="card"><h2 class="m">What we aim for</h2><ul><li>500-800+ student participations across events.</li><li>100+ active hackers in competitive problem-solving.</li><li>2+ outreaches for underprivileged and local youth.</li><li>Reusable equipment that stays with the club for future batches.</li></ul></div>`,
-games:()=>`<div class="card"><h1 class="m">Games Arcade</h1><p>Every game here connects to a Yantrika event. Pick a pillar, play, then jump to the event it prepares you for.</p><div id="gf"></div></div><div class="grid" id="gg" style="margin-bottom:36px"></div><div class="card pp" id="gp" hidden aria-live="polite"></div>`,
+games:()=>`<div class="card"><h1 class="m">Games Arcade</h1><p>Every game here connects to a Yantrika event. Pick a pillar, play, then jump to the event it prepares you for. Each game opens on its own full screen, and you can save your score with a nickname when you finish.</p><div id="gf"></div></div><div class="grid" id="gg" style="margin-bottom:36px"></div>`,
+leaderboard:()=>`<div class="card"><h1 class="m">Leaderboard</h1><p>The top 3 players in each game. Play a game and save your score to join the board.</p><div id="lbx">Loading...</div></div>`,
 events:()=>`<div class="card"><h1 class="m">Events</h1><p>From induction to hackathons. Dates for 2027 are planned and may shift.</p></div>${['done','plan','prop'].map(s=>`<h2 class="m">${ST[s][0]}</h2><div class="grid" style="margin-bottom:36px">${EV.filter(e=>e.s===s).map(evCard).join('')}</div>`).join('')}`,
 materials:()=>`<div class="card"><h1 class="m">Club Materials</h1><p>Slides, code, circuit diagrams, datasheets and posters.</p><input id="q" type="search" placeholder="Search materials..." aria-label="Search materials"><div class="grid" id="mg"></div></div>`,
 team:()=>`<div class="card"><h1 class="m">Meet the Team</h1><p>The students and faculty driving Yantrika.</p>
@@ -263,6 +275,47 @@ const LT={Arduino:'The tiny brain of most of our bots. Start with the UNO and Na
 const BP=[['Arduino Nano','The brain. It reads sensors and decides what the motors do.','🧠'],['Ultrasonic sensor','Sends out a sound pulse and times the echo to measure distance.','📡'],['Motor driver','Lets the small Arduino pins control power-hungry motors.','⚙️'],['DC motors','Turn the wheels. Speed is set with PWM signals.','🛞'],['LiPo battery','Powers everything. Read the safety sheet before charging.','🔋']];
 const SH=[['Mentor a newcomer','Walk a first-timer through their first circuit. Everyone you help becomes a builder too.','Join as a mentor','#/join'],['Teach at a school','Help run the free hands-on workshop for school students planned for Dec 2026.','Volunteer with us','#/join'],['Sponsor an event','Companies and individuals can back a workshop or a hackathon.','Support the club','#/donate'],['Spread the word','Follow us and show a friend what you built.','Follow on Instagram',LINKS.ig]];
 let best=Infinity;
+
+/* ---------- Scores ---------- */
+const LB={url:'',key:''}; // e.g. url:'https://xxxx.supabase.co', key:'<anon key>'
+function closeG(){document.getElementById('gov')?.remove();document.getElementById('sm')?.remove();document.body.style.overflow='';}
+function saveScore(r){
+ try{const a=JSON.parse(localStorage.getItem('yk_scores')||'[]');a.push(r);localStorage.setItem('yk_scores',JSON.stringify(a.slice(-200)));}catch(e){}
+ if(!LB.url)return Promise.resolve(false);
+ return fetch(LB.url+'/rest/v1/scores',{method:'POST',headers:{apikey:LB.key,Authorization:'Bearer '+LB.key,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(r)}).then(x=>x.ok).catch(()=>false);
+}
+function scorePrompt(o){ // {game,title,text,score}
+ document.getElementById('sm')?.remove();
+ let u='';try{u=localStorage.getItem('yk_user')||''}catch(e){}
+ /* name already saved on this device: save silently, never ask again */
+ if(/^[\w .-]{2,20}$/.test(u)){
+  document.getElementById('st')?.remove();
+  const t=document.createElement('div');t.id='st';t.className='toast';t.setAttribute('role','status');
+  t.innerHTML=`<b>${esc(o.text)}</b><br><span id="stm">Saving as ${esc(u)}...</span><br><button class="chip" type="button" id="stc">Not ${esc(u)}? Change name</button>`;
+  document.body.append(t);
+  const tm=setTimeout(()=>t.remove(),6000);
+  t.querySelector('#stc').onclick=()=>{try{localStorage.removeItem('yk_user')}catch(e){}clearTimeout(tm);t.querySelector('#stm').textContent='Done. You will be asked for a new name after your next game.';t.querySelector('#stc').remove();setTimeout(()=>t.remove(),3500);};
+  saveScore({game:o.game,username:u,score:o.score}).then(ok=>{const m=t.querySelector('#stm');if(m)m.textContent=ok?'✅ Saved to the leaderboard as '+u:(LB.url?'Saved on this device as '+u+'. Could not reach the leaderboard.':'✅ Saved on this device as '+u);});
+  return;
+ }
+ const m=document.createElement('div');m.id='sm';m.className='smod';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');m.setAttribute('aria-label','Save your score');
+ m.innerHTML=`<div class="card"><h2 class="m">${esc(o.title)}</h2><p><b>${esc(o.text)}</b></p><label for="un"><b>Pick a username (not your real name)</b></label><input id="un" maxlength="20" value="${esc(u)}" placeholder="e.g. robo_fan" autocomplete="nickname"><p id="sms" aria-live="polite" style="margin:0 0 10px"></p><button class="btn cy" type="button" id="ssv">Save score</button><button class="btn" type="button" id="ssk">Skip</button></div>`;
+ document.body.append(m);
+ const inp=m.querySelector('#un'),st=m.querySelector('#sms'),sv=m.querySelector('#ssv');
+ inp.focus();
+ const shut=()=>m.remove();
+ const go=async()=>{
+  const name=inp.value.trim();
+  if(!/^[\w .-]{2,20}$/.test(name)){st.textContent='Use 2–20 letters, numbers, spaces, . _ -';return;}
+  try{localStorage.setItem('yk_user',name)}catch(e){}
+  sv.disabled=true;st.textContent='Saving...';
+  const ok=await saveScore({game:o.game,username:name,score:o.score});
+  st.textContent=ok?'✅ Saved to the leaderboard!':(LB.url?'Saved on this device. Could not reach the leaderboard.':'✅ Saved on this device.');
+  setTimeout(shut,1100);
+ };
+ sv.onclick=go;m.querySelector('#ssk').onclick=shut;
+ inp.onkeydown=e=>{if(e.key==='Enter')go();else if(e.key==='Escape')shut();};
+}
 
 /* ---------- Prisoner's Dilemma data ---------- */
 /* Payoffs (you, them): both cooperate 3/3, you defect on a cooperator 5/0, both defect 1/1. T(5)>R(3)>P(1)>S(0) and 2R>T+S, so this is a valid dilemma. */
@@ -361,6 +414,7 @@ function pdInit(el){
   <p style="margin-top:14px"><button class="btn cy" type="button" id="ag">Play again</button><button class="btn" type="button" id="ch">Choose another opponent</button><a class="btn" href="#/game-theory-hackathon">Game Theory Hackathon</a></p>`;
   el.querySelector('#ag').onclick=()=>start(S.i,S.mys);
   el.querySelector('#ch').onclick=menu;
+  setTimeout(()=>scorePrompt({game:`pd-${S.o.k}-${N}`,title:'Game over!',text:`You scored ${S.ys} points vs ${S.o.n}`,score:S.ys}),500);
  };
  menu();
 }
@@ -386,7 +440,8 @@ compete:root=>{
  rx.onclick=()=>{
   if(st===0){st=1;rx.textContent='Wait for green...';rx.style.background='var(--or)';out.innerHTML='<b>Get ready...</b>';to=setTimeout(()=>{st=2;t0=performance.now();rx.textContent='GO! Tap now';rx.style.background='var(--cy)';},1200+Math.random()*2000);}
   else if(st===1){clearTimeout(to);st=0;rx.textContent='Too early! Try again';rx.style.background='var(--pk)';out.innerHTML='<b>Wait for the green GO.</b>';}
-  else{const ms=Math.round(performance.now()-t0);st=0;best=Math.min(best,ms);rx.textContent='Go again';rx.style.background='var(--yel)';out.innerHTML='<b>'+ms+' ms.</b> Best this visit: '+best+' ms. '+(ms<250?'Hackathon ready!':ms<400?'Solid reflexes.':'Warm up and go again.');}
+  else{const ms=Math.round(performance.now()-t0);st=0;best=Math.min(best,ms);rx.textContent='Go again';rx.style.background='var(--yel)';out.innerHTML='<b>'+ms+' ms.</b> Best this visit: '+best+' ms. '+(ms<250?'Hackathon ready!':ms<400?'Solid reflexes.':'Warm up and go again.');
+   scorePrompt({game:'duel',title:'Nice reflexes!',text:ms+' ms',score:ms});}
  };
 },
 share:root=>{
@@ -438,7 +493,8 @@ function simon(el){
  const nxt=()=>{seq.push(Math.floor(Math.random()*4));show();};
  el.querySelector('#go').onclick=()=>{seq=[];el.querySelector('#go').textContent='Restart';nxt();};
  bs.forEach(b=>b.onclick=()=>{if(lock)return;const i=+b.dataset.s;fl(i);
-  if(i!==seq[pos]){lock=true;const l=seq.length-1;bl=Math.max(bl,l);ss.textContent='❌ Wrong! You cleared '+l+' level'+(l===1?'':'s')+'. Best: '+bl+'.';seq=[];return;}
+  if(i!==seq[pos]){lock=true;const l=seq.length-1;bl=Math.max(bl,l);ss.textContent='❌ Wrong! You cleared '+l+' level'+(l===1?'':'s')+'. Best: '+bl+'.';seq=[];
+   if(l>0)scorePrompt({game:'simon',title:'Game over',text:'You cleared '+l+' level'+(l===1?'':'s'),score:l});return;}
   pos++;if(pos===seq.length){lock=true;const my=g;ss.textContent='✅ Level '+seq.length+' cleared!';setTimeout(()=>{if(my===g)nxt()},900);}});
 }
 
@@ -513,12 +569,14 @@ function maze(el){
   if(won||walls[p][d])return;
   if(!t0)t0=performance.now();
   p=((p/n|0)+DY[d])*n+p%n+DX[d];moves++;hint=null;
-  if(p===goal){won=true;const sec=Math.round((performance.now()-t0)/1000);if(best[lv]==null||moves<best[lv])best[lv]=moves;info('🎉 Escaped in '+moves+' moves and '+sec+' s!');}
+  if(p===goal){won=true;const sec=Math.round((performance.now()-t0)/1000);if(best[lv]==null||moves<best[lv])best[lv]=moves;info('🎉 Escaped in '+moves+' moves and '+sec+' s!');
+   scorePrompt({game:'maze-'+LV[lv][0].toLowerCase(),title:'Escaped!',text:moves+' moves in '+sec+' s',score:moves});}
   else info('Keep going!');
   draw();
  };
  const key=e=>{
   if(!el.isConnected){removeEventListener('keydown',key);return;}
+  if(/^(INPUT|TEXTAREA)$/.test((e.target.tagName||'')))return; /* let people type their username */
   const d={ArrowUp:0,w:0,W:0,ArrowRight:1,d:1,D:1,ArrowDown:2,s:2,S:2,ArrowLeft:3,a:3,A:3}[e.key];
   if(d===undefined)return;e.preventDefault();go(d);
  };
@@ -657,8 +715,17 @@ function pillars(){
  });
 }
 
+const LBG=[['duel','⚡ Reaction Duel','ms','Lower is better'],['simon','🧠 Pattern Memory','levels','Higher is better'],['maze-easy','🧭 Maze Finder: Easy','moves','Fewer moves win'],['maze-medium','🧭 Maze Finder: Medium','moves','Fewer moves win'],['maze-hard','🧭 Maze Finder: Hard','moves','Fewer moves win']];
+function lbPage(){
+ const box=document.getElementById('lbx'),med=['🥇','🥈','🥉'];
+ fetch('leaderboard.json?'+Date.now()).then(x=>{if(!x.ok)throw 0;return x.json()}).then(d=>{
+  box.innerHTML='<div class="grid">'+LBG.map(g=>{const rows=(d.games||{})[g[0]]||[];
+   return `<div class="box"><h3 class="m" style="margin:0 0 2px">${g[1]}</h3><small>${g[3]}</small>${rows.length?`<ol style="list-style:none;padding:0;margin:10px 0 0">${rows.map((r,i)=>`<li style="display:flex;justify-content:space-between;gap:10px;padding:4px 0"><span>${med[i]||''} ${esc(r.username)}</span><b>${esc(r.score)} ${g[2]}</b></li>`).join('')}</ol>`:'<p style="margin:10px 0 0">No scores yet. Be the first!</p>'}</div>`;}).join('')+'</div>'+(d.updated?'<p><small>Updated '+esc(new Date(d.updated).toLocaleString())+'</small></p>':'');
+ }).catch(()=>{box.innerHTML='<b>The leaderboard is not available yet.</b>';});
+}
+
 function gamesPage(){
- const gf=document.getElementById('gf'),gg=document.getElementById('gg'),gp=document.getElementById('gp');
+ const gf=document.getElementById('gf'),gg=document.getElementById('gg');
  let f=pendF||'all',cur=null;pendF=null;
  const cards=()=>{
   gf.innerHTML=[['all','All ('+GM.length+')'],...PIL.map(p=>[p.k,p.t+' ('+GM.filter(g=>g.p===p.k).length+')'])].map(x=>`<button class="chip" type="button" data-f="${x[0]}" aria-pressed="${x[0]===f}">${x[1]}</button>`).join('');
@@ -666,15 +733,21 @@ function gamesPage(){
   gf.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{f=b.dataset.f;cards();});
   gg.querySelectorAll('[data-play]').forEach(b=>b.onclick=()=>open(b.dataset.play));
  };
+ /* each game opens on its own full screen */
  const open=id=>{
-  const g=GM.find(x=>x.id===id);if(!g)return;cur=id;
+  const g=GM.find(x=>x.id===id);if(!g)return;
+  closeG();cur=id;
   if(f!=='all'&&g.p!==f)f='all';
   cards();
-  gp.hidden=false;
-  gp.innerHTML=`<span class="badge" style="background:${PCOL[g.p]};color:#fff">${g.p.toUpperCase()}</span><div id="gb" style="margin-top:8px"></div><hr style="border:0;border-top:4px dashed var(--dk);margin:24px 0 16px"><h3 class="m">Events this game prepares you for</h3><p>${evL(g.ev)}</p>`;
-  g.run(gp.querySelector('#gb'));
-  gp.classList.remove('open');void gp.offsetWidth;gp.classList.add('open');
-  gp.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'start'});
+  const ov=document.createElement('div');ov.id='gov';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label',g.t);
+  ov.innerHTML=`<div class="gbar"><b class="m" style="font-size:1.3rem">${g.i} ${esc(g.t)}</b><button class="btn" type="button" id="gx">✕ Close</button></div><div class="c"><div class="card"><span class="badge" style="background:${PCOL[g.p]};color:#fff">${g.p.toUpperCase()}</span><div id="gb" style="margin-top:8px"></div><hr style="border:0;border-top:4px dashed var(--dk);margin:24px 0 16px"><h3 class="m">Events this game prepares you for</h3><p>${evL(g.ev)}</p></div></div>`;
+  document.body.append(ov);document.body.style.overflow='hidden';
+  const shut=()=>{closeG();cur=null;cards();};
+  ov.querySelector('#gx').onclick=shut;
+  const esk=e=>{if(!ov.isConnected){removeEventListener('keydown',esk);return;}if(e.key==='Escape'&&!document.getElementById('sm'))shut();};
+  addEventListener('keydown',esk);
+  g.run(ov.querySelector('#gb'));
+  ov.scrollTop=0;
  };
  cards();
  if(pendG){const id=pendG;pendG=null;setTimeout(()=>open(id),60);}
@@ -707,6 +780,7 @@ Typebot.initStandard({ typebot: "yantrika" });
 }
 
 function r(){
+ closeG();
  const id=location.hash.replace('#/','')||'home';
  const e=EV.find(x=>x.id===id);
  const p=V[id]?id:(e?'events':'home');
@@ -716,6 +790,7 @@ function r(){
  document.getElementById('th').onclick=()=>{const R=document.documentElement;const isDark=getComputedStyle(R).getPropertyValue('--bg').trim()==='#101015';R.setAttribute('data-theme',isDark?'light':'dark');};
  document.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{pendG=b.dataset.g;location.hash='#/games';});
  if(p==='games')gamesPage();
+ if(p==='leaderboard')lbPage();
  if(p==='home'&&!e){promo();}
  if(p==='about'||(p==='home'&&!e))pillars();
  if(p==='donate')donorbox();
