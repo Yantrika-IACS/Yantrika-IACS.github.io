@@ -1,0 +1,141 @@
+/* ==========================================================
+   YANTRIKA: mobile layer
+   Link LAST in <head>, after animations.css and bg-slider.css:
+   <link rel="stylesheet" href="mobile.css">
+   ========================================================== */
+
+/* ---------- all screens: safe-by-default fixes ---------- */
+html{-webkit-text-size-adjust:100%}
+body{overflow-wrap:anywhere}
+button,.btn,.chip,.tag,.pdo,.pil,nav a,.slot,.sg button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+img,video,canvas,svg{max-width:100%}
+
+/* grids never force a column wider than the screen (fixes overflow on 320-360px phones) */
+.grid,.gal{grid-template-columns:repeat(auto-fill,minmax(min(250px,100%),1fr))}
+
+/* ---------- touch devices: no sticky hover states ---------- */
+@media (hover:none){
+  .box:hover,.btn:hover,.pil:hover,.pdo:hover,.pdm td:hover,button.tag:hover{transform:none}
+  .btn:hover{box-shadow:4px 4px 0 var(--dk)}
+  .pil:hover{box-shadow:5px 5px 0 var(--dk)}
+  .ti:hover{background:transparent;color:inherit}
+  .btn:active,.chip:active,.pdo:active,.pil:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--dk)}
+}
+
+/* ---------- phones and small tablets ---------- */
+@media (max-width:700px){
+  body{background-size:20px 20px}
+  .c{padding-left:14px;padding-right:14px;padding-bottom:28px}
+
+  /* NAV: one scrollable row instead of 3 wrapped rows */
+  nav{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;gap:6px;padding:8px 14px;margin:0 -14px 24px;
+      -webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-snap-type:x proximity}
+  nav::-webkit-scrollbar{display:none}
+  nav .logo{flex:0 0 auto;width:auto;margin-right:6px;font-size:1.3rem}
+  nav a.l{flex:0 0 auto;white-space:nowrap;padding:8px 12px;min-height:40px;box-sizing:border-box;display:inline-flex;align-items:center;scroll-snap-align:center}
+  nav .btn{flex:0 0 auto;min-width:44px;min-height:40px;padding:4px 10px}
+
+  /* cards and boxes: lighter shadows so they don't poke past the edge */
+  .card{padding:18px;box-shadow:5px 5px 0 var(--dk);border-width:3px;margin-bottom:26px}
+  .box{padding:14px;box-shadow:4px 4px 0 var(--dk)}
+  .grid{gap:14px}
+  h1{font-size:1.8rem;line-height:1.15}
+  h2{font-size:1.4rem;line-height:1.2}
+
+  /* HERO */
+  .hero2{min-height:0;padding:70px 0 40px;margin-bottom:30px}
+  .hero2 .txt{padding:24px 8px;width:100%;box-sizing:border-box}
+  .hero2 h2{font-size:1.35rem}
+  .bgal{height:520px;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(5,1fr);gap:6px;padding:6px}
+  .bgal .gt:nth-child(n+16){display:none}
+  .hero2 .tag,button.tag{padding:10px 16px;min-height:44px;margin:4px;box-sizing:border-box}
+
+  /* buttons: comfortable tap size */
+  .btn{padding:10px 16px;min-height:44px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;margin:4px 6px 4px 0}
+  .chip{padding:10px 14px;min-height:44px;box-sizing:border-box;margin:4px 6px 4px 0}
+  .pill{padding:8px 14px}
+
+  /* stats row: stack nicely */
+  .stat b{font-size:2rem}
+
+  /* promo video + CTA slider */
+  .vid{border-width:3px;border-radius:14px;box-shadow:5px 5px 0 var(--dk);margin-bottom:28px}
+  .vid .btn{right:8px;bottom:8px;min-height:36px;padding:6px 10px;font-size:.85rem}
+  .cta{min-height:240px}
+  .cta .ov h2{font-size:clamp(1.6rem,8vw,2.4rem)}
+  .slider{margin-left:-18px;margin-right:-18px}
+
+  /* timeline */
+  .tl{margin-left:12px;padding-left:16px;border-left-width:5px}
+  .ti{padding:8px 6px}
+  .ti::before{left:-30px;width:16px;height:16px}
+
+  /* forms: 16px stops iOS zooming the page on focus */
+  input,textarea,select,#q{font-size:16px}
+  #q{max-width:100%;box-sizing:border-box}
+
+  /* join page chat frame fits the visible screen */
+  typebot-standard{height:70vh;height:70dvh;min-height:420px}
+  .tbwrap{margin-left:-6px;margin-right:-6px}
+
+  /* donate */
+  .upi{font-size:1.05rem}
+
+  /* event poster + gallery */
+  .poster{max-width:100%;padding:16px}
+  .poster h2{font-size:1.5rem}
+  .gal{gap:10px}
+
+  /* ---------- games ---------- */
+  .gbar{padding:8px 14px;margin-bottom:16px}
+  .gbar b{font-size:1.05rem!important;min-width:0}
+  #gov .c{padding-left:12px;padding-right:12px}
+  #gov .card{padding:16px}
+
+  .pdo{padding:12px;min-height:48px}
+  .pdgo{font-size:1.05rem;padding:14px 12px;flex:1 1 140px}
+  .pdsc{gap:10px}
+  .pdsc>div{flex:1 1 140px}
+  .pdm th,.pdm td{padding:6px 6px;font-size:.82rem}
+  .hr{font-size:.95rem;padding:0 5px}
+
+  .slots{gap:8px}
+  .slot{width:56px;height:56px;font-size:1.5rem}
+  #rx{padding:44px 12px;font-size:1.2rem}
+  .sg{max-width:100%}
+  .sg button{height:80px}
+
+  /* maze: board full width, d-pad centred below */
+  #gov canvas#mz{flex:1 1 100%!important;max-width:100%!important}
+  #gov [data-d]{padding:18px 0!important;min-height:56px}
+  #gov div:has(> [data-d]){margin:0 auto!important;grid-template-columns:repeat(3,72px)!important}
+
+  /* breadboard: fill the width, keep pointer dragging working */
+  #bbs{max-width:100%!important;width:100%;border-width:2px!important;margin:8px 0!important}
+
+  input[type=range]{height:36px}
+}
+
+/* ---------- very small phones ---------- */
+@media (max-width:380px){
+  .c{padding-left:10px;padding-right:10px}
+  nav{margin-left:-10px;margin-right:-10px;padding-left:10px;padding-right:10px}
+  .card{padding:14px}
+  .ytitle{font-size:3rem}
+  .hero2 .tag,button.tag{padding:8px 12px;font-size:.9rem}
+  .bgal{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(6,1fr)}
+  .pdm th,.pdm td{font-size:.74rem;padding:4px}
+  .slot{width:50px;height:50px}
+}
+
+/* ---------- landscape phones: keep the fixed bars from eating the screen ---------- */
+@media (max-height:480px) and (orientation:landscape){
+  nav{padding-top:4px;padding-bottom:4px;margin-bottom:16px}
+  .hero2{padding:30px 0 20px}
+  .gbar{padding-top:4px;padding-bottom:4px;margin-bottom:12px}
+}
+
+/* ---------- tidy motion on phones ---------- */
+@media (max-width:700px) and (prefers-reduced-motion:no-preference){
+  .track{animation-duration:35s}
+}
