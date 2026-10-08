@@ -277,7 +277,7 @@ const SH=[['Mentor a newcomer','Walk a first-timer through their first circuit. 
 let best=Infinity;
 
 /* ---------- Scores ---------- */
-const LB={url:'',key:''}; // e.g. url:'https://xxxx.supabase.co', key:'<anon key>'
+const LB={url:'https://nhrrttuyddalwhfmpfgd.supabase.co/rest/v1/',key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ocnJ0dHV5ZGRhbHdoZm1wZmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0NDUyOTAsImV4cCI6MjEwNzAyMTI5MH0.9P7xvTUHQsI2uJjEZLwo1-2I6bA1RBiCOZ1CmBDHd94'}; // e.g. url:'https://xxxx.supabase.co', key:'<anon key>'
 function closeG(){document.getElementById('gov')?.remove();document.getElementById('sm')?.remove();document.body.style.overflow='';}
 function saveScore(r){
  try{const a=JSON.parse(localStorage.getItem('yk_scores')||'[]');a.push(r);localStorage.setItem('yk_scores',JSON.stringify(a.slice(-200)));}catch(e){}
