@@ -137,6 +137,25 @@ button.tag:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
 .echo{position:relative;height:60px;border:3px solid var(--dk);border-radius:10px;background:var(--soft);overflow:hidden}
 .echo #wl{transition:left .1s}
 .pdo[aria-pressed="true"]{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--dk)}
+
+/* Home: games slider */
+.gs{overflow:hidden;margin:12px 0 36px;padding:6px 0 12px;-webkit-mask-image:linear-gradient(to right,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(to right,transparent,#000 5%,#000 95%,transparent)}
+.gst{display:flex;width:max-content;animation:slide 60s linear infinite}
+.gs:hover .gst{animation-play-state:paused}
+.gsc{position:relative;flex:0 0 auto;width:260px;aspect-ratio:4/3;margin-right:14px;padding:0;border:3px solid var(--dk);border-radius:12px;overflow:hidden;box-shadow:5px 5px 0 var(--dk);cursor:pointer;font:inherit;text-align:left;background:var(--c,#338eda);color:#fff}
+.gsc:hover{transform:translate(-3px,-3px)}
+.gsc img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.gsc .lb{position:absolute;left:0;right:0;bottom:0;padding:30px 12px 10px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent)}
+.gsc .lb b{display:block;font-family:'Permanent Marker',cursive;font-weight:400;font-size:1.25rem;line-height:1.2}
+.gsc .lb em{display:inline-block;font-style:normal;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:2px solid var(--dk);border-radius:20px;padding:0 10px;margin-bottom:4px}
+/* Games page: long panels */
+.gl{display:flex;flex-direction:column;gap:16px;margin-bottom:36px}
+.gpn{display:flex;align-items:stretch;padding:0;overflow:hidden}
+.gpn .gim{flex:0 0 240px;position:relative;min-height:150px}
+.gpn .gim img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.gpn .gtx{flex:1;padding:14px 16px}
+@media(max-width:600px){.gsc{width:200px}.gpn .gim{flex-basis:110px}}
+@media(prefers-reduced-motion:reduce){.gst{animation:none}.gs{overflow-x:auto}}
 </style>
 <link rel="stylesheet" href="animations.css">
 <link rel="stylesheet" href="animations.css">
@@ -215,14 +234,14 @@ home:()=>`<div class="hero2"><div class="txt"><h1 class="m ytitle"><img src="ima
 <div class="card"><h2 class="m">Learning through making</h2><p>Yantrika is a student-led club that believes students learn best when they move beyond theory: work with real hardware, experiment, and solve problems together.</p></div>
 <div class="grid" style="margin-bottom:36px"><div class="box stat"><b style="color:var(--red)">40+</b>students per workshop</div><div class="box stat"><b style="color:var(--bl)">14</b>events, done and planned</div><div class="box stat"><b style="color:var(--or)">2+</b>community outreaches planned</div></div>
 <div class="card"><h2 class="m">Where we are now</h2><div class="tl">${EV.filter(e=>e.s!=='prop').map(e=>`<div class="ti"><b>${e.d} | <a class="ev" href="#/${e.id}">${esc(e.t)}</a></b> <span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><br>${esc(e.x)}</div>`).join('')}</div><a class="btn" href="#/events">All events &rarr;</a></div>
-<h2 class="m">Promo Video</h2><div class="vid"><video id="pv" src="images/intro_vid.mp4" autoplay muted loop playsinline preload="metadata">Your browser does not support video.</video><button class="btn" id="pm" type="button" aria-label="Mute or unmute video">&#128263; Unmute</button></div>
+<h2 class="m">Play our games</h2>${gameSlider()}<h2 class="m">Promo Video</h2><div class="vid"><video id="pv" src="images/intro_vid.mp4" autoplay muted loop playsinline preload="metadata">Your browser does not support video.</video><button class="btn" id="pm" type="button" aria-label="Mute or unmute video">&#128263; Unmute</button></div>
 <div class="cta"><div class="slider"><div class="track">${slides()}${slides()}</div></div><div class="ov"><h2 class="m">COME BUILD WITH US....</h2><p>No experience needed. Curiosity is enough.</p><a class="btn" href="#/join">Join Yantrika &rarr;</a></div></div>`,
 about:()=>`<div class="card"><h1 class="m">About Yantrika</h1><p>Yantrika is the Robotics &amp; Coding Club of the Research Scholars' Association at IACS, Kolkata. We run workshops, hackathons, talks and outreach so that more students can get hands-on with robotics, electronics and code.</p></div>
 <h2 class="m">Our four pillars</h2>
 <div class="grid" style="margin-bottom:24px">${PIL.map(p=>`<button class="pil" type="button" aria-pressed="false" data-k="${p.k}" style="background:${p.c};color:${p.f}"><h3 class="m" style="margin:0 0 6px">${p.t}</h3>${p.d}<small>See games &rarr;</small></button>`).join('')}</div>
 <p><a class="btn cy" href="#/games">Open the full Games Arcade &rarr;</a></p>
 <div class="card"><h2 class="m">What we aim for</h2><ul><li>500-800+ student participations across events.</li><li>100+ active hackers in competitive problem-solving.</li><li>2+ outreaches for underprivileged and local youth.</li><li>Reusable equipment that stays with the club for future batches.</li></ul></div>`,
-games:()=>`<div class="card"><h1 class="m">Games Arcade</h1><p>Every game here connects to a Yantrika event. Pick a pillar, play, then jump to the event it prepares you for.</p><div id="gf"></div></div><div class="grid" id="gg" style="margin-bottom:36px"></div><div class="card pp" id="gp" hidden aria-live="polite"></div>`,
+games:()=>`<div class="card"><h1 class="m">Games Arcade</h1><p>Every game here connects to a Yantrika event. Pick a pillar, play, then jump to the event it prepares you for.</p><div id="gf"></div></div><div class="gl" id="gg"></div><div class="card pp" id="gp" hidden aria-live="polite"></div>`,
 events:()=>`<div class="card"><h1 class="m">Events</h1><p>From induction to hackathons. Dates for 2027 are planned and may shift.</p></div>${['done','plan','prop'].map(s=>`<h2 class="m">${ST[s][0]}</h2><div class="grid" style="margin-bottom:36px">${EV.filter(e=>e.s===s).map(evCard).join('')}</div>`).join('')}`,
 materials:()=>`<div class="card"><h1 class="m">Club Materials</h1><p>Slides, code, circuit diagrams, datasheets and posters.</p><input id="q" type="search" placeholder="Search materials..." aria-label="Search materials"><div class="grid" id="mg"></div></div>`,
 team:()=>`<div class="card"><h1 class="m">Meet the Team</h1><p>The students and faculty driving Yantrika.</p>
@@ -649,6 +668,10 @@ const GM=[
 {id:'plan',p:'share',i:'🏫',t:'Outreach Planner',d:'Balance kits and mentors for 70 students.',ev:['schools-outreach','summer-camp','semester-outreach'],run:plan}
 ];
 
+/* Game images (files in the images/ folder) + home-page slider */
+const GI={circuit:'images/circuit_switch.png',binary:'images/binary_led.jpg',echo:'images/echo_distance_lab.jpg',bot:'images/bot_builder.jpg',breadboard:'images/bread_board_lab.jpg',pd:'images/prisoners_dilema.png',duel:'images/reaction_duel.jpg',simon:'images/pattern_memory.png',maze:'images/maze_finder.png',rps:'images/rock_paper_scissor.png',pick:'images/pass_it_on.png',plan:'images/outreach.jpg'};
+const gameSlider=()=>{const set=GM.map(g=>{const p=PIL.find(x=>x.k===g.p);return `<button class="gsc" type="button" data-g="${g.id}" style="--c:${p.c}"><img src="${GI[g.id]}" alt="${esc(g.t)}" loading="lazy" onerror="this.remove()"><div class="lb"><em style="background:${p.c};color:${p.f}">${p.t}</em><b>${esc(g.t)}</b></div></button>`}).join('');return `<div class="gs"><div class="gst">${set}${set}</div></div>`;};
+
 /* Pillar buttons (home + about) open the Games page, pre-filtered to that pillar */
 let pendF=null;
 function pillars(){
@@ -662,7 +685,7 @@ function gamesPage(){
  let f=pendF||'all',cur=null;pendF=null;
  const cards=()=>{
   gf.innerHTML=[['all','All ('+GM.length+')'],...PIL.map(p=>[p.k,p.t+' ('+GM.filter(g=>g.p===p.k).length+')'])].map(x=>`<button class="chip" type="button" data-f="${x[0]}" aria-pressed="${x[0]===f}">${x[1]}</button>`).join('');
-  gg.innerHTML=GM.filter(g=>f==='all'||g.p===f).map(g=>`<button class="pdo" type="button" data-play="${g.id}" aria-pressed="${g.id===cur}" style="border-top:12px solid ${PCOL[g.p]}"><span>${g.i}</span><span class="badge" style="background:${PCOL[g.p]};color:#fff;float:none;font-size:.8rem;margin-bottom:6px">${g.p.toUpperCase()}</span><br><b>${esc(g.t)}</b><br>${esc(g.d)}<br><small>🔗 ${g.ev.map(id=>esc(EV.find(e=>e.id===id).t)).join(' · ')}</small></button>`).join('');
+  gg.innerHTML=GM.filter(g=>f==='all'||g.p===f).map(g=>`<button class="pdo gpn" type="button" data-play="${g.id}" aria-pressed="${g.id===cur}" style="border-left:12px solid ${PCOL[g.p]}"><div class="gim" style="background:${PCOL[g.p]}"><img src="${GI[g.id]}" alt="${esc(g.t)} preview" loading="lazy" onerror="this.remove()"></div><div class="gtx"><span>${g.i}</span><span class="badge" style="background:${PCOL[g.p]};color:#fff;float:none;font-size:.8rem;margin-bottom:6px">${g.p.toUpperCase()}</span><br><b>${esc(g.t)}</b><br>${esc(g.d)}<br><small>🔗 ${g.ev.map(id=>esc(EV.find(e=>e.id===id).t)).join(' · ')}</small></div></button>`).join('');
   gf.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{f=b.dataset.f;cards();});
   gg.querySelectorAll('[data-play]').forEach(b=>b.onclick=()=>open(b.dataset.play));
  };
