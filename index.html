@@ -136,20 +136,6 @@ button.tag:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
 .echo{position:relative;height:60px;border:3px solid var(--dk);border-radius:10px;background:var(--soft);overflow:hidden}
 .echo #wl{transition:left .1s}
 .pdo[aria-pressed="true"]{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--dk)}
-.wire{height:320vh;margin:0 0 36px;position:relative}
-.wst{position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px)}
-.wst .card{margin-bottom:0}
-.wt,.ws,.flow{fill:none;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
-.wt{stroke:currentColor;opacity:.15}
-.ws{stroke:var(--bl);stroke-dasharray:1 1;stroke-dashoffset:1;opacity:0}
-.wn{fill:var(--card);stroke:var(--bl);stroke-width:4;opacity:0;transition:opacity .2s}.wn.on{opacity:1}
-.led{fill:var(--soft);stroke:currentColor;stroke-width:3;transition:fill .3s,filter .3s,stroke .3s}
-.led.con{stroke:var(--bl)}
-.led.lit{fill:var(--c);filter:drop-shadow(0 0 10px var(--c))}
-.flow{stroke:#fff;stroke-width:4;stroke-dasharray:1 16;opacity:0;transition:opacity .3s;animation:fl 1s linear infinite}
-.flow.on{opacity:1}
-@keyframes fl{to{stroke-dashoffset:-17}}
-@media(prefers-reduced-motion:reduce){.flow{animation:none}}
 </style>
 </head>
 <body>
@@ -220,54 +206,16 @@ const PIL=[
  {k:'share',t:'Share',c:'var(--cy)',f:'#17171d',d:'Outreach to schools and local youth.'}
 ];
 
-/* ---------- Scroll-built LED circuit (home) ---------- */
-const WD=['M60 100V60H130','M130 60H150l10-14 20 28 20-28 20 28 10-14H270','M270 60H330','M330 60H450','M450 60H570','M570 60H610V200H60V160'];
-const WL=[[330,'#ec3750','LED 1'],[450,'#f1c40f','LED 2'],[570,'#33d6a6','LED 3']];
-const WC=['Scroll down to build the circuit. LEDs only glow when the loop is closed.','Wire 1: from the battery (+) up and toward the resistor.','Wire 2: through the resistor, which limits the current so the LEDs survive.','Wire 3: the wire reaches LED 1, our first node.','Wire 4: LED 1 connects to LED 2. The same current flows through both (a series circuit).','Wire 5: LED 2 connects to LED 3.','Wire 6: the return wire goes back to the battery (−) to close the loop.','✅ Loop closed! Current flows and all three LEDs light up.'];
-const WIRE=()=>`<div class="wire" id="wire"><div class="wst"><div class="card"><h2 class="m">Connect the nodes: build a circuit by scrolling</h2>
-<svg viewBox="0 0 660 230" style="width:100%;max-width:760px;display:block;margin:0 auto;color:var(--ink)" role="img" aria-label="A battery, a resistor and three LEDs connected in a loop as you scroll">
-${WD.map(d=>`<path class="wt" d="${d}"/>`).join('')}${WD.map(d=>`<path class="ws" d="${d}" pathLength="1"/>`).join('')}<path class="flow" d="${WD.join(' ')}"/>
-<circle class="wn" cx="130" cy="60" r="7"/><circle class="wn" cx="270" cy="60" r="7"/>
-${WL.map(l=>`<circle class="led" cx="${l[0]}" cy="60" r="17" style="--c:${l[1]}"/><text x="${l[0]}" y="104" text-anchor="middle" fill="currentColor" font-size="14" font-weight="700">${l[2]}</text>`).join('')}
-<text x="190" y="104" text-anchor="middle" fill="currentColor" font-size="14" font-weight="700">220Ω</text>
-<rect x="38" y="100" width="44" height="60" rx="6" style="fill:var(--card);stroke:currentColor;stroke-width:3"/><text x="60" y="122" text-anchor="middle" fill="currentColor" font-size="18" font-weight="700">+</text><text x="60" y="150" text-anchor="middle" fill="currentColor" font-size="18" font-weight="700">−</text></svg>
-<div class="info" id="wcap" aria-live="polite" style="min-height:3.6em">${WC[0]}</div>
-<div class="bar" style="max-width:none;margin-top:10px"><i id="wbar" style="transition:none"></i></div><p style="margin:6px 0 0"><b id="wcnt">0 of 6 wires connected</b> <small>(keep scrolling ↓)</small></p></div></div></div>`;
-
-let wH=null;
-function wireInit(){
- if(wH){removeEventListener('scroll',wH);removeEventListener('resize',wH);wH=null;}
- const box=document.getElementById('wire');if(!box)return;
- const S=[...box.querySelectorAll('.ws')],N=[...box.querySelectorAll('.wn')],L=[...box.querySelectorAll('.led')],cap=box.querySelector('#wcap'),bar=box.querySelector('#wbar'),cnt=box.querySelector('#wcnt'),fl=box.querySelector('.flow');
- const T=(p,i)=>Math.min(1,Math.max(0,p*6-i));
- const set=p=>{
-  let done=0;
-  S.forEach((s,i)=>{const t=T(p,i);s.style.strokeDashoffset=1-t;s.style.opacity=t>0?1:0;if(t>=1)done++;});
-  N.forEach((n,i)=>n.classList.toggle('on',T(p,i)>=1));
-  const full=p>=.999;
-  L.forEach((l,j)=>{l.classList.toggle('con',T(p,j+2)>=1);l.classList.toggle('lit',full);});
-  fl.classList.toggle('on',full);
-  const k=full?7:p<=0?0:Math.min(6,1+Math.floor(p*6));
-  if(cap.dataset.k!=k){cap.dataset.k=k;cap.textContent=WC[k];}
-  bar.style.width=p*100+'%';cnt.textContent=done+' of 6 wires connected';
- };
- if(matchMedia('(prefers-reduced-motion:reduce)').matches){box.style.height='auto';set(1);return;}
- wH=()=>{if(!box.isConnected)return;const h=box.offsetHeight-innerHeight;set(Math.min(1,Math.max(0,-box.getBoundingClientRect().top/h)));};
- addEventListener('scroll',wH,{passive:true});addEventListener('resize',wH);wH();
-}
-
 const V={
-home:()=>`<div class="hero2"><div class="txt"><h1 class="m ytitle"><img src="images/text.png" alt="YANTRIKA" onerror="this.replaceWith(document.createTextNode('YANTRIKA'))"></h1><h2>Robotics &amp; Coding Club</h2><p><b>RSA, Indian Association for the Cultivation of Science (IACS), Kolkata</b></p>${PIL.map(p=>`<button class="tag" type="button" aria-pressed="false" data-k="${p.k}" style="--pc:${p.c};--pf:${p.f}">${p.t.toUpperCase()}.</button>`).join('')}<small style="display:block"><b>Tap a word to play its game</b></small><p style="margin-top:18px"><a class="btn" href="#/join">Join the club</a><a class="btn cy" href="#/events">See events</a></p></div></div>
+home:()=>`<div class="hero2"><div class="txt"><h1 class="m ytitle"><img src="images/text.png" alt="YANTRIKA" onerror="this.replaceWith(document.createTextNode('YANTRIKA'))"></h1><h2>Robotics &amp; Coding Club</h2><p><b>RSA, Indian Association for the Cultivation of Science (IACS), Kolkata</b></p>${PIL.map(p=>`<button class="tag" type="button" aria-pressed="false" data-k="${p.k}" style="--pc:${p.c};--pf:${p.f}">${p.t.toUpperCase()}.</button>`).join('')}<small style="display:block"><b>Tap a word to see its games</b></small><p style="margin-top:18px"><a class="btn" href="#/join">Join the club</a><a class="btn cy" href="#/events">See events</a></p></div></div>
 <div class="card"><h2 class="m">Learning through making</h2><p>Yantrika is a student-led club that believes students learn best when they move beyond theory: work with real hardware, experiment, and solve problems together.</p></div>
-${WIRE()}
 <div class="grid" style="margin-bottom:36px"><div class="box stat"><b style="color:var(--red)">40+</b>students per workshop</div><div class="box stat"><b style="color:var(--bl)">14</b>events, done and planned</div><div class="box stat"><b style="color:var(--or)">2+</b>community outreaches planned</div></div>
 <div class="card"><h2 class="m">Where we are now</h2><div class="tl">${EV.filter(e=>e.s!=='prop').map(e=>`<div class="ti"><b>${e.d} | <a class="ev" href="#/${e.id}">${esc(e.t)}</a></b> <span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><br>${esc(e.x)}</div>`).join('')}</div><a class="btn" href="#/events">All events &rarr;</a></div>
 <h2 class="m">Promo Video</h2><div class="vid"><video id="pv" src="images/intro_vid.mp4" autoplay muted loop playsinline preload="metadata">Your browser does not support video.</video><button class="btn" id="pm" type="button" aria-label="Mute or unmute video">&#128263; Unmute</button></div>
 <div class="cta"><div class="slider"><div class="track">${slides()}${slides()}</div></div><div class="ov"><h2 class="m">COME BUILD WITH US....</h2><p>No experience needed. Curiosity is enough.</p><a class="btn" href="#/join">Join Yantrika &rarr;</a></div></div>`,
 about:()=>`<div class="card"><h1 class="m">About Yantrika</h1><p>Yantrika is the Robotics &amp; Coding Club of the Research Scholars' Association at IACS, Kolkata. We run workshops, hackathons, talks and outreach so that more students can get hands-on with robotics, electronics and code.</p></div>
-<h2 class="m">Tap a pillar to try it</h2>
-<div class="grid" style="margin-bottom:24px">${PIL.map(p=>`<button class="pil" type="button" aria-pressed="false" aria-controls="pp" data-k="${p.k}" style="background:${p.c};color:${p.f}"><h3 class="m" style="margin:0 0 6px">${p.t}</h3>${p.d}<small>Tap to explore &darr;</small></button>`).join('')}</div>
-<div class="card pp" id="pp" hidden aria-live="polite"></div>
+<h2 class="m">Our four pillars</h2>
+<div class="grid" style="margin-bottom:24px">${PIL.map(p=>`<button class="pil" type="button" aria-pressed="false" data-k="${p.k}" style="background:${p.c};color:${p.f}"><h3 class="m" style="margin:0 0 6px">${p.t}</h3>${p.d}<small>See games &rarr;</small></button>`).join('')}</div>
 <p><a class="btn cy" href="#/games">Open the full Games Arcade &rarr;</a></p>
 <div class="card"><h2 class="m">What we aim for</h2><ul><li>500-800+ student participations across events.</li><li>100+ active hackers in competitive problem-solving.</li><li>2+ outreaches for underprivileged and local youth.</li><li>Reusable equipment that stays with the club for future batches.</li></ul></div>`,
 games:()=>`<div class="card"><h1 class="m">Games Arcade</h1><p>Every game here connects to a Yantrika event. Pick a pillar, play, then jump to the event it prepares you for.</p><div id="gf"></div></div><div class="grid" id="gg" style="margin-bottom:36px"></div><div class="card pp" id="gp" hidden aria-live="polite"></div>`,
@@ -306,7 +254,7 @@ function mats(){
  q.oninput=d;d();
 }
 
-/* ---------- About pillars: panel content + behaviour ---------- */
+/* ---------- Pillar panel content (used by the Games page) ---------- */
 const LT={Arduino:'The tiny brain of most of our bots. Start with the UNO and Nano pinouts.',Sensors:'How a robot sees: distance, light and line sensors, starting with the ultrasonic one.',Motors:'Drivers, power and speed control, plus the LiPo battery safety rules.',Code:'Your first sketches: blink an LED, read a sensor, make a decision. Examples from Workshop I.'};
 const BP=[['Arduino Nano','The brain. It reads sensors and decides what the motors do.','🧠'],['Ultrasonic sensor','Sends out a sound pulse and times the echo to measure distance.','📡'],['Motor driver','Lets the small Arduino pins control power-hungry motors.','⚙️'],['DC motors','Turn the wheels. Speed is set with PWM signals.','🛞'],['LiPo battery','Powers everything. Read the safety sheet before charging.','🔋']];
 const SH=[['Mentor a newcomer','Walk a first-timer through their first circuit. Everyone you help becomes a builder too.','Join as a mentor','#/join'],['Teach at a school','Help run the free hands-on workshop for school students planned for Dec 2026.','Volunteer with us','#/join'],['Sponsor an event','Companies and individuals can back a workshop or a hackathon.','Support the club','#/donate'],['Spread the word','Follow us and show a friend what you built.','Follow on Instagram',LINKS.ig]];
@@ -519,22 +467,195 @@ function plan(el){
  k.oninput=v.oninput=u;u();
 }
 
+function maze(el){
+ const LV=[['Easy',7],['Medium',10],['Hard',14]],DX=[0,1,0,-1],DY=[-1,0,1,0],AR=[['▲',0],['◀',3],['▼',2],['▶',1]];
+ let lv=1,n=10,walls=[],p=0,goal=0,hint=null,moves=0,t0=0,won=false;const best={};
+ el.innerHTML=`<h2 class="m">Maze Finder</h2><p>Robots need to find their way out. Guide the bot 🤖 to the flag 🏁 using arrow keys, WASD or the buttons. Fewer moves is better. Stuck? Ask for the shortest path.</p>
+ <div id="mlv">${LV.map((l,i)=>`<button class="chip" type="button" data-l="${i}" aria-pressed="${i===lv}">${l[0]}</button>`).join('')}</div>
+ <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:center;margin:12px 0"><canvas id="mz" width="480" height="480" style="flex:1 1 300px;min-width:0;max-width:480px;aspect-ratio:1;border:3px solid var(--dk);border-radius:10px;background:var(--card);display:block;margin:0" role="img" aria-label="Maze board"></canvas><div style="display:grid;grid-template-columns:repeat(3,68px);grid-template-areas:'. u .' 'l d r';gap:8px;margin:0;flex:0 0 auto">${AR.map((a,i)=>`<button class="btn" type="button" data-d="${a[1]}" aria-label="Move ${['up','left','down','right'][i]}" style="margin:0;grid-area:${['u','l','d','r'][i]};padding:16px 0;font-size:1.4rem">${a[0]}</button>`).join('')}</div></div>
+ <div class="info" id="mi" aria-live="polite"></div>
+  <button class="btn cy" type="button" id="mn">New maze</button><button class="btn" type="button" id="ms">Show shortest path</button>`;
+ const cv=el.querySelector('#mz'),cx=cv.getContext('2d'),mi=el.querySelector('#mi');
+ const gen=()=>{
+  n=LV[lv][1];walls=Array.from({length:n*n},()=>[1,1,1,1]);
+  const seen=new Set([0]),st=[0];
+  while(st.length){
+   const c=st[st.length-1],x=c%n,y=(c/n)|0,o=[0,1,2,3].filter(d=>{const nx=x+DX[d],ny=y+DY[d];return nx>=0&&ny>=0&&nx<n&&ny<n&&!seen.has(ny*n+nx);});
+   if(!o.length){st.pop();continue;}
+   const d=o[Math.floor(Math.random()*o.length)],nc=(y+DY[d])*n+x+DX[d];
+   walls[c][d]=0;walls[nc][(d+2)%4]=0;seen.add(nc);st.push(nc);
+  }
+  p=0;goal=n*n-1;hint=null;moves=0;t0=0;won=false;info('Reach the flag!');draw();
+ };
+ const info=m=>{mi.innerHTML='<b>'+m+'</b><br>Moves: <b>'+moves+'</b> | Best on '+LV[lv][0]+': <b>'+(best[lv]!=null?best[lv]+' moves':'none yet')+'</b>';};
+ const solve=()=>{
+  const prev=new Array(n*n).fill(-1),q=[p];prev[p]=p;
+  while(q.length){const c=q.shift();if(c===goal)break;for(let d=0;d<4;d++){if(walls[c][d])continue;const nc=((c/n|0)+DY[d])*n+c%n+DX[d];if(prev[nc]<0){prev[nc]=c;q.push(nc);}}}
+  const path=[];let c=goal;while(c!==p){path.push(c);c=prev[c];}path.push(p);return path.reverse();
+ };
+ const draw=()=>{
+  const s=480/n,cs=getComputedStyle(cv),ink=cs.getPropertyValue('--ink').trim()||'#17171d';
+  cx.clearRect(0,0,480,480);
+  if(hint){cx.strokeStyle='#33d6a6';cx.lineWidth=s*.25;cx.lineCap='round';cx.lineJoin='round';cx.beginPath();hint.forEach((c,i)=>{const X=(c%n+.5)*s,Y=((c/n|0)+.5)*s;i?cx.lineTo(X,Y):cx.moveTo(X,Y);});cx.stroke();}
+  cx.strokeStyle=ink;cx.lineWidth=4;cx.lineCap='round';cx.beginPath();
+  walls.forEach((w,c)=>{const x=(c%n)*s,y=((c/n)|0)*s;
+   if(w[0]){cx.moveTo(x,y);cx.lineTo(x+s,y);}if(w[1]){cx.moveTo(x+s,y);cx.lineTo(x+s,y+s);}
+   if(w[2]){cx.moveTo(x,y+s);cx.lineTo(x+s,y+s);}if(w[3]){cx.moveTo(x,y);cx.lineTo(x,y+s);}});
+  cx.stroke();
+  cx.font=(s*.6)+'px sans-serif';cx.textAlign='center';cx.textBaseline='middle';
+  cx.fillText('🏁',(goal%n+.5)*s,((goal/n|0)+.55)*s);cx.fillText('🤖',(p%n+.5)*s,((p/n|0)+.55)*s);
+ };
+ const go=d=>{
+  if(won||walls[p][d])return;
+  if(!t0)t0=performance.now();
+  p=((p/n|0)+DY[d])*n+p%n+DX[d];moves++;hint=null;
+  if(p===goal){won=true;const sec=Math.round((performance.now()-t0)/1000);if(best[lv]==null||moves<best[lv])best[lv]=moves;info('🎉 Escaped in '+moves+' moves and '+sec+' s!');}
+  else info('Keep going!');
+  draw();
+ };
+ const key=e=>{
+  if(!el.isConnected){removeEventListener('keydown',key);return;}
+  const d={ArrowUp:0,w:0,W:0,ArrowRight:1,d:1,D:1,ArrowDown:2,s:2,S:2,ArrowLeft:3,a:3,A:3}[e.key];
+  if(d===undefined)return;e.preventDefault();go(d);
+ };
+ addEventListener('keydown',key);
+ el.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>go(+b.dataset.d));
+ el.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{lv=+b.dataset.l;el.querySelectorAll('[data-l]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));gen();});
+ el.querySelector('#mn').onclick=gen;
+ el.querySelector('#ms').onclick=()=>{if(won)return;hint=solve();info('Shortest path from here: '+(hint.length-1)+' moves');draw();};
+ gen();
+}
+
+function breadboard(el){
+ const NC=20,cx=c=>64+26*c,RY=[144,162,180,198,216,250,268,286,304,322],HX=80,HY=394;
+ const AP=['5V','GND','D2','D3','D4','A0'],AC={'5V':'#ec3750',GND:'#222','D2':'#338eda',D3:'#ff8c37',D4:'#8e44ad',A0:'#2bb673'};
+ const MS=[
+  {n:'IR',t:'IR Obstacle Sensor',c:'#338eda',p:['OUT','GND','VCC'],q:[['OUT','D2'],['GND','GND'],['VCC','5V']],s:()=>Math.random()<.5?'🚧 Obstacle detected (OUT goes LOW)':'✅ Path clear (OUT stays HIGH)'},
+  {n:'HC-SR04',t:'Ultrasonic Sensor',c:'#1f7a9c',p:['VCC','TRIG','ECHO','GND'],q:[['VCC','5V'],['TRIG','D2'],['ECHO','D3'],['GND','GND']],s:()=>'📡 Distance: '+Math.round(5+Math.random()*195)+' cm'},
+  {n:'LM35',t:'Temperature Sensor',c:'#3b3b46',p:['+VS','VOUT','GND'],q:[['+VS','5V'],['VOUT','A0'],['GND','GND']],s:()=>'🌡️ Temperature: '+(24+Math.random()*10).toFixed(1)+' °C'}
+ ];
+ const PT=[],PM={},add=p=>{PT.push(p);PM[p.id]=p;};
+ AP.forEach((a,i)=>add({id:'P:'+a,key:'P:'+a,x:110+80*i,y:62,k:'ard'}));
+ for(let c=0;c<NC;c++){add({id:'R+'+c,key:'R+',x:cx(c),y:100,k:'rail'});add({id:'R-'+c,key:'R-',x:cx(c),y:114,k:'rail'});}
+ for(let r=0;r<10;r++)for(let c=0;c<NC;c++)add({id:'H'+r+'_'+c,key:(r<5?'T':'B')+c,x:cx(c),y:RY[r],k:'hole'});
+ let mi=0,wires=[],pl=null,drag=null,wiring=null,msg='',ok=false;const done=new Set();
+ const M=()=>MS[mi],K=()=>M().p.length;
+ el.innerHTML=`<h2 class="m">Breadboard Lab</h2><p>Real circuits start on a breadboard. <b>1.</b> Drag the sensor from the parts tray and press its pins into the board. <b>2.</b> Drag from an Arduino pin to a hole in the same column as the sensor pin it must reach (or via the + and − rails). <b>3.</b> Press Check wiring. Tap the dot at the end of a wire to remove it.</p>
+ <div id="bbc"></div><div class="info" id="bbg"></div>
+ <svg id="bbs" viewBox="0 0 620 424" style="width:100%;max-width:760px;display:block;margin:12px 0;touch-action:none;user-select:none;-webkit-user-select:none;border:3px solid var(--dk);border-radius:10px;background:var(--card)" role="img" aria-label="Breadboard with an Arduino pin header and a parts tray"></svg>
+ <div class="info" id="bbi" aria-live="polite"></div>
+ <button class="btn cy" type="button" id="bbk">Check wiring</button><button class="btn" type="button" id="bbw">Clear wires</button><button class="btn" type="button" id="bbr">Reset sensor</button><button class="btn cy" type="button" id="bbn" hidden>Next sensor &rarr;</button>
+ <p style="margin:8px 0 0"><small>Hint: on a breadboard, the 5 holes of one column (a–e, or f–j) are joined. The + and − rails run along the whole board.</small></p>`;
+ const svg=el.querySelector('#bbs'),info=el.querySelector('#bbi');
+ const chips=()=>{el.querySelector('#bbc').innerHTML=MS.map((s,i)=>`<button class="chip" type="button" data-m="${i}" aria-pressed="${i===mi}">${done.has(i)?'✅ ':''}${s.t}</button>`).join('')+`<small style="margin-left:6px"><b>${done.size} of ${MS.length} wired</b></small>`;
+  el.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{mi=+b.dataset.m;reset();});
+  el.querySelector('#bbg').innerHTML='<b>Goal for the '+M().n+':</b> '+M().q.map(q=>`<span class="badge" style="background:var(--yel)">${q[0]} &rarr; ${q[1]}</span>`).join(' ');};
+ const hid=(r,c)=>'H'+r+'_'+c;
+ const occ=()=>{const o=new Set();wires.forEach(w=>{o.add(w.a);o.add(w.b);});if(pl)for(let i=0;i<K();i++)o.add(hid(pl.r,pl.c+i));return o;};
+ const spos=()=>{const k=K();return Array.from({length:k},(_,i)=>drag?[drag.ox+26*i,drag.oy]:pl?[cx(pl.c+i),RY[pl.r]]:[HX+26*i,HY]);};
+ const snap=(ox,oy)=>{let b=null,bd=30;const o=new Set();wires.forEach(w=>{o.add(w.a);o.add(w.b);});
+  for(let r=0;r<10;r++)for(let c=0;c<=NC-K();c++){const d=Math.hypot(cx(c)-ox,RY[r]-oy);if(d<bd){let f=true;for(let i=0;i<K();i++)if(o.has(hid(r,c+i)))f=false;if(f){bd=d;b={r,c};}}}return b;};
+ const wcol=w=>{const A=PM[w.a],B=PM[w.b],a=A.k==='ard'?A:B.k==='ard'?B:null;if(a)return AC[a.id.slice(2)];return A.key==='R+'||B.key==='R+'?'#ec3750':A.key==='R-'||B.key==='R-'?'#222':'#f1c40f';};
+ const wpath=w=>{let A=PM[w.a],B=PM[w.b];if(B.k==='ard')[A,B]=[B,A];
+  if(A.k==='ard'){const m=(A.y+B.y)/2;return `M${A.x} ${A.y}C${A.x} ${m},${B.x} ${m},${B.x} ${B.y}`;}
+  const t=Math.min(A.y,B.y)-34;return `M${A.x} ${A.y}C${A.x} ${t},${B.x} ${t},${B.x} ${B.y}`;};
+ const render=()=>{
+  const sp=spos(),k=K(),m=M(),placed=!!pl&&!drag;let h='';
+  h+=`<rect x="60" y="8" width="500" height="44" rx="6" fill="#0b6e8a"/><text x="70" y="24" fill="#fff" font-size="11" font-weight="700">Arduino Nano</text>`;
+  AP.forEach((a,i)=>{const p=PM['P:'+a];h+=`<text x="${p.x}" y="44" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">${a}</text><circle cx="${p.x}" cy="${p.y}" r="6" fill="#f1c40f" stroke="#17171d" stroke-width="2"/>`;});
+  h+=`<rect x="36" y="88" width="550" height="250" rx="10" fill="#f5f1e6" stroke="#17171d" stroke-width="3"/><rect x="44" y="226" width="534" height="14" fill="#d9d3c0"/>`;
+  h+=`<line x1="52" x2="578" y1="92" y2="92" stroke="#ec3750" stroke-width="2"/><line x1="52" x2="578" y1="122" y2="122" stroke="#338eda" stroke-width="2"/><text x="46" y="104" font-size="11" font-weight="700" fill="#ec3750" text-anchor="middle">+</text><text x="46" y="118" font-size="11" font-weight="700" fill="#338eda" text-anchor="middle">−</text>`;
+  for(let c=0;c<NC;c++)h+=`<text x="${cx(c)}" y="134" font-size="8" fill="#777" text-anchor="middle">${c+1}</text>`;
+  for(let r=0;r<10;r++)h+=`<text x="46" y="${RY[r]+3}" font-size="9" fill="#777" text-anchor="middle">${'abcdefghij'[r]}</text>`;
+  PT.forEach(p=>{if(p.k!=='ard')h+=`<circle cx="${p.x}" cy="${p.y}" r="4.2" fill="#2b2b33"/>`;});
+  h+=`<rect x="36" y="346" width="550" height="70" rx="8" fill="#e4e9ec" stroke="#17171d" stroke-width="2" stroke-dasharray="6 4"/><text x="570" y="408" font-size="10" fill="#556" text-anchor="end">PARTS TRAY</text>`;
+  wires.forEach((w,i)=>{const c=wcol(w),A=PM[w.a],B=PM[w.b];h+=`<path d="${wpath(w)}" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity=".6"/><path d="${wpath(w)}" fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round"/>`+[A,B].map(p=>`<circle data-w="${i}" cx="${p.x}" cy="${p.y}" r="7" fill="${c}" stroke="#fff" stroke-width="2" style="cursor:pointer"/>`).join('');});
+  if(placed){
+   h+=`<rect x="${sp[0][0]-13}" y="${sp[0][1]-9}" width="${26*k}" height="18" rx="4" fill="${m.c}" stroke="${ok?'#33d6a6':'#17171d'}" stroke-width="${ok?4:2}" style="cursor:grab"/>`+sp.map((p,i)=>`<text x="${p[0]}" y="${p[1]+3}" font-size="8" font-weight="700" fill="#fff" text-anchor="middle" style="pointer-events:none">${m.p[i]}</text>`).join('');
+  }else{
+   h+=`<g opacity="${drag?.85:1}" style="cursor:grab"><rect x="${sp[0][0]-13}" y="${sp[0][1]-38}" width="${26*k}" height="30" rx="5" fill="${m.c}" stroke="#17171d" stroke-width="2"/><text x="${sp[0][0]-13+13*k}" y="${sp[0][1]-19}" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">${m.n}</text>`+sp.map((p,i)=>`<rect x="${p[0]-3}" y="${p[1]-8}" width="6" height="16" fill="#c9a227" stroke="#17171d" stroke-width="1"/><text x="${p[0]}" y="${p[1]+20}" font-size="8" font-weight="700" fill="#17171d" text-anchor="middle">${m.p[i]}</text>`).join('')+`</g>`;
+  }
+  if(drag){const s=snap(drag.ox,drag.oy);if(s)for(let i=0;i<k;i++)h+=`<circle cx="${cx(s.c+i)}" cy="${RY[s.r]}" r="8" fill="none" stroke="#33d6a6" stroke-width="3"/>`;}
+  if(wiring){const f=wiring.from,o=occ(),t=near(wiring.x,wiring.y,12,p=>p.id!==f.id&&(p.k==='ard'||!o.has(p.id)));
+   h+=`<line x1="${f.x}" y1="${f.y}" x2="${wiring.x}" y2="${wiring.y}" stroke="${f.k==='ard'?AC[f.id.slice(2)]:'#f1c40f'}" stroke-width="4" stroke-dasharray="6 5" stroke-linecap="round"/><circle cx="${f.x}" cy="${f.y}" r="8" fill="none" stroke="#33d6a6" stroke-width="3"/>`+(t?`<circle cx="${t.x}" cy="${t.y}" r="8" fill="none" stroke="#33d6a6" stroke-width="3"/>`:'');}
+  svg.innerHTML=h;
+  info.innerHTML=msg||'Drag the <b>'+m.t+'</b> onto the breadboard.';
+  el.querySelector('#bbn').hidden=!ok;
+ };
+ function near(x,y,rad,f){let b=null,bd=rad;PT.forEach(p=>{if(!f(p))return;const d=Math.hypot(p.x-x,p.y-y);if(d<=bd){bd=d;b=p;}});return b;}
+ const pt=e=>{const s=svg.createSVGPoint();s.x=e.clientX;s.y=e.clientY;const q=s.matrixTransform(svg.getScreenCTM().inverse());return [q.x,q.y];};
+ function reset(){wires=[];pl=null;drag=null;wiring=null;msg='';ok=false;chips();render();}
+ svg.onpointerdown=e=>{
+  const [x,y]=pt(e),w=e.target.closest&&e.target.closest('[data-w]');
+  if(w){wires.splice(+w.dataset.w,1);msg='';ok=false;render();return;}
+  const sp=spos(),k=K(),top=pl?sp[0][1]-12:sp[0][1]-40;
+  if(x>=sp[0][0]-14&&x<=sp[k-1][0]+14&&y>=top&&y<=sp[0][1]+(pl?12:24)){
+   drag={dx:x-sp[0][0],dy:y-sp[0][1],ox:sp[0][0],oy:sp[0][1]};pl=null;ok=false;msg='';svg.setPointerCapture(e.pointerId);e.preventDefault();render();return;}
+  const o=occ(),p=near(x,y,11,q=>q.k==='ard'||!o.has(q.id));
+  if(p){wiring={from:p,x,y};ok=false;svg.setPointerCapture(e.pointerId);e.preventDefault();render();}
+ };
+ svg.onpointermove=e=>{
+  if(!drag&&!wiring)return;const [x,y]=pt(e);
+  if(drag){drag.ox=x-drag.dx;drag.oy=y-drag.dy;}else{wiring.x=x;wiring.y=y;}render();
+ };
+ const up=(e,cancel)=>{
+  if(drag){const s=cancel?null:snap(drag.ox,drag.oy);drag=null;pl=s;msg=s?'Sensor placed. Now add the wires.':'Sensor returned to the tray. Drop it closer to the holes.';render();}
+  else if(wiring){const [x,y]=pt(e),f=wiring.from,o=occ(),t=cancel?null:near(x,y,12,p=>p.id!==f.id&&(p.k==='ard'||!o.has(p.id)));
+   wiring=null;
+   if(t&&!(t.k==='ard'&&f.k==='ard')){wires.push({a:f.id,b:t.id});msg='';}else if(t)msg='Connect an Arduino pin to the breadboard, not to another Arduino pin.';
+   render();}
+ };
+ svg.onpointerup=e=>up(e,false);svg.onpointercancel=e=>up(e,true);
+ el.querySelector('#bbw').onclick=()=>{wires=[];ok=false;msg='All wires removed.';render();};
+ el.querySelector('#bbr').onclick=()=>{pl=null;ok=false;msg='Sensor back in the tray.';render();};
+ el.querySelector('#bbn').onclick=()=>{mi=(mi+1)%MS.length;reset();};
+ el.querySelector('#bbk').onclick=()=>{
+  ok=false;
+  if(!pl){msg='⚠️ Place the sensor on the breadboard first.';render();return;}
+  const uf={},f=a=>{if(!(a in uf))uf[a]=a;return uf[a]===a?a:(uf[a]=f(uf[a]));},un=(a,b)=>{uf[f(a)]=f(b);};
+  wires.forEach(w=>un(PM[w.a].key,PM[w.b].key));
+  M().p.forEach((p,i)=>un('S:'+p,PM[hid(pl.r,pl.c+i)].key));
+  const nodes=[...M().p.map(p=>'S:'+p),...AP.map(a=>'P:'+a)],g={},bad=[];
+  nodes.forEach(n=>{(g[f(n)]=g[f(n)]||[]).push(n);});
+  const isReq=(a,b)=>M().q.some(q=>('S:'+q[0]===a&&'P:'+q[1]===b)||('S:'+q[0]===b&&'P:'+q[1]===a));
+  Object.values(g).forEach(L=>{if(L.length<2)return;
+   if(L.includes('P:5V')&&L.includes('P:GND'))bad.push('⚡ Short circuit! 5V and GND are connected. Unplug a wire right away.');
+   else if(!(L.length===2&&isReq(L[0],L[1])))bad.push('❌ '+L.map(n=>n.slice(2)).join(' and ')+' are connected together, which is not what we want.');});
+  M().q.forEach(q=>{if(f('S:'+q[0])!==f('P:'+q[1]))bad.push('🔌 '+q[0]+' is not connected to '+q[1]+' yet.');});
+  const uniq=[...new Set(bad)];
+  if(uniq.length){msg=uniq.join('<br>');}
+  else{ok=true;done.add(mi);chips();msg='<b>✅ Wired correctly!</b> The '+M().t+' is powered.<br>'+M().s()+'<br><small>Wires used: '+wires.length+'</small>';}
+  render();
+ };
+ chips();render();
+}
+
 const GM=[
 {id:'circuit',p:'learn',i:'💡',t:'Circuit Switch',d:'Close the switch and light the LED.',ev:['induction','workshop-1','workshop-2'],run:el=>{el.innerHTML=PN.learn();PI.learn(el);}},
 {id:'binary',p:'learn',i:'🔢',t:'Binary LEDs',d:'Light the bits to match the target number.',ev:['workshop-1','ai-robotics-workshop'],run:bin},
 {id:'echo',p:'learn',i:'📡',t:'Echo Distance Lab',d:'Turn echo time into distance and decide when to turn.',ev:['expert-talks','workshop-2'],run:echo},
 {id:'bot',p:'build',i:'🤖',t:'Bot Builder',d:'Assemble an obstacle-avoiding bot part by part.',ev:['workshop-2','prototyping-session','summer-camp'],run:el=>{el.innerHTML=PN.build();el.querySelector('hr').remove();el.querySelector('#pd').remove();PI.build(el);}},
+{id:'breadboard',p:'build',i:'🔌',t:'Breadboard Lab',d:'Place a sensor on the breadboard with your hand, then wire it to the Arduino.',ev:['workshop-1','workshop-2','prototyping-session'],run:breadboard},
 {id:'pd',p:'build',i:'🤝',t:"Prisoner's Dilemma",d:'Build trust against six strategies.',ev:['game-theory-hackathon','technical-hackathon','team-challenge'],run:el=>{el.innerHTML='<div id="pd"></div>';pdInit(el.firstChild);}},
 {id:'duel',p:'compete',i:'⚡',t:'Reaction Duel',d:'Tap the moment the button turns green.',ev:['robotics-hackathon','team-challenge'],run:el=>{el.innerHTML=PN.compete();PI.compete(el);}},
 {id:'simon',p:'compete',i:'🧠',t:'Pattern Memory',d:'Repeat a growing colour sequence.',ev:['robotics-hackathon','technical-hackathon'],run:simon},
+{id:'maze',p:'compete',i:'🧭',t:'Maze Finder',d:'Guide the bot through a random maze to the flag.',ev:['robotics-hackathon','technical-hackathon','team-challenge'],run:maze},
 {id:'rps',p:'compete',i:'✂️',t:'Rock Paper Scissors vs Bot',d:'Outsmart a bot that learns your habits.',ev:['game-theory-hackathon','team-challenge'],run:rps},
 {id:'pick',p:'share',i:'📣',t:'Pass It On',d:'Choose how you will share what you learn.',ev:['schools-outreach','semester-outreach','talks-mentorship'],run:el=>{el.innerHTML=PN.share();PI.share(el);}},
 {id:'plan',p:'share',i:'🏫',t:'Outreach Planner',d:'Balance kits and mentors for 70 students.',ev:['schools-outreach','summer-camp','semester-outreach'],run:plan}
 ];
 
+/* Pillar buttons (home + about) open the Games page, pre-filtered to that pillar */
+let pendF=null;
+function pillars(){
+ document.querySelectorAll('[data-k]').forEach(b=>{
+  b.onclick=()=>{pendF=b.dataset.k;location.hash='#/games';};
+ });
+}
+
 function gamesPage(){
  const gf=document.getElementById('gf'),gg=document.getElementById('gg'),gp=document.getElementById('gp');
- let f='all',cur=null;
+ let f=pendF||'all',cur=null;pendF=null;
  const cards=()=>{
   gf.innerHTML=[['all','All ('+GM.length+')'],...PIL.map(p=>[p.k,p.t+' ('+GM.filter(g=>g.p===p.k).length+')'])].map(x=>`<button class="chip" type="button" data-f="${x[0]}" aria-pressed="${x[0]===f}">${x[1]}</button>`).join('');
   gg.innerHTML=GM.filter(g=>f==='all'||g.p===f).map(g=>`<button class="pdo" type="button" data-play="${g.id}" aria-pressed="${g.id===cur}" style="border-top:12px solid ${PCOL[g.p]}"><span>${g.i}</span><span class="badge" style="background:${PCOL[g.p]};color:#fff;float:none;font-size:.8rem;margin-bottom:6px">${g.p.toUpperCase()}</span><br><b>${esc(g.t)}</b><br>${esc(g.d)}<br><small>🔗 ${g.ev.map(id=>esc(EV.find(e=>e.id===id).t)).join(' · ')}</small></button>`).join('');
@@ -553,23 +674,6 @@ function gamesPage(){
  };
  cards();
  if(pendG){const id=pendG;pendG=null;setTimeout(()=>open(id),60);}
-}
-
-/* Home buttons jump to the About page and open the matching game */
-let pend=null;
-function pillars(){
- const pp=document.getElementById('pp');
- const bs=[...document.querySelectorAll('[data-k]')];
- if(!pp){bs.forEach(b=>b.onclick=()=>{pend=b.dataset.k;location.hash='#/about';});return;}
- bs.forEach(b=>b.onclick=()=>{
-  const k=b.dataset.k,same=b.getAttribute('aria-pressed')==='true';
-  bs.forEach(x=>x.setAttribute('aria-pressed',String(!same&&x===b)));
-  if(same){pp.hidden=true;return;}
-  pp.hidden=false;pp.innerHTML=PN[k]();pp.classList.remove('open');void pp.offsetWidth;pp.classList.add('open');
-  PI[k](pp);
-  pp.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'start'});
- });
- if(pend){const t=bs.find(x=>x.dataset.k===pend);pend=null;if(t)setTimeout(()=>t.click(),60);}
 }
 
 /* Donorbox widget: load the script once; the dbox-widget element upgrades when it appears */
@@ -608,7 +712,7 @@ function r(){
  document.getElementById('th').onclick=()=>{const R=document.documentElement;const isDark=getComputedStyle(R).getPropertyValue('--bg').trim()==='#101015';R.setAttribute('data-theme',isDark?'light':'dark');};
  document.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{pendG=b.dataset.g;location.hash='#/games';});
  if(p==='games')gamesPage();
- if(p==='home'&&!e){promo();wireInit();}
+ if(p==='home'&&!e){promo();}
  if(p==='about'||(p==='home'&&!e))pillars();
  if(p==='donate')donorbox();
  if(p==='materials')mats();
