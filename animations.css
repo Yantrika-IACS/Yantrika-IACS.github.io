@@ -28,6 +28,7 @@
 @keyframes tileIn {from{opacity:0;transform:scale(.88)}}
 @keyframes navIn  {from{opacity:0;transform:translateY(-100%)}}
 @keyframes dotPop {from{transform:scale(0)}}
+@keyframes fadeIn {from{opacity:0}}
 
 /* ---------- top bar: bar slides down once, links float in on every page change ---------- */
 nav{animation:navIn .6s var(--ease) backwards}
@@ -73,7 +74,11 @@ nav .btn{animation-delay:.58s}
    .wire  the sticky scroll-built circuit (it is 320vh tall)
    .pp    panels that already have their own pop animation
    #gg    game cards are re-drawn on every click (they only animate
-          in browsers with scroll-triggered animation, see below)     */
+          in browsers with scroll-triggered animation, see below)
+
+   The fullscreen game screen (#gov) and the score popup (.smod) live
+   outside <main>, so the rules above never touch them. They get their
+   own small entrance animation in the section below.                  */
 main > :not(.grid):not(.pp):not(.hero2):not(.wire),
 .grid:not(#gg) > *,
 .tl .ti,
@@ -107,6 +112,14 @@ main a.ev{display:inline-block}          /* inline links ignore transforms */
 .pill:nth-child(2n){animation-delay:.2s}
 .pill:nth-child(3n){animation-delay:.28s}
 
+/* ---------- fullscreen game screen + score popup ----------
+   The screen fades in, the popup box drops in with the same soft
+   settle as everything else. Nothing inside a running game is
+   animated here, so gameplay never flickers.                          */
+#gov{animation:fadeIn .25s ease backwards}
+.smod{animation:fadeIn .2s ease backwards}
+.smod .card{animation:floatIn .6s var(--ease) .05s backwards}
+
 /* ---------- scroll-triggered version (Chrome, Edge, Safari 26+) ----------
    Each box and link floats in as it scrolls into view, instead of
    everything animating once at page load.                              */
@@ -132,6 +145,12 @@ main a.ev{display:inline-block}          /* inline links ignore transforms */
     animation-timeline:view();
     animation-range:entry 20% entry 70%;
   }
+  /* the score popup is a plain timed animation, never scroll-driven */
+  .smod .card{
+    animation:floatIn .6s var(--ease) .05s backwards;
+    animation-timeline:auto;
+    animation-range:normal;
+  }
 }
 
 /* ---------- respect people who turn motion off ---------- */
@@ -139,7 +158,8 @@ main a.ev{display:inline-block}          /* inline links ignore transforms */
   nav,nav .logo,nav a.l,nav .btn,
   .hero2 .txt,.hero2 .txt > *,.hero2 .tag,.bgal .gt,
   main > *,.grid > *,.tl .ti,.tl .ti::before,.tbwrap,
-  main .btn,main .pill,main .chip,main a.ev{
+  main .btn,main .pill,main .chip,main a.ev,
+  #gov,.smod,.smod .card{
     animation:none !important;
   }
 }
