@@ -1,0 +1,145 @@
+/* ==========================================================
+   YANTRIKA: "float in" animations for every box and link
+   Link AFTER your main <style> block:
+   <link rel="stylesheet" href="animations.css">
+   Pure CSS, no JavaScript. New boxes/links you add later are
+   picked up automatically (cards, grid items, buttons, pills,
+   chips, event links, menu links).
+   ========================================================== */
+
+:root{
+  --ease:cubic-bezier(.22,1,.36,1);   /* soft "settle" curve */
+  --dur:.8s;
+}
+
+/* ---------- keyframes: drift up, overshoot a touch, settle ----------
+   Only the start and the overshoot are written; the end is each
+   element's normal look, so hover/pressed styles are never overridden. */
+@keyframes floatIn{
+  0%  {opacity:0;transform:translateY(46px) scale(.95)}
+  60% {opacity:1;transform:translateY(-8px) scale(1.012)}
+}
+@keyframes linkIn{
+  0%  {opacity:0;transform:translateY(18px) scale(.9)}
+  60% {opacity:1;transform:translateY(-4px) scale(1.04)}
+}
+@keyframes heroIn {from{opacity:0;transform:translateY(28px) scale(.93)}}
+@keyframes tagPop {from{opacity:0;transform:translateY(16px) scale(.7)}}
+@keyframes tileIn {from{opacity:0;transform:scale(.88)}}
+@keyframes navIn  {from{opacity:0;transform:translateY(-100%)}}
+@keyframes dotPop {from{transform:scale(0)}}
+
+/* ---------- top bar: bar slides down once, links float in on every page change ---------- */
+nav{animation:navIn .6s var(--ease) backwards}
+nav .logo,nav a.l,nav .btn{animation:linkIn .55s var(--ease) backwards}
+nav .logo{animation-delay:.05s}
+nav a.l:nth-of-type(1){animation-delay:.10s}
+nav a.l:nth-of-type(2){animation-delay:.16s}
+nav a.l:nth-of-type(3){animation-delay:.22s}
+nav a.l:nth-of-type(4){animation-delay:.28s}
+nav a.l:nth-of-type(5){animation-delay:.34s}
+nav a.l:nth-of-type(6){animation-delay:.40s}
+nav a.l:nth-of-type(7){animation-delay:.46s}
+nav a.l:nth-of-type(n+8){animation-delay:.52s}
+nav .btn{animation-delay:.58s}
+
+/* ---------- hero: the box and everything inside it ---------- */
+.hero2 .txt{animation:heroIn 1s var(--ease) backwards}
+.hero2 .txt > *:not(.tag){animation:floatIn .9s var(--ease) backwards}
+.hero2 .txt > :nth-child(1){animation-delay:.15s}
+.hero2 .txt > :nth-child(2){animation-delay:.28s}
+.hero2 .txt > :nth-child(3){animation-delay:.40s}
+.hero2 .txt > :last-child{animation-delay:.95s}
+
+.hero2 .tag{animation:tagPop .55s var(--ease) backwards}
+.hero2 .tag:nth-of-type(1){animation-delay:.50s}
+.hero2 .tag:nth-of-type(2){animation-delay:.58s}
+.hero2 .tag:nth-of-type(3){animation-delay:.66s}
+.hero2 .tag:nth-of-type(4){animation-delay:.74s}
+
+/* background photo tiles fade in diagonally */
+.bgal .gt{animation:tileIn .9s var(--ease) backwards}
+.bgal .gt:nth-child(4n+1){animation-delay:.00s}
+.bgal .gt:nth-child(4n+2){animation-delay:.08s}
+.bgal .gt:nth-child(4n+3){animation-delay:.16s}
+.bgal .gt:nth-child(4n+4){animation-delay:.24s}
+
+/* ---------- boxes ----------
+   Covers: cards, headings, video frame, banner, back-links on a page,
+   every box in a grid (events, team, stats, donate...), timeline items
+   and the Join chat frame.
+
+   NOT animated on purpose:
+   .wire  the sticky scroll-built circuit (it is 320vh tall)
+   .pp    panels that already have their own pop animation
+   #gg    game cards are re-drawn on every click (they only animate
+          in browsers with scroll-triggered animation, see below)     */
+main > :not(.grid):not(.pp):not(.hero2):not(.wire),
+.grid:not(#gg) > *,
+.tl .ti,
+.tbwrap{
+  animation:floatIn var(--dur) var(--ease) backwards;
+}
+
+/* stagger boxes inside a grid */
+.grid > :nth-child(1){animation-delay:.05s}
+.grid > :nth-child(2){animation-delay:.13s}
+.grid > :nth-child(3){animation-delay:.21s}
+.grid > :nth-child(4){animation-delay:.29s}
+.grid > :nth-child(5){animation-delay:.37s}
+.grid > :nth-child(n+6){animation-delay:.45s}
+
+/* timeline items + their dots */
+.tl .ti:nth-child(2){animation-delay:.12s}
+.tl .ti:nth-child(3){animation-delay:.24s}
+.tl .ti:nth-child(n+4){animation-delay:.36s}
+.tl .ti::before{animation:dotPop .5s var(--ease) .2s backwards}
+
+/* ---------- links and buttons ----------
+   Buttons, "pill" names, event links. Not the in-game round buttons
+   (.pdgo) or chips, because those are re-drawn while you play.        */
+main .btn:not(.pdgo),
+main .pill,
+main a.ev{
+  animation:linkIn .65s var(--ease) .12s backwards;
+}
+main a.ev{display:inline-block}          /* inline links ignore transforms */
+.pill:nth-child(2n){animation-delay:.2s}
+.pill:nth-child(3n){animation-delay:.28s}
+
+/* ---------- scroll-triggered version (Chrome, Edge, Safari 26+) ----------
+   Each box and link floats in as it scrolls into view, instead of
+   everything animating once at page load.                              */
+@supports (animation-timeline:view()){
+  main > :not(.grid):not(.pp):not(.hero2):not(.wire),
+  .grid > *,
+  .tl .ti,
+  .tbwrap{
+    animation:floatIn linear backwards;
+    animation-timeline:view();
+    animation-range:entry 0% entry 65%;
+  }
+  main .btn:not(.pdgo),
+  main .pill,
+  main .chip,
+  main a.ev{
+    animation:linkIn linear backwards;
+    animation-timeline:view();
+    animation-range:entry 0% entry 90%;
+  }
+  .tl .ti::before{
+    animation:dotPop linear backwards;
+    animation-timeline:view();
+    animation-range:entry 20% entry 70%;
+  }
+}
+
+/* ---------- respect people who turn motion off ---------- */
+@media (prefers-reduced-motion:reduce){
+  nav,nav .logo,nav a.l,nav .btn,
+  .hero2 .txt,.hero2 .txt > *,.hero2 .tag,.bgal .gt,
+  main > *,.grid > *,.tl .ti,.tl .ti::before,.tbwrap,
+  main .btn,main .pill,main .chip,main a.ev{
+    animation:none !important;
+  }
+}
