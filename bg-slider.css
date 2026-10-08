@@ -1,0 +1,58 @@
+/* ==========================================================
+   YANTRIKA: sliding photo background behind the title
+   Link AFTER animations.css (the order matters):
+     <link rel="stylesheet" href="animations.css">
+     <link rel="stylesheet" href="bg-slider.css">
+   Pure CSS, no JavaScript. Works on the 4 x 4 photo grid
+   (.bgal) that sits behind the home-page title.
+
+   How it looks: the four rows of photos glide sideways, row 1
+   and 3 one way, row 2 and 4 the other way, back and forth
+   very slowly, so the background always feels alive.
+   ========================================================== */
+
+:root{
+  --slide-dist:18%;      /* how far each row travels (percent of a photo's width) */
+}
+
+/* a little wider than the screen, so the sliding rows never show a gap at the edges */
+.bgal{
+  left:-8vw;
+  right:-8vw;
+}
+
+/* ---------- keyframes: use the separate "translate" property, so it
+   combines with the fade-in from animations.css instead of fighting it ---------- */
+@keyframes bgSlideL{
+  from{translate:var(--slide-dist) 0}
+  to  {translate:calc(var(--slide-dist) * -1) 0}
+}
+@keyframes bgSlideR{
+  from{translate:calc(var(--slide-dist) * -1) 0}
+  to  {translate:var(--slide-dist) 0}
+}
+
+/* ---------- every photo: fade in once (from animations.css), then slide forever ---------- */
+.bgal .gt{
+  animation:
+    tileIn .9s var(--ease,cubic-bezier(.22,1,.36,1)) backwards,
+    bgSlideL 28s ease-in-out infinite alternate;
+  will-change:translate;
+}
+
+/* rows 1 and 3 slide one way (a different speed per row feels more natural) */
+.bgal .gt:nth-child(n+1):nth-child(-n+4) {animation-duration:.9s,28s}
+.bgal .gt:nth-child(n+9):nth-child(-n+12){animation-duration:.9s,32s}
+
+/* rows 2 and 4 slide the opposite way */
+.bgal .gt:nth-child(n+5):nth-child(-n+8),
+.bgal .gt:nth-child(n+13):nth-child(-n+16){
+  animation-name:tileIn,bgSlideR;
+}
+.bgal .gt:nth-child(n+5):nth-child(-n+8) {animation-duration:.9s,36s}
+.bgal .gt:nth-child(n+13):nth-child(-n+16){animation-duration:.9s,30s}
+
+/* ---------- respect people who turn motion off ---------- */
+@media (prefers-reduced-motion:reduce){
+  .bgal .gt{animation:none !important;translate:none;will-change:auto}
+}
