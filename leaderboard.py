@@ -19,7 +19,7 @@ Set SUPABASE_KEY in your environment (never in the website or a public repo):
 import json, os, subprocess, sys, urllib.parse, urllib.request
 from datetime import datetime, timezone
 
-URL = "https://xxxx.supabase.co"                 # <- your Project URL
+URL = "https://nhrrttuyddalwhfmpfgd.supabase.co"                 # <- your Project URL
 KEY = os.environ.get("SUPABASE_KEY", "")
 TOP = 3
 # game key -> "low" (smaller score wins) or "high" (bigger score wins)
