@@ -1,0 +1,30 @@
+/* ==========================================================
+   YANTRIKA: Games tab, show the WHOLE picture on phones
+   Link AFTER your main <style> block (after bg-slider.css):
+     <link rel="stylesheet" href="games-phone-fix.css">
+
+   Only touches the long game panels on the Games page, and only on
+   phone-sized screens (700px and below). Desktop/tablet look, and
+   the home-page slider, are not changed at all.
+
+   On a phone each panel becomes: picture on top at full width and
+   its natural height (nothing cropped), details underneath.
+   ========================================================== */
+@media(max-width:700px){
+  .gl .gpn{flex-direction:column}
+
+  .gl .gpn .gim{
+    flex:none;
+    width:100%;
+    min-height:0;
+    position:static;            /* was "relative" with a fixed-width side column */
+  }
+  .gl .gpn .gim img{
+    position:static;            /* was "absolute" and filled a thin side strip */
+    display:block;
+    width:100%;
+    height:auto;                /* natural height, so the whole picture shows */
+    object-fit:contain;
+  }
+  .gl .gpn .gtx{padding:12px 14px}
+}
