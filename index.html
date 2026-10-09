@@ -156,6 +156,12 @@ button.tag:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
 .gpn .gtx{flex:1;padding:14px 16px}
 @media(max-width:600px){.gsc{width:200px}.gpn .gim{flex-basis:110px}}
 @media(prefers-reduced-motion:reduce){.gst{animation:none}.gs{overflow-x:auto}}
+.gsc{width:280px;aspect-ratio:1/1}
+.gsc .lb small{display:block;font-size:.8rem;font-weight:400;line-height:1.3;margin-top:4px}
+@media(max-width:600px){.gsc{width:220px}}
+.th{border-style:solid}
+.th h3{margin-top:0}
+.th ul{margin:8px 0 0;padding-left:20px}
 </style>
 <link rel="stylesheet" href="animations.css">
 <link rel="stylesheet" href="animations.css">
@@ -230,7 +236,7 @@ const PIL=[
 ];
 
 const V={
-home:()=>`<div class="hero2"><div class="txt"><h1 class="m ytitle"><img src="images/text.png" alt="YANTRIKA" onerror="this.replaceWith(document.createTextNode('YANTRIKA'))"></h1><h2>Robotics &amp; Coding Club</h2><p><b>RSA, Indian Association for the Cultivation of Science (IACS), Kolkata</b></p>${PIL.map(p=>`<button class="tag" type="button" aria-pressed="false" data-k="${p.k}" style="--pc:${p.c};--pf:${p.f}">${p.t.toUpperCase()}.</button>`).join('')}<small style="display:block"><b>Tap a word to see its games</b></small><p style="margin-top:18px"><a class="btn" href="#/join">Join the club</a><a class="btn cy" href="#/events">See events</a></p></div></div>
+home:()=>`<div class="hero2"><div class="txt"><h1 class="m ytitle"><img src="images/text.png" alt="YANTRIKA" onerror="this.replaceWith(document.createTextNode('YANTRIKA'))"></h1><h2>Robotics &amp; Coding Club</h2><p><b>RSA, Indian Association for the Cultivation of Science (IACS), Kolkata</b></p><p style="margin-top:18px"><a class="btn" href="#/join">Join the club</a><a class="btn cy" href="#/events">See events</a></p></div></div>
 <div class="card"><h2 class="m">Learning through making</h2><p>Yantrika is a student-led club that believes students learn best when they move beyond theory: work with real hardware, experiment, and solve problems together.</p></div>
 <div class="grid" style="margin-bottom:36px"><div class="box stat"><b style="color:var(--red)">40+</b>students per workshop</div><div class="box stat"><b style="color:var(--bl)">14</b>events, done and planned</div><div class="box stat"><b style="color:var(--or)">2+</b>community outreaches planned</div></div>
 <div class="card"><h2 class="m">Where we are now</h2><div class="tl">${EV.filter(e=>e.s!=='prop').map(e=>`<div class="ti"><b>${e.d} | <a class="ev" href="#/${e.id}">${esc(e.t)}</a></b> <span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><br>${esc(e.x)}</div>`).join('')}</div><a class="btn" href="#/events">All events &rarr;</a></div>
@@ -670,7 +676,7 @@ const GM=[
 
 /* Game images (files in the images/ folder) + home-page slider */
 const GI={circuit:'images/circuit_switch.png',binary:'images/binary_led.jpg',echo:'images/echo_distance_lab.jpg',bot:'images/bot_builder.jpg',breadboard:'images/bread_board_lab.jpg',pd:'images/prisoners_dilema.png',duel:'images/reaction_duel.jpg',simon:'images/pattern_memory.png',maze:'images/maze_finder.png',rps:'images/rock_paper_scissor.png',pick:'images/pass_it_on.png',plan:'images/outreach.jpg'};
-const gameSlider=()=>{const set=GM.map(g=>{const p=PIL.find(x=>x.k===g.p);return `<button class="gsc" type="button" data-g="${g.id}" style="--c:${p.c}"><img src="${GI[g.id]}" alt="${esc(g.t)}" loading="lazy" onerror="this.remove()"><div class="lb"><em style="background:${p.c};color:${p.f}">${p.t}</em><b>${esc(g.t)}</b></div></button>`}).join('');return `<div class="gs"><div class="gst">${set}${set}</div></div>`;};
+const gameSlider=()=>{const set=GM.map(g=>{const p=PIL.find(x=>x.k===g.p);return `<button class="gsc" type="button" data-g="${g.id}" style="--c:${p.c}"><img src="${GI[g.id]}" alt="${esc(g.t)}" loading="lazy" onerror="this.remove()"><div class="lb"><em style="background:${p.c};color:${p.f}">${p.t}</em><b>${esc(g.t)}</b><small>${esc(g.d)}</small></div></button>`}).join('');return `<div class="gs"><div class="gst">${set}${set}</div></div>`;};
 
 /* Pillar buttons (home + about) open the Games page, pre-filtered to that pillar */
 let pendF=null;
@@ -679,6 +685,22 @@ function pillars(){
   b.onclick=()=>{pendF=b.dataset.k;location.hash='#/games';};
  });
 }
+
+/* Theory shown under each game */
+const TH={
+rps:`<p>Rock Paper Scissors looks like a children's game, but it is the textbook <b>zero-sum game</b>: whatever you win, the other player loses.</p><ul><li><b>Nash equilibrium:</b> the only stable strategy is a <b>mixed strategy</b>: play each move with probability 1/3, completely at random. Then nothing your opponent does beats you in the long run (expected score 0).</li><li><b>Why patterns lose:</b> if you favour one move, a smart opponent plays the <b>best response</b> and exploits you. That is exactly what this bot does after a few rounds.</li><li><b>Minimax theorem (von Neumann):</b> in zero-sum games, maximising your worst case and minimising your opponent's best case give the same answer.</li><li><b>In the real world:</b> penalty kicks, tennis serves and poker bluffs all depend on being unpredictable. It is also the basis of adversarial and multi-agent AI.</li></ul>`,
+pd:`<p>The Prisoner's Dilemma shows why rational individuals can end up worse off than if they had trusted each other.</p><ul><li><b>Nash equilibrium:</b> in one round, defecting is the best reply to anything, so both defect and earn 1 each, though both cooperating would give 3 each. That outcome is not <b>Pareto optimal</b>.</li><li><b>Repeated games:</b> when you meet again, the "shadow of the future" makes cooperation worthwhile. Robert Axelrod's tournaments were won by the simplest strategy, <b>Tit for Tat</b>.</li><li><b>Winning traits:</b> be nice, retaliate, forgive, stay clear. Useful for multi-robot teams, networks and negotiations.</li></ul>`,
+circuit:`<p><b>Ohm's law: V = I × R.</b> Current flows only in a closed loop. An LED needs a resistor to limit current, otherwise it burns out. A switch is just a gap you can open or close in that loop.</p>`,
+binary:`<p>Computers store everything as bits (0 or 1). Each position doubles in value (1, 2, 4, 8...), so <b>4 bits give 2&#8308; = 16 values (0 to 15)</b> and 8 bits give 256. Arduino pins, memory and sensor readings are all numbers in binary.</p>`,
+echo:`<p>Ultrasonic sensors use <b>time of flight</b>. Sound travels about 343 m/s in air at 20 °C, so <b>distance = speed × time ÷ 2</b>, halved because the pulse goes out and comes back. Temperature changes the speed of sound, which is why real sensors drift outdoors.</p>`,
+bot:`<p>Every simple robot runs a <b>sense, think, act</b> loop: the sensor measures, the Arduino decides, the motors move. Obstacle avoidance is the rule "if distance &lt; threshold, turn" repeated many times a second, a basic <b>feedback control system</b>.</p>`,
+breadboard:`<p>A breadboard is a set of <b>electrical nets</b>: holes in the same strip are connected, and a circuit works only if the right pins share a net. Joining 5V directly to GND is a <b>short circuit</b>: almost no resistance means a huge current, so we always check wiring before powering on.</p>`,
+duel:`<p><b>Reaction time</b> is the delay between a stimulus and a response. Humans average about 250 ms because the signal must travel through eyes, brain and muscles. Microcontrollers respond in microseconds using <b>interrupts</b>. Hackathons reward both speed and accuracy, the <b>speed-accuracy trade-off</b>: tapping early costs you.</p>`,
+simon:`<p>Your <b>working memory</b> holds roughly 7 ± 2 items (Miller's law). Experts go further by <b>chunking</b>: grouping steps into patterns. Programmers do the same by breaking long programs into small functions.</p>`,
+maze:`<p>The maze is generated with <b>depth-first search</b> (a random walk that backtracks), giving a <b>perfect maze</b> with exactly one path between any two cells. The shortest-path button uses <b>breadth-first search</b>, which explores outward level by level. Robot navigation and GPS routing use the same graph ideas (A*, Dijkstra).</p>`,
+pick:`<p>Teaching is one of the best ways to learn, known as the <b>protégé effect</b>. Knowledge also has a <b>network effect</b>: each person who learns can teach several more, so impact grows far faster than one club could manage alone.</p>`,
+plan:`<p>This is a <b>resource allocation</b> problem: your output is limited by the scarcest resource, the <b>bottleneck</b>. Ratios (students per kit, students per mentor) matter more than totals. Engineers and project managers use the same reasoning for budgets and schedules.</p>`
+};
 
 function gamesPage(){
  const gf=document.getElementById('gf'),gg=document.getElementById('gg'),gp=document.getElementById('gp');
@@ -694,7 +716,7 @@ function gamesPage(){
   if(f!=='all'&&g.p!==f)f='all';
   cards();
   gp.hidden=false;
-  gp.innerHTML=`<span class="badge" style="background:${PCOL[g.p]};color:#fff">${g.p.toUpperCase()}</span><div id="gb" style="margin-top:8px"></div><hr style="border:0;border-top:4px dashed var(--dk);margin:24px 0 16px"><h3 class="m">Events this game prepares you for</h3><p>${evL(g.ev)}</p>`;
+  gp.innerHTML=`<span class="badge" style="background:${PCOL[g.p]};color:#fff">${g.p.toUpperCase()}</span><div id="gb" style="margin-top:8px"></div>${TH[g.id]?`<div class="info th"><h3 class="m">🎓 The theory behind it</h3>${TH[g.id]}</div>`:''}<hr style="border:0;border-top:4px dashed var(--dk);margin:24px 0 16px"><h3 class="m">Events this game prepares you for</h3><p>${evL(g.ev)}</p>`;
   g.run(gp.querySelector('#gb'));
   gp.classList.remove('open');void gp.offsetWidth;gp.classList.add('open');
   gp.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'start'});
@@ -755,6 +777,5 @@ Typebot.initBubble({typebot:"yantrika-workshop",theme:{button:{backgroundColor:"
 </script>
 <script src="sitemap.js"></script>
 <script src="sitemap.js"></script>
-<script src="games-slider.js"></script>
 </body>
 </html>
