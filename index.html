@@ -162,6 +162,14 @@ button.tag:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
 .th{border-style:solid}
 .th h3{margin-top:0}
 .th ul{margin:8px 0 0;padding-left:20px}
+.gfull{position:fixed;inset:0;z-index:100;margin:0;border:0;border-radius:0;box-shadow:none;overflow:auto;background:var(--bg);color:var(--ink);padding:calc(14px + env(safe-area-inset-top,0px)) 20px calc(30px + env(safe-area-inset-bottom,0px));box-sizing:border-box}
+.gfull>*{max-width:960px;margin-left:auto;margin-right:auto}
+.gfull[hidden]{display:none}
+.gbar{position:sticky;top:-14px;z-index:2;display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--bg);padding:8px 0 12px;margin-bottom:8px;border-bottom:4px solid var(--dk)}
+.gbar .btn{margin:0}
+.gfull .sg{max-width:min(520px,100%)}
+.tiny{margin-top:14px;border:3px dashed var(--dk);border-radius:10px;padding:10px 14px;background:var(--card)}
+.tiny h4{margin:0 0 8px;font-size:1.05rem}
 </style>
 <link rel="stylesheet" href="animations.css">
 <link rel="stylesheet" href="animations.css">
@@ -702,6 +710,30 @@ pick:`<p>Teaching is one of the best ways to learn, known as the <b>protégé ef
 plan:`<p>This is a <b>resource allocation</b> problem: your output is limited by the scarcest resource, the <b>bottleneck</b>. Ratios (students per kit, students per mentor) matter more than totals. Engineers and project managers use the same reasoning for budgets and schedules.</p>`
 };
 
+/* Tiny interactive theory (one per game) */
+const SL=(id,l,a,b,v,st)=>`<label for="ti_${id}"><b>${l}: <span id="ti_${id}v"></span></b></label><input id="ti_${id}" type="range" min="${a}" max="${b}" step="${st||1}" value="${v}" style="display:block;width:100%;max-width:420px;margin:4px 0 8px">`;
+const TIN=(box,title,html,fn)=>{box.innerHTML=`<div class="tiny"><h4 class="m">🧪 ${title}</h4>${html}<div id="ti_o"></div></div>`;const v=k=>+box.querySelector('#ti_'+k).value,u=()=>{box.querySelectorAll('input[type=range]').forEach(i=>{const t=box.querySelector('#'+i.id+'v');if(t)t.textContent=i.value});box.querySelector('#ti_o').innerHTML=fn(v)};box.querySelectorAll('input,select').forEach(i=>i.oninput=i.onchange=u);u();};
+const TI={
+rps:b=>TIN(b,'Try it: how exploitable is your habit?',SL('r','How often you play Rock (%)',0,100,60)+'<small>Paper and Scissors share the rest equally.</small>',v=>{const r=v('r')/100,s=(1-r)/2,val=-Math.abs(r-s),sc=Math.round(val*100);return `Against an opponent who counters your habit${r>s?' (by always playing Paper)':r<s?' (by always playing Rock or Scissors accordingly)':''}, you score <b>${sc}</b> per 100 rounds.<br>${Math.abs(sc)<2?'✅ Unexploitable: this is the Nash equilibrium (1/3 each).':'⚠️ Any lean away from 1/3 can be punished. Randomness is the best defence.'}`}),
+pd:b=>TIN(b,'Try it: does the future change the best move?',SL('n','Rounds you will meet again',1,20,1),v=>{const n=v('n'),c=3*n,d=5+n-1;return `Two Tit-for-Tat players: <b>${c}</b> points each.<br>A defector against Tit for Tat: <b>${d}</b> points.<br><b>${c>d?'🤝 Trust wins from 3 rounds on.':c===d?'😐 Exactly a tie.':'🗡️ One round only: defecting wins. Longer relationships reward trust.'}</b>`}),
+circuit:b=>TIN(b,'Try it: pick a resistor',SL('r','Resistor (Ω)',50,1000,220,10)+'<small>5 V supply, red LED drops about 2 V.</small>',v=>{const R=v('r'),I=3/R*1000;return `Current = (5 − 2) ÷ ${R} = <b>${I.toFixed(1)} mA</b><br>${I>20?'🔥 Too much current: the LED may burn out.':I<3?'🌑 Very dim.':'✅ Bright and safe (about 10–20 mA is ideal).'}`}),
+binary:b=>TIN(b,'Try it: any number as 8 bits',SL('d','Number',0,255,13),v=>{const d=v('d');return `<b style="font-size:1.4rem;letter-spacing:.1em">${d.toString(2).padStart(8,'0')}</b> = ${d}<br>Needs <b>${d.toString(2).length}</b> bit${d?'s':''}. 1 byte (8 bits) holds up to 255.`}),
+echo:b=>TIN(b,'Try it: why temperature matters',SL('t','Air temperature (°C)',-10,50,20),v=>{const t=v('t'),s=331.3+0.606*t,rd=100*343/s;return `Speed of sound: <b>${s.toFixed(0)} m/s</b><br>A wall really 100 cm away looks like <b>${rd.toFixed(1)} cm</b> if the code assumes 343 m/s.`}),
+bot:b=>TIN(b,'Try it: sense, think, act',SL('d','Sensor reading (cm)',2,100,40)+SL('th','Turn threshold (cm)',5,60,20),v=>`Sense: ${v('d')} cm → Think: is ${v('d')} &lt; ${v('th')}? → Act: <b>${v('d')<v('th')?'↪️ Turn away':'⬆️ Drive forward'}</b>`),
+breadboard:b=>{const o=(n,f)=>Array.from({length:n},(_,i)=>`<option value="${i}">${f(i)}</option>`).join('');TIN(b,'Try it: are two holes connected?',`<p style="margin:0 0 6px">Hole A: column <select id="ti_c1">${o(6,i=>i+1)}</select> row <select id="ti_r1">${o(10,i=>'abcdefghij'[i])}</select> &nbsp; Hole B: column <select id="ti_c2">${o(6,i=>i+1)}</select> row <select id="ti_r2">${o(10,i=>'abcdefghij'[i])}</select></p>`,v=>{const same=v('c1')===v('c2')&&(v('r1')<5)===(v('r2')<5);return same?'✅ <b>Connected</b>: same column, same half of the board.':'❌ <b>Not connected</b>: columns are joined only within rows a–e or f–j.'});},
+duel:b=>TIN(b,'Try it: reaction time on the road',SL('ms','Reaction time (ms)',150,600,250,10),v=>{const m=v('ms');return `At 60 km/h a car travels <b>${(16.67*m/1000).toFixed(1)} m</b> before you even start braking. At 100 km/h: <b>${(27.78*m/1000).toFixed(1)} m</b>.`}),
+simon:b=>TIN(b,'Try it: chunking',SL('g','Group size',1,6,1)+'<small>Remember: 948371625034</small>',v=>{const g=v('g'),s='948371625034'.match(new RegExp('.{1,'+g+'}','g'));return `<b style="font-size:1.3rem">${s.join(' ')}</b><br>Items to remember: <b>${s.length}</b> ${s.length<=4?'✅ easy':s.length<=7?'🙂 doable':'😵 hard'}`}),
+maze:b=>{const RW=['S.........','..#####.#.','..#...#.#.','..#.#.#...','....#...#.','.####.###.','.#..#...#.','.#.##.#.#.','.#....#...','.####.##.E'],C=10,st=RW.join('').indexOf('S'),gl=RW.join('').indexOf('E'),W=RW.join('');const NM={bfs:['BFS','Explores level by level. Always finds the shortest path, but visits many cells.'],dfs:['DFS','Dives deep, backtracks at dead ends. Low memory, but the path found may be long.'],gr:['Greedy','Always heads toward the goal. Fast when the way is open, but walls can fool it into a longer path.'],as:['A*','Mixes steps taken with distance left. Shortest path, usually fewer cells explored.']};
+const run=a=>{const hh=n=>Math.abs((n/C|0)-(gl/C|0))+Math.abs(n%C-gl%C),prev={[st]:-1},dist={[st]:0},seen=new Set([st]),op=[st],ord=[];while(op.length){let i=a==='dfs'?op.length-1:0;if(a==='gr'||a==='as'){let bs=1e9;op.forEach((n,k)=>{const f=a==='gr'?hh(n):dist[n]+hh(n);if(f<bs){bs=f;i=k}})}const n=op.splice(i,1)[0];ord.push(n);if(n===gl)break;[[0,1],[1,0],[0,-1],[-1,0]].forEach(([dy,dx])=>{const y=(n/C|0)+dy,x=n%C+dx,m=y*C+x;if(y<0||x<0||y>=C||x>=C||W[m]==='#'||seen.has(m))return;seen.add(m);prev[m]=n;dist[m]=dist[n]+1;op.push(m)})}const path=new Set();for(let n=gl;n!==-1&&n!==undefined;n=prev[n])path.add(n);return{ord,path}};
+b.innerHTML=`<div class="tiny"><h4 class="m">🧪 Try it: same maze, different algorithms</h4><div>${Object.keys(NM).map(k=>`<button class="chip" type="button" data-a="${k}" aria-pressed="false">${NM[k][0]}</button>`).join('')}</div><div id="tg" style="display:grid;grid-template-columns:repeat(${C},22px);gap:2px;margin:10px 0"></div><div id="ti_o">Pick an algorithm to watch it search.</div></div>`;
+const g=b.querySelector('#tg'),draw=(vis,path)=>{g.innerHTML=[...W].map((c,n)=>`<div style="width:22px;height:22px;font-size:.8rem;line-height:22px;text-align:center;border-radius:3px;background:${c==='#'?'var(--dk)':path&&path.has(n)?'var(--cy)':vis&&vis.has(n)?'var(--yel)':'var(--soft)'}">${n===st?'🤖':n===gl?'🏁':''}</div>`).join('')};draw();
+b.querySelectorAll('[data-a]').forEach(c=>c.onclick=()=>{b.querySelectorAll('[data-a]').forEach(x=>x.setAttribute('aria-pressed',x===c));const a=c.dataset.a,r=run(a);draw(new Set(r.ord),r.path);b.querySelector('#ti_o').innerHTML=`<b>${NM[a][0]}</b>: explored <b>${r.ord.length}</b> cells (yellow), path of <b>${r.path.size-1}</b> steps (green).<br>${NM[a][1]}`})},
+pick:b=>TIN(b,'Try it: the network effect',SL('k','New people each learner teaches per round',1,5,2),v=>{const k=v('k');return `After 5 rounds, starting from 1 person: <b>${(k+1)**5}</b> people know it.`}),
+plan:b=>TIN(b,'Try it: find the bottleneck',SL('k','Kits',4,20,10)+SL('m','Mentors',2,20,6),v=>{const kc=v('k')*5,mc=v('m')*8,cap=Math.min(kc,mc);return `Kits support <b>${kc}</b> students, mentors support <b>${mc}</b>.<br>Real capacity: <b>${Math.min(cap,70)} of 70</b>. Bottleneck: <b>${kc<mc?'kits':mc<kc?'mentors':'balanced 👌'}</b>.`})
+};
+
+let closeGame=()=>{};
+addEventListener('keydown',e=>{if(e.key==='Escape')closeGame();});
 function gamesPage(){
  const gf=document.getElementById('gf'),gg=document.getElementById('gg'),gp=document.getElementById('gp');
  let f=pendF||'all',cur=null;pendF=null;
@@ -716,11 +748,21 @@ function gamesPage(){
   if(f!=='all'&&g.p!==f)f='all';
   cards();
   gp.hidden=false;
-  gp.innerHTML=`<span class="badge" style="background:${PCOL[g.p]};color:#fff">${g.p.toUpperCase()}</span><div id="gb" style="margin-top:8px"></div>${TH[g.id]?`<div class="info th"><h3 class="m">🎓 The theory behind it</h3>${TH[g.id]}</div>`:''}<hr style="border:0;border-top:4px dashed var(--dk);margin:24px 0 16px"><h3 class="m">Events this game prepares you for</h3><p>${evL(g.ev)}</p>`;
+  gp.innerHTML=`<div class="gbar"><span class="badge" style="background:${PCOL[g.p]};color:#fff;margin-right:auto">${g.i} ${esc(g.t)}</span><button class="btn cy" type="button" id="gfs">⛶ Full screen</button><button class="btn" type="button" id="gx">✕ Close</button></div><div id="gb" style="margin-top:8px"></div>${TH[g.id]?`<div class="info th"><h3 class="m">🎓 The theory behind it</h3>${TH[g.id]}<div id="ti"></div></div>`:''}<hr style="border:0;border-top:4px dashed var(--dk);margin:24px 0 16px"><h3 class="m">Events this game prepares you for</h3><p>${evL(g.ev)}</p>`;
   g.run(gp.querySelector('#gb'));
+  if(TI[g.id]&&gp.querySelector('#ti'))TI[g.id](gp.querySelector('#ti'));
   gp.classList.remove('open');void gp.offsetWidth;gp.classList.add('open');
-  gp.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'start'});
+  gp.classList.add('gfull');document.body.style.overflow='hidden';gp.scrollTop=0;
+  gp.querySelector('#gx').onclick=closeG;
+  gp.querySelector('#gfs').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});else if(gp.requestFullscreen)gp.requestFullscreen().catch(()=>{});};
+  if(gp.requestFullscreen&&!document.fullscreenElement)gp.requestFullscreen().catch(()=>{});
+  gp.querySelector('#gx').focus({preventScroll:true});
  };
+ const closeG=()=>{
+  if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});
+  gp.classList.remove('gfull','open');gp.hidden=true;gp.innerHTML='';document.body.style.overflow='';cur=null;cards();
+ };
+ closeGame=()=>{if(!gp.hidden)closeG();};
  cards();
  if(pendG){const id=pendG;pendG=null;setTimeout(()=>open(id),60);}
 }
@@ -766,6 +808,7 @@ function r(){
  if(p==='donate')donorbox();
  if(p==='materials')mats();
  if(p==='join')joinBot();
+ document.body.style.overflow='';if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});
  scrollTo(0,0);
  document.title=(e&&!V[id]?e.t+' | ':p==='home'?'':PAGES.find(x=>x[0]===p)[1]+' | ')+'YANTRIKA';
 }
