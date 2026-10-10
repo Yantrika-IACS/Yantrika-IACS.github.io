@@ -19,7 +19,7 @@
    const pil=typeof PIL!=='undefined'?PIL:[];
    const PE={learn:'📘',build:'🛠️',compete:'🏆',share:'📣'};   /* small emoji per pillar */
    const SECONDS_PER_GAME=6;                                      /* bigger = slower scrolling */
-
+     
    /* ---- style (uses the page's colour variables, so dark mode works) ---- */
    if(!document.getElementById('gs-style')){
     const st=document.createElement('style');
