@@ -55,7 +55,7 @@ input,textarea{font:inherit}
 .poster img{width:100%;height:100%;object-fit:cover}
 .poster.has{padding:0;overflow:hidden}
 .poster h2{font-size:2rem;text-shadow:3px 3px 0 var(--dk);margin:0}
-a.ev{text-decoration:none;}
+a.ev{text-decoration:underline wavy var(--red)}
 .tbwrap{border:3px solid var(--dk);border-radius:10px;overflow:hidden;margin-top:16px}
 typebot-standard{display:block;width:100%;height:600px}
 .upi{font-size:1.3rem;word-break:break-all;background:var(--soft);border:3px dashed var(--dk);border-radius:8px;padding:10px 14px;margin:10px 0;font-weight:700}
@@ -206,14 +206,14 @@ const MAT=[
 {t:'Ultrasonic Sensor Wiring',k:'Circuits',d:'Wiring and example code for obstacle detection.',u:'materials/ultrasonic-sensor-wiring.pdf'},
 {t:'Arduino Circuit Simulation',k:'Docs',d:'A Beginner’s Guide to SimulIDE',u:'materials/ROBO_101.pdf'},
 {t:'Component Datasheets',k:'Docs',d:'Datasheets for sensors, drivers and modules.',u:'materials/component-datasheets.pdf'},
-{t:'LiPo Battery Safety Sheet',k:'Docs',d:'Charging, storage and handling rules.',u:'materials/lipo_safety.pdf'},
-{t:'Event Posters',k:'Posters',d:'Posters for all Yantrika events.',u:'materials/event_posters.pdf'}
+{t:'LiPo Battery Safety Sheet',k:'Docs',d:'Charging, storage and handling rules.',u:'materials/lipo-safety.pdf'},
+{t:'Event Posters',k:'Posters',d:'Posters for all Yantrika events.',u:'materials/event-posters.pdf'}
 ];
 const TEAM={
 adv:[['Prof. Rajarshi Ray','Faculty Advisor','','https://scholar.google.com/citations?user=IfVWgecAAAAJ&hl=en']],
 core:[['Pritam Dutta','President','pritamdutta.pixel@gmail.com','https://dutta-pritam.github.io/'],['Arnab Roy','Secretary','ug24ar3219@iacs.res.in','https://github.com/arOy1011'],['Sudeep Das','Treasurer','ug24sd3240@iacs.res.in',''],['Aniket Dinda','PR and Outreach Head','ug25ad3412@iacs.res.in','https://github.com/001-Long-Fingers']],
-lead:[['Akshat Chakerverty','Chief Editor','','http://github.com/Akshat-Chakarverty'],['Rwitinkar Sinha','Media Lead'],['Sampreet Das','Content Lead']],
-back:['Dipchandan Bera','Aryan Lohar','Debarpan','Arjun M','Aditya Menon','Bhaskar Das','Pranjal Sengupta','Arkajyoti Bhattacharya']
+lead:[['Akshat Chakerverty','Chief Editor','','http://github.com/Akshat-Chakarverty'],['Rwitinkar Sinha','Media and Technical Lead'],['Sampreet Das','Content Lead']],
+back:['Dipchandan Bera','Aryan Lohar','Debarpan','Arjun M','Aditya Menon','Bhaskar Das']
 };
 const LINKS={web:'https://yantrika-iacs.github.io/',mail:'iacsroboticsclub@gmail.com',ig:'https://www.instagram.com/yantrika_official/',li:'https://www.linkedin.com/company/yantrika-iacs/'};
 /* DONATE: put your real UPI ID here (and optionally a QR image at images/donate-qr.png) */
@@ -820,6 +820,6 @@ import Typebot from 'https://cdn.jsdelivr.net/npm/@typebot.io/js@0/dist/web.js';
 Typebot.initBubble({typebot:"yantrika-workshop",theme:{button:{backgroundColor:"#FFEF02",color:"#17171d"},chatWindow:{backgroundColor:"#010000"}},customButton:{text:"Join Us"}});
 </script>
 <script src="sitemap.js"></script>
-<script src="sitemap.js"></script>
+<script src="game-bg.js"></script>
 </body>
 </html>
