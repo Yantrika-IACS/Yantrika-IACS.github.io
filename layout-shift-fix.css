@@ -1,0 +1,24 @@
+/* ==========================================================
+   YANTRIKA: stop the page jumping/shifting sideways on refresh
+   Link AFTER your other stylesheets:
+     <link rel="stylesheet" href="layout-shift-fix.css">
+
+   Why it happened: the sliding photo background (bg-slider.css) is
+   deliberately a little wider than the screen, so the page was
+   slightly wider than the window. Browsers remember the sideways
+   scroll position and restore it on refresh, so everything looked
+   shifted to the left. This file makes sideways scrolling impossible.
+   ========================================================== */
+
+/* nothing can scroll the page sideways */
+html{
+  overflow-x:hidden;
+  scrollbar-gutter:stable;       /* keeps the page from nudging when the scrollbar appears */
+}
+
+/* content that sticks out is clipped at the page edge. "clip" (unlike
+   "hidden") does not turn <body> into a scroller, so the sticky top
+   menu keeps working. Older browsers simply ignore this line. */
+@supports (overflow:clip){
+  body{overflow-x:clip}
+}
