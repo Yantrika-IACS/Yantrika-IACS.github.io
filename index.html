@@ -244,6 +244,33 @@ button.tag:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
 .gfull .sg{max-width:min(520px,100%)}
 .tiny{margin-top:14px;border:3px dashed var(--dk);border-radius:10px;padding:10px 14px;background:var(--card)}
 .tiny h4{margin:0 0 8px;font-size:1.05rem}
+/* Donate page: payment option cards */
+.dn{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:20px;align-items:start;margin:14px 0 28px}
+.dn>article{border:3px solid var(--dk);border-radius:12px;box-shadow:5px 5px 0 var(--dk);padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0;overflow-wrap:anywhere;background:var(--card)}
+.dn>article h3{margin:0}
+.dn>article p{margin:0}
+.dn .a-pp{border-top:12px solid var(--bl)}
+.dn .a-db{border-top:12px solid var(--cy)}
+.dn .a-upi{border-top:12px solid var(--or)}
+.dn .a-bk{border-top:12px solid var(--red)}
+.dn small.mu{font-size:.9rem}
+.dn-st{font-size:.9rem;min-height:1.3em}
+.dn-hero{border:4px solid var(--dk);border-radius:14px;box-shadow:8px 8px 0 var(--dk);border-top:14px solid var(--or);padding:24px 20px;margin:20px auto 32px;max-width:640px;text-align:center;background:var(--card);display:flex;flex-direction:column;align-items:center;gap:12px}
+.dn-hero h2,.dn-hero p{margin:0}
+.dn-hero .upi{font-size:1.6rem;margin:0;width:100%;max-width:440px;text-align:center}
+.dn-hero .dn-qr img{width:min(100%,260px)}
+.dn-qr{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px;border:3px dashed var(--dk);border-radius:10px;background:#fff;color:#17171d}
+.dn-qr img{display:block;width:min(100%,200px);aspect-ratio:1;object-fit:contain}
+.dn-act{display:flex;flex-wrap:wrap;gap:8px}
+.dn-act .btn{margin:0}
+.dn details{border:3px solid var(--dk);border-radius:8px;overflow:hidden}
+.dn summary{cursor:pointer;padding:10px 12px;font-weight:700;background:var(--soft)}
+.dn-bank{display:flex;flex-direction:column;gap:8px;padding:10px}
+.dn-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border:2px solid var(--dk);border-radius:8px;background:var(--soft);padding:8px 10px}
+.dn-row>div{min-width:0}
+.dn-row small{display:block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;opacity:.7}
+.dn-row b{display:block;overflow-wrap:anywhere;font-size:.95rem}
+.dn-row .btn{flex:0 0 auto;margin:0;padding:3px 10px;font-size:.8rem;box-shadow:2px 2px 0 var(--dk)}
 </style>
 <!-- Extra stylesheets that live next to this file -->
 <link rel="stylesheet" href="animations.css">
@@ -322,7 +349,22 @@ back:['Dipchandan Bera','Aryan Lohar','Debarpan','Arjun M','Aditya Menon','Bhask
 const LINKS={web:'https://yantrika-iacs.github.io/',mail:'iacsroboticsclub@gmail.com',ig:'https://www.instagram.com/yantrika_official/',li:'https://www.linkedin.com/company/yantrika-iacs/'};
 // (Donation settings, see note below)
 /* DONATE: put your real UPI ID here (and optionally a QR image at images/donate-qr.png) */
-const DON={upi:'yantrika5100@pnb',qr:'images/donate-qr.png'};
+const DON={
+ upi:'yantrika5100@pnb', name:'Yantrika IACS', qr:'images/upi-qr.png',
+ paypalId:'VZPX4MGBXSMPW',
+ paypalSdk:'https://www.paypal.com/sdk/js?client-id=BAA4CL9XzCxlaH7JkIedVHNRLL3xMwyJ4HPeuvCJhYHePdmX-qiWAplhOTm5V_CfwR_rf2o0GuMITpXrpU&components=hosted-buttons&disable-funding=venmo&currency=USD',
+ campaign:'yantrika',
+ // [label, value, show a Copy button?]
+ bank:[
+  ['Account name','RESEARCH SCHOLRS ASSOCIATION',0],   // <-- check spelling against the passbook
+  ['Account number','30345438813',1],
+  ['Account type','Regular Savings',0],
+  ['Bank & branch','State Bank of India, Jadavpur University Branch (Code 93), 188 Raja S.C. Mullick Road, Kolkata',0],
+  ['IFSC','SBIN0000093',1],
+  ['MICR','700002048',0],
+  ['Reference','YANTRIKA FUNDING',0]
+ ]
+};
 // Helper: makes text safe to put inside HTML. Wrap any user/data text with esc(...)
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 // Top menu: [ page id, label shown ].  Each id must exist in V = {...} below.
@@ -393,10 +435,17 @@ join:()=>`<div class="card"><h1 class="m">Join &amp; Contact</h1><p>Want to join
 // ---------- DONATE PAGE (UPI id comes from DON) ----------
 donate:()=>`<div class="card"><h1 class="m">Donate to Yantrika</h1><p>Yantrika is a student-led club. Every contribution helps us buy kits and components, run free workshops and hackathons, and take robotics to school students who would otherwise never get to touch real hardware.</p>
 <div class="grid" style="margin:20px 0"><div class="box" style="background:var(--red);color:#fff"><h3 class="m">Kits &amp; hardware</h3>Reusable equipment that stays with the club for future batches.</div><div class="box" style="background:var(--bl);color:#fff"><h3 class="m">Workshops</h3>Hands-on sessions and expert talks open to all students.</div><div class="box" style="background:var(--cy);color:#17171d"><h3 class="m">Outreach</h3>Free workshops for underprivileged and local youth.</div></div>
-<h2 class="m">Donate online</h2>
-<h2 class="m" style="margin-top:28px">Pay via UPI</h2><p>Scan or use the UPI ID:</p><div class="upi">${esc(DON.upi)}</div>
-<img src="${DON.qr}" alt="UPI QR code" style="max-width:240px;width:100%;border:3px solid var(--dk);border-radius:10px;display:block;margin:10px 0" onerror="this.remove()">
-<p>Companies, institutions or individuals who would like to sponsor an event, or need a receipt, can write to us directly.</p>
+
+<section class="dn-hero" aria-label="Pay via UPI"><span class="badge plan">Quickest way to give in India</span><h2 class="m">📱 Pay via UPI</h2><p>Scan the QR with any UPI app (GPay, PhonePe, Paytm, BHIM) or use the UPI ID below.</p>
+<div class="dn-qr" id="dn-qr"><img src="${DON.qr}" alt="Yantrika UPI QR code" onerror="this.closest('#dn-qr').hidden=true"><b>Scan to pay</b></div>
+<div class="upi">${esc(DON.upi)}</div>
+<div class="dn-act" style="justify-content:center"><a class="btn cy" href="upi://pay?pa=${encodeURIComponent(DON.upi)}&amp;pn=${encodeURIComponent(DON.name)}&amp;cu=INR">Open UPI app</a><button class="btn" type="button" data-copy="${esc(DON.upi)}">Copy UPI ID</button></div></section>
+<h2 class="m">More ways to give</h2>
+<div class="dn"><article class="a-pp"><h3 class="m">💳 PayPal</h3><small class="mu">International payments by card or PayPal, in USD.</small><div id="pp-box"><p>Loading PayPal…</p></div><p class="dn-st" id="pp-st" aria-live="polite"></p></article><article class="a-db"><h3 class="m">🔁 One-time or monthly</h3><small class="mu">Give once or set up a recurring gift through Donorbox.</small><div class="dbwrap"><dbox-widget campaign="${DON.campaign}" type="donation_form" interval="1 M" enable-auto-scroll="true"></dbox-widget></div></article><article class="a-bk"><h3 class="m">🏦 Bank transfer</h3><small class="mu">Domestic transfer. Check with your bank that it supports the transfer type you plan to use.</small>
+  <details><summary>Show bank account details</summary><div class="dn-bank">${DON.bank.map(b=>`<div class="dn-row"><div><small>${esc(b[0])}</small><b>${esc(b[1])}</b></div>${b[2]?`<button class="btn" type="button" data-copy="${esc(b[1])}">Copy</button>`:''}</div>`).join('')}</div></details>
+  <button class="btn" type="button" id="dn-all">Copy all bank details</button></article></div>
+
+<p>After paying, email <a href="mailto:${LINKS.mail}">${LINKS.mail}</a> with your name, amount and payment reference so we can acknowledge your support. Companies or institutions who want to sponsor an event, or need a receipt, can write to us directly.</p>
 <a class="btn cy" href="mailto:${LINKS.mail}?subject=${encodeURIComponent('Donation / Sponsorship for Yantrika')}">✉️ Email us about donating</a><a class="btn" href="#/join">Chat with us &rarr;</a></div>`
 };
 
@@ -1186,6 +1235,35 @@ function donorbox(){
  document.head.append(s);
 }
 
+// Donate page: copy buttons, PayPal hosted button, Donorbox
+async function cp(v,b){
+ const o=b.textContent;
+ try{await navigator.clipboard.writeText(v);b.textContent='Copied!';}
+ catch(e){prompt('Copy this text:',v);}
+ setTimeout(()=>{b.textContent=o;},1500);
+}
+function donateInit(){
+ donorbox();
+ document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>cp(b.dataset.copy,b));
+ const all=document.getElementById('dn-all');
+ if(all)all.onclick=()=>cp(DON.bank.map(b=>b[0]+': '+b[1]).join('\n'),all);
+ const fail=()=>{
+  const j=document.getElementById('pp-js');if(j)j.remove();
+  const c=document.getElementById('pp-box'),s=document.getElementById('pp-st');if(!c)return;
+  c.innerHTML='<a class="btn" href="mailto:'+LINKS.mail+'">Email us for PayPal assistance</a>';
+  s.textContent='PayPal could not load. Please use the email link or another payment option.';
+ };
+ const draw=()=>{
+  const c=document.getElementById('pp-box');if(!c)return;
+  try{c.replaceChildren();window.paypal.HostedButtons({hostedButtonId:DON.paypalId}).render('#pp-box');}
+  catch(e){fail();}
+ };
+ let s=document.getElementById('pp-js');
+ if(window.paypal&&window.paypal.HostedButtons)draw();
+ else if(s){s.addEventListener('load',draw);s.addEventListener('error',fail);}
+ else{s=document.createElement('script');s.id='pp-js';s.src=DON.paypalSdk;s.async=true;s.onload=draw;s.onerror=fail;document.head.append(s);}
+}
+
 // Promo video: autoplay when visible, pause when scrolled away, mute button
 function promo(){
  const v=document.getElementById('pv'),b=document.getElementById('pm');
@@ -1224,7 +1302,7 @@ function r(){
  if(p==='games')gamesPage();
  if(p==='home'&&!e){promo();}
  if(p==='about'||(p==='home'&&!e))pillars();
- if(p==='donate')donorbox();
+ if(p==='donate')donateInit();
  if(p==='materials')mats();
  if(p==='join')joinBot();
  document.body.style.overflow='';if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});
