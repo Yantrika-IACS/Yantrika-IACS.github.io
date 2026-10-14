@@ -446,7 +446,7 @@ donate:()=>`<div class="card"><h1 class="m">Donate to Yantrika</h1><p>Yantrika i
   <button class="btn" type="button" id="dn-all">Copy all bank details</button></article></div>
 
 <p>After paying, email <a href="mailto:${LINKS.mail}">${LINKS.mail}</a> with your name, amount and payment reference so we can acknowledge your support. Companies or institutions who want to sponsor an event, or need a receipt, can write to us directly.</p>
-<a class="btn cy" href="mailto:${LINKS.mail}?subject=${encodeURIComponent('Donation / Sponsorship for Yantrika')}">✉️ Email us about donating</a><a class="btn" href="#/join">Chat with us &rarr;</a></div>`
+<a class="btn cy" href="upi://pay?pa=${DON.upi}&amp;pn=${encodeURIComponent(DON.name)}&amp;cu=INR">Open UPI app</a>'
 };
 
 // ================================================================
