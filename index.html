@@ -368,7 +368,7 @@ const DON={
 // Helper: makes text safe to put inside HTML. Wrap any user/data text with esc(...)
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 // Top menu: [ page id, label shown ].  Each id must exist in V = {...} below.
-const PAGES=[['home','Home'],['about','About'],['games','Games'],['events','Events'],['materials','Materials'],['team','Team'],['join','Join'],['donate','Donate']];
+const PAGES=[['home','Home'],['about','About'],['games','Games'],['events','Events'],['materials','Materials'],['team','Team'],['join','Join'],['donate','Sponsor or Donate']];
 // Rotating colour palette used for gallery tiles and poster backgrounds
 const PC=['#ec3750','#338eda','#ff8c37','#33d6a6','#ff5a5f','#8e44ad'];
 
@@ -433,7 +433,7 @@ team:()=>`<div class="card"><h1 class="m">Meet the Team</h1><p>The students and 
 join:()=>`<div class="card"><h1 class="m">Join &amp; Contact</h1><p>Want to join, sponsor, or collaborate? Chat with us below and we will get back to you.</p><div class="tbwrap"><typebot-standard></typebot-standard></div></div>
 <div class="card foot"><h2 class="m">Find us</h2><p><a class="btn" href="mailto:${LINKS.mail}">✉️ Email</a><a class="btn" href="${LINKS.web}" target="_blank" rel="noopener">🌐 Website</a><a class="btn" href="${LINKS.ig}" target="_blank" rel="noopener">📸 Instagram</a><a class="btn" href="${LINKS.li}" target="_blank" rel="noopener">💼 LinkedIn</a></p></div>`,
 // ---------- DONATE PAGE (UPI id comes from DON) ----------
-donate:()=>`<div class="card"><h1 class="m">Donate to Yantrika</h1><p>Yantrika is a student-led club. Every contribution helps us buy kits and components, run free workshops and hackathons, and take robotics to school students who would otherwise never get to touch real hardware.</p>
+donate:()=>`<div class="card"><h1 class="m">Sponsor or Donate to Yantrika</h1><p>Yantrika is a student-led club. Every contribution helps us buy kits and components, run free workshops and hackathons, and take robotics to school students who would otherwise never get to touch real hardware.</p>
 <div class="grid" style="margin:20px 0"><div class="box" style="background:var(--red);color:#fff"><h3 class="m">Kits &amp; hardware</h3>Reusable equipment that stays with the club for future batches.</div><div class="box" style="background:var(--bl);color:#fff"><h3 class="m">Workshops</h3>Hands-on sessions and expert talks open to all students.</div><div class="box" style="background:var(--cy);color:#17171d"><h3 class="m">Outreach</h3>Free workshops for underprivileged and local youth.</div></div>
 
 <section class="dn-hero" aria-label="Pay via UPI"><span class="badge plan">Quickest way to give in India</span><h2 class="m">📱 Pay via UPI</h2><p>Scan the QR with any UPI app (GPay, PhonePe, Paytm, BHIM) or use the UPI ID below.</p>
