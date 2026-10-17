@@ -340,7 +340,8 @@ const MAT=[
 //   back is just a list of names.
 // ================================================================
 const TEAM={
-adv:[['Prof. Rajarshi Ray','Faculty Advisor','','https://scholar.google.com/citations?user=IfVWgecAAAAJ&hl=en']],
+adv:[['Prof. Rajarshi Ray','Faculty Advisor','','https://scholar.google.com/citations?user=IfVWgecAAAAJ&hl=en'],['Pritam Sarkar','Advisor','prikarsartam@gmail.com','prita'],['Asif Iqbal','Advisor']],
+
 core:[['Pritam Dutta','President','pritamdutta.pixel@gmail.com','https://dutta-pritam.github.io/'],['Arnab Roy','Secretary','ug24ar3219@iacs.res.in','https://github.com/arOy1011'],['Sudeep Das','Treasurer','ug24sd3240@iacs.res.in',''],['Aniket Dinda','PR and Outreach Head','ug25ad3412@iacs.res.in','https://github.com/001-Long-Fingers']],
 lead:[['Akshat Chakerverty','Chief Editor','','http://github.com/Akshat-Chakarverty'],['Rwitinkar Sinha','Media Lead'],['Sampreet Das','Content Lead']],
 back:['Dipchandan Bera','Aryan Lohar','Debarpan','Arjun M','Aditya Menon','Bhaskar Das','Pranjal Sengupta','Arkajyoti Bhattacharya']
@@ -350,7 +351,7 @@ const LINKS={web:'https://yantrika-iacs.github.io/',mail:'iacsroboticsclub@gmail
 // (Donation settings, see note below)
 /* DONATE: put your real UPI ID here (and optionally a QR image at images/donate-qr.png) */
 const DON={
- upi:'yantrika5100@pnb', name:'Yantrika IACS', qr:'images/upi-qr.png',
+ upi:'yantrika5100@pnb', name:'Yantrika IACS', link:'', /* paste the exact text from your QR here, e.g. upi://pay?pa=...&pn=...&mc=...&cu=INR */ qr:'images/upi-qr.png',
  paypalId:'VZPX4MGBXSMPW',
  paypalSdk:'https://www.paypal.com/sdk/js?client-id=BAA4CL9XzCxlaH7JkIedVHNRLL3xMwyJ4HPeuvCJhYHePdmX-qiWAplhOTm5V_CfwR_rf2o0GuMITpXrpU&components=hosted-buttons&disable-funding=venmo&currency=USD',
  campaign:'yantrika',
@@ -369,7 +370,7 @@ const DON={
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 // DONORS (thank-you line on the Sponsor or Donate page): ['Name', 'link or empty string']
 const DONORS=[
- ['Rhys Lindmark','https://www.rhyslindmark.com/']
+ ['Rhys Lindmark','https://YOUR-LINK-HERE']
 ];
 const donorLine=()=>DONORS.length?`<p><b>Our work is possible through our generous donors thus far: ${DONORS.map(d=>d[1]?`<a href="${esc(d[1])}" target="_blank" rel="noopener">${esc(d[0])}</a>`:esc(d[0])).join(', ')}. Thank you!</b></p>`:'';
 // Top menu: [ page id, label shown ].  Each id must exist in V = {...} below.
@@ -444,7 +445,7 @@ donate:()=>`<div class="card"><h1 class="m">Sponsor or Donate to Yantrika</h1><p
 <section class="dn-hero" aria-label="Pay via UPI"><span class="badge plan">Quickest way to give in India</span><h2 class="m">📱 Pay via UPI</h2><p>Scan the QR with any UPI app (GPay, PhonePe, Paytm, BHIM) or use the UPI ID below.</p>
 <div class="dn-qr" id="dn-qr"><img src="${DON.qr}" alt="Yantrika UPI QR code" onerror="this.closest('#dn-qr').hidden=true"><b>Scan to pay</b></div>
 <div class="upi">${esc(DON.upi)}</div>
-<div class="dn-act" style="justify-content:center"><a class="btn cy" href="upi://pay?pa=${DON.upi}&amp;pn=${encodeURIComponent(DON.name)}&amp;cu=INR">Open UPI app</a><button class="btn" type="button" data-copy="${esc(DON.upi)}">Copy UPI ID</button></div></section>
+<div class="dn-act" style="justify-content:center"><a class="btn cy" href="${esc(DON.link||('upi://pay?pa='+DON.upi+'&pn='+DON.name.replace(/[^A-Za-z0-9]/g,'')+'&tn=Donation&cu=INR'))}">Open UPI app</a><button class="btn" type="button" data-copy="${esc(DON.upi)}">Copy UPI ID</button></div></section>
 <h2 class="m">More ways to give</h2>
 <div class="dn"><article class="a-pp"><h3 class="m">💳 PayPal</h3><small class="mu">International payments by card or PayPal, in USD.</small><div id="pp-box"><p>Loading PayPal…</p></div><p class="dn-st" id="pp-st" aria-live="polite"></p></article><article class="a-db"><h3 class="m">🔁 One-time or monthly</h3><small class="mu">Give once or set up a recurring gift through Donorbox.</small><div class="dbwrap"><dbox-widget campaign="${DON.campaign}" type="donation_form" interval="1 M" enable-auto-scroll="true"></dbox-widget></div></article><article class="a-bk"><h3 class="m">🏦 Bank transfer</h3><small class="mu">Domestic transfer. Check with your bank that it supports the transfer type you plan to use.</small>
   <details><summary>Show bank account details</summary><div class="dn-bank">${DON.bank.map(b=>`<div class="dn-row"><div><small>${esc(b[0])}</small><b>${esc(b[1])}</b></div>${b[2]?`<button class="btn" type="button" data-copy="${esc(b[1])}">Copy</button>`:''}</div>`).join('')}</div></details>
