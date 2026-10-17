@@ -367,6 +367,11 @@ const DON={
 };
 // Helper: makes text safe to put inside HTML. Wrap any user/data text with esc(...)
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// DONORS (thank-you line on the Sponsor or Donate page): ['Name', 'link or empty string']
+const DONORS=[
+ ['Rhys Lindmark','https://www.rhyslindmark.com/']
+];
+const donorLine=()=>DONORS.length?`<p><b>Our work is possible through our generous donors thus far: ${DONORS.map(d=>d[1]?`<a href="${esc(d[1])}" target="_blank" rel="noopener">${esc(d[0])}</a>`:esc(d[0])).join(', ')}. Thank you!</b></p>`:'';
 // Top menu: [ page id, label shown ].  Each id must exist in V = {...} below.
 const PAGES=[['home','Home'],['about','About'],['games','Games'],['events','Events'],['materials','Materials'],['team','Team'],['join','Join'],['donate','Sponsor or Donate']];
 // Rotating colour palette used for gallery tiles and poster backgrounds
@@ -446,7 +451,8 @@ donate:()=>`<div class="card"><h1 class="m">Sponsor or Donate to Yantrika</h1><p
   <button class="btn" type="button" id="dn-all">Copy all bank details</button></article></div>
 
 <p>After paying, email <a href="mailto:${LINKS.mail}">${LINKS.mail}</a> with your name, amount and payment reference so we can acknowledge your support. Companies or institutions who want to sponsor an event, or need a receipt, can write to us directly.</p>
-<a class="btn cy" href="mailto:${LINKS.mail}?subject=${encodeURIComponent('Donation / Sponsorship for Yantrika')}">✉️ Email us about donating</a><a class="btn" href="#/join">Chat with us &rarr;</a></div>`
+<a class="btn cy" href="mailto:${LINKS.mail}?subject=${encodeURIComponent('Donation / Sponsorship for Yantrika')}">✉️ Email us about donating</a><a class="btn" href="#/join">Chat with us &rarr;</a>
+${donorLine()}</div>`
 };
 
 // ================================================================
