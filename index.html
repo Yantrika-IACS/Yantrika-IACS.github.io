@@ -351,7 +351,7 @@ const LINKS={web:'https://yantrika-iacs.github.io/',mail:'iacsroboticsclub@gmail
 // (Donation settings, see note below)
 /* DONATE: put your real UPI ID here (and optionally a QR image at images/donate-qr.png) */
 const DON={
- upi:'yantrika5100@pnb', name:'Yantrika IACS', link:'', /* paste the exact text from your QR here, e.g. upi://pay?pa=...&pn=...&mc=...&cu=INR */ qr:'images/upi-qr.png',
+ upi:'yantrika5100@pnb', name:'Yantrika IACS', qr:'images/upi-qr.png',
  paypalId:'VZPX4MGBXSMPW',
  paypalSdk:'https://www.paypal.com/sdk/js?client-id=BAA4CL9XzCxlaH7JkIedVHNRLL3xMwyJ4HPeuvCJhYHePdmX-qiWAplhOTm5V_CfwR_rf2o0GuMITpXrpU&components=hosted-buttons&disable-funding=venmo&currency=USD',
  campaign:'yantrika',
@@ -442,10 +442,10 @@ join:()=>`<div class="card"><h1 class="m">Join &amp; Contact</h1><p>Want to join
 donate:()=>`<div class="card"><h1 class="m">Sponsor or Donate to Yantrika</h1><p>Yantrika is a student-led club. Every contribution helps us buy kits and components, run free workshops and hackathons, and take robotics to school students who would otherwise never get to touch real hardware.</p>
 <div class="grid" style="margin:20px 0"><div class="box" style="background:var(--red);color:#fff"><h3 class="m">Kits &amp; hardware</h3>Reusable equipment that stays with the club for future batches.</div><div class="box" style="background:var(--bl);color:#fff"><h3 class="m">Workshops</h3>Hands-on sessions and expert talks open to all students.</div><div class="box" style="background:var(--cy);color:#17171d"><h3 class="m">Outreach</h3>Free workshops for underprivileged and local youth.</div></div>
 
-<section class="dn-hero" aria-label="Pay via UPI"><span class="badge plan">Quickest way to give in India</span><h2 class="m">📱 Pay via UPI</h2><p>Scan the QR with any UPI app (GPay, PhonePe, Paytm, BHIM) or use the UPI ID below.</p>
+<section class="dn-hero" aria-label="Pay via UPI"><span class="badge plan">Quickest way to give in India</span><h2 class="m">📱 Pay via UPI</h2><p>Scan the QR with any UPI app (GPay, PhonePe, Paytm, BHIM), or copy the UPI ID below and paste it into your app’s “Pay to UPI ID” option.</p>
 <div class="dn-qr" id="dn-qr"><img src="${DON.qr}" alt="Yantrika UPI QR code" onerror="this.closest('#dn-qr').hidden=true"><b>Scan to pay</b></div>
 <div class="upi">${esc(DON.upi)}</div>
-<div class="dn-act" style="justify-content:center"><a class="btn cy" href="${esc(DON.link||('upi://pay?pa='+DON.upi+'&pn='+DON.name.replace(/[^A-Za-z0-9]/g,'')+'&tn=Donation&cu=INR'))}">Open UPI app</a><button class="btn" type="button" data-copy="${esc(DON.upi)}">Copy UPI ID</button></div></section>
+<div class="dn-act" style="justify-content:center"><button class="btn" type="button" data-copy="${esc(DON.upi)}">Copy UPI ID</button></div></section>
 <h2 class="m">More ways to give</h2>
 <div class="dn"><article class="a-pp"><h3 class="m">💳 PayPal</h3><small class="mu">International payments by card or PayPal, in USD.</small><div id="pp-box"><p>Loading PayPal…</p></div><p class="dn-st" id="pp-st" aria-live="polite"></p></article><article class="a-db"><h3 class="m">🔁 One-time or monthly</h3><small class="mu">Give once or set up a recurring gift through Donorbox.</small><div class="dbwrap"><dbox-widget campaign="${DON.campaign}" type="donation_form" interval="1 M" enable-auto-scroll="true"></dbox-widget></div></article><article class="a-bk"><h3 class="m">🏦 Bank transfer</h3><small class="mu">Domestic transfer. Check with your bank that it supports the transfer type you plan to use.</small>
   <details><summary>Show bank account details</summary><div class="dn-bank">${DON.bank.map(b=>`<div class="dn-row"><div><small>${esc(b[0])}</small><b>${esc(b[1])}</b></div>${b[2]?`<button class="btn" type="button" data-copy="${esc(b[1])}">Copy</button>`:''}</div>`).join('')}</div></details>
