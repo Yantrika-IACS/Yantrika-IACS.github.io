@@ -172,13 +172,13 @@ function play(el){
 }
 
 YK.register({
- id:'sumo-bot',
+ id:'sumobot',
  pillar:'compete',
  icon:'🤖',
  title:'Sumo Bot Arena',
  description:'Tune weight and strategy, then shove the rival bot out of the ring.',
  events:['game-theory-hackathon','technical-hackathon'],
- thumb:'games/sumo-bot/thumb.svg',
+ thumb:'games/sumobot/thumb.jpg',
  css:`.sb-cv{width:100%;max-width:${S}px;display:block;margin:8px auto;border-radius:14px;background:rgba(128,128,128,.1);touch-action:manipulation}
  .sb-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
  .sb-row input[type=range]{flex:1;min-width:140px}`,
