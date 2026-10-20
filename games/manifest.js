@@ -15,7 +15,7 @@ YK.manifest={
   // Build
   'bot','breadboard','pd',
   // Compete
-  'duel','simon','maze','rps','auction',
+  'duel','simon','maze','rps','auction', 'infi_rest'
   // Share
   'pick','plan'
  ]
