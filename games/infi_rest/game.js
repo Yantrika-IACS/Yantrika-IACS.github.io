@@ -188,13 +188,13 @@ const wire=root=>{
 };
 
 YK.register({
-  id:"restaurant",
-  pillar:'explore',
+  id:"infi_rest",
+  pillar:'compete',
   icon:'🍽️',
   title:'The Infinite Restaurant',
   description:'New guests pick a crowded table or a new one. Watch clusters emerge.',
   events:['game-theory-hackathon','technical-hackathon'],
-  thumb:'games/restaurant/thumb.jpg',
+  thumb:'games/infi_rest/thumb.jpg',
   theory:`<p>The <b>Chinese restaurant process</b> seats customers one by one. Customer <i>n+1</i> joins an occupied table <i>k</i> with probability <b>n<sub>k</sub> / (n + α)</b> and opens a new table with probability <b>α / (n + α)</b>. Popular tables attract more guests: a <b>rich-get-richer</b> effect that makes a few big clusters and many tiny ones. The same rule powers <b>Dirichlet process</b> clustering in machine learning, and models city sizes, word frequencies and species counts. A small α gives a few huge crowds; a large α gives many small groups. The expected number of tables after <i>n</i> customers is Σ α/(α+i), which grows only like α·ln(n).</p>`,
   demo:b=>TIN(b,'Try it: how many tables for 50 customers?',SL('al','Boldness α',0.1,20,1,0.1),v=>{const a=v('al');let e=0;for(let i=0;i<50;i++)e+=a/(a+i);return `With α = <b>${a}</b>, 50 customers fill about <b>${e.toFixed(1)}</b> tables. Small α: a few huge crowds. Large α: many small groups.`}),
   run:el=>{el.innerHTML=panel();wire(el);}
