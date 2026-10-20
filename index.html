@@ -15,13 +15,15 @@
            DON     donation UPI id + QR image
            G       home-page photo gallery images
            PIL     the four pillars (Learn / Build / Compete / Share)
-           GM      the games list + which events each game belongs to
+           (the games are NOT in this file any more: see games/ below)
          PAGE TEMPLATES
            V = { home, about, games, events, materials, team, join, donate }
            Each one is the HTML of one page. Edit the text inside.
-         GAME CODE
-           bin, echo, simon, rps, plan, maze, breadboard, pdInit ...
-           (only touch if you want to change how a game works)
+         GAMES  (open source, one folder per game)
+           games/<id>/game.js   the game, its theory text, demo and events
+           games/manifest.js    which games are shown, and in what order
+           games/core.js        the small shared toolkit games can use
+           games/README.md      how to add or change a game
          ROUTER
            function r() at the very bottom: draws nav + current page.
 
@@ -36,12 +38,14 @@
     * Change colours ...................... :root{...} at top of <style>
     * Change the header logo text ......... function r() -> nav innerHTML
     * Change the donate UPI id ............ DON
+    * Add or fix a game ................... games/README.md  (CONTRIBUTING.md)
 
   FOLDERS THE PAGE EXPECTS (next to this file)
     images/      photos, game thumbnails, logos
     posters/     one poster per upcoming event:  posters/<event-id>.png
     materials/   the PDF files listed in MAT
-  Also loaded: animations.css, bg-slider.css, games-phone-fix.css, sitemap.js
+  Also loaded: games/ (core.js, manifest.js, games.css), animations.css, bg-slider.css,
+  games-phone-fix.css, sitemap.js
 
   TIP: after editing, open the file in a browser and press Ctrl+F5.
   TIP: in JS strings use \' for an apostrophe, or wrap text in "double quotes".
@@ -181,76 +185,6 @@ button.tag:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
 @media(prefers-reduced-motion:reduce){button.tag{transition:none}}
 @media(prefers-reduced-motion:reduce){.pp.open{animation:none}.pil,.slot,.bar i{transition:none}}
 
-/* Prisoner's Dilemma */
-/* ===================== CSS: GAMES ===================== */
-/* Prisoner's Dilemma, Simon, Echo lab, game cards, full-screen game panel */
-.pdm{border-collapse:collapse;margin:12px 0;text-align:center;max-width:100%}
-.pdm th,.pdm td{border:3px solid var(--dk);padding:8px 12px}
-.pdm td{transition:background .2s}
-.pdm td.hl{background:var(--yel);color:#17171d;font-weight:700;animation:pop .3s ease}
-.pdo{display:block;width:100%;text-align:left;font:inherit;cursor:pointer;background:var(--card);color:var(--ink);border:3px solid var(--dk);border-radius:10px;box-shadow:4px 4px 0 var(--dk);padding:12px;transition:transform .15s ease}
-.pdo:hover{transform:translate(-3px,-3px)}
-.pdo b{font-size:1.1rem}.pdo span{font-size:1.8rem;float:right}
-.pdgo{font-size:1.15rem;padding:14px 20px;flex:1 1 200px;margin:6px 0}
-.pdgo.d{background:var(--red);color:#fff}
-.pdgo:disabled{opacity:.45;cursor:wait;transform:none}
-.pdsc{display:flex;gap:14px;flex-wrap:wrap;margin:10px 0}
-.pdsc>div{flex:1 1 200px}
-.pdsc .bar{max-width:none;margin-top:4px}
-.pdsc .bar i.o{background:var(--or)}
-.hist{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.hr{border:2px solid var(--dk);border-radius:8px;padding:0 8px;background:var(--card);font-size:1.1rem}
-.pdbig{font-size:1.15rem;min-height:3.2em}
-.tsc{width:100%;max-width:640px;display:block;margin:6px auto 0}
-.tsc text{font-family:'Permanent Marker',cursive}
-.tbs{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;margin:12px 0 18px}
-.tb{font-family:'Permanent Marker',cursive;font-size:1.35rem;letter-spacing:.05em;text-transform:uppercase;color:var(--ink);background:var(--card);border:4px solid var(--dk);border-radius:22px 12px 20px 14px/14px 20px 12px 22px;padding:12px 30px;cursor:pointer;transition:transform .12s,background .12s}
-.tb:hover:not(:disabled){transform:rotate(-1.5deg) scale(1.05);background:var(--yel);color:#17171d}
-.tb:disabled{opacity:.45;cursor:wait}
-@media(prefers-reduced-motion:reduce){.tb{transition:none}}
-.shake{animation:shk .35s}
-@keyframes shk{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-@media(prefers-reduced-motion:reduce){.pdm td.hl,.shake{animation:none}.pdo{transition:none}}
-.sg{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:360px;margin:12px 0}
-.sg button{height:90px;border:3px solid var(--dk);border-radius:12px;box-shadow:4px 4px 0 var(--dk);cursor:pointer;transition:filter .1s,transform .1s}
-.echo{position:relative;height:60px;border:3px solid var(--dk);border-radius:10px;background:var(--soft);overflow:hidden}
-.echo #wl{transition:left .1s}
-.pdo[aria-pressed="true"]{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--dk)}
-
-/* Home: games slider */
-.gs{overflow:hidden;margin:12px 0 36px;padding:6px 0 12px;-webkit-mask-image:linear-gradient(to right,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(to right,transparent,#000 5%,#000 95%,transparent)}
-.gst{display:flex;width:max-content;animation:slide 60s linear infinite}
-.gs:hover .gst{animation-play-state:paused}
-.gsc{position:relative;flex:0 0 auto;width:260px;aspect-ratio:4/3;margin-right:14px;padding:0;border:3px solid var(--dk);border-radius:12px;overflow:hidden;box-shadow:5px 5px 0 var(--dk);cursor:pointer;font:inherit;text-align:left;background:var(--c,#338eda);color:#fff}
-.gsc:hover{transform:translate(-3px,-3px)}
-.gsc img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.gsc .lb{position:absolute;left:0;right:0;bottom:0;padding:30px 12px 10px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent)}
-.gsc .lb b{display:block;font-family:'Permanent Marker',cursive;font-weight:400;font-size:1.25rem;line-height:1.2}
-.gsc .lb em{display:inline-block;font-style:normal;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:2px solid var(--dk);border-radius:20px;padding:0 10px;margin-bottom:4px}
-/* Games page: long panels */
-.gl{display:flex;flex-direction:column;gap:16px;margin-bottom:36px}
-.gpn{display:flex;align-items:stretch;padding:0;overflow:hidden}
-.gpn .gim{flex:0 0 240px;position:relative;min-height:150px}
-.gpn .gim img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.gpn .gtx{flex:1;padding:14px 16px}
-@media(max-width:600px){.gsc{width:200px}.gpn .gim{flex-basis:110px}}
-@media(prefers-reduced-motion:reduce){.gst{animation:none}.gs{overflow-x:auto}}
-.gsc{width:280px;aspect-ratio:1/1}
-.gsc .lb small{display:block;font-size:.8rem;font-weight:400;line-height:1.3;margin-top:4px}
-@media(max-width:600px){.gsc{width:220px}}
-.th{border-style:solid}
-.th h3{margin-top:0}
-.th ul{margin:8px 0 0;padding-left:20px}
-.gfull{position:fixed;inset:0;z-index:100;margin:0;border:0;border-radius:0;box-shadow:none;overflow:auto;background:var(--bg);color:var(--ink);padding:calc(14px + env(safe-area-inset-top,0px)) 20px calc(30px + env(safe-area-inset-bottom,0px));box-sizing:border-box}
-.gfull>*{max-width:960px;margin-left:auto;margin-right:auto}
-.gfull[hidden]{display:none}
-.gfull.gbgi{background-image:linear-gradient(color-mix(in srgb,var(--bg) 93%,transparent),color-mix(in srgb,var(--bg) 96%,transparent)),var(--gimg);background-size:cover;background-position:center;background-attachment:fixed}
-.gbar .logo{font-size:1.5rem;color:#17171d;text-decoration:none;margin-right:6px;line-height:1;display:flex;align-items:center}
-.gbar{position:sticky;top:-14px;z-index:2;display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--yel);padding:8px 0 12px;margin-bottom:8px;border-bottom:4px solid var(--dk)}
-.gbar .btn{margin:0}
-.gfull .sg{max-width:min(520px,100%)}
-.tiny{margin-top:14px;border:3px dashed var(--dk);border-radius:10px;padding:10px 14px;background:var(--card)}
-.tiny h4{margin:0 0 8px;font-size:1.05rem}
 /* Donate page: payment option cards */
 .dn{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:20px;align-items:start;margin:14px 0 28px}
 .dn>article{border:3px solid var(--dk);border-radius:12px;box-shadow:5px 5px 0 var(--dk);padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0;overflow-wrap:anywhere;background:var(--card)}
@@ -280,6 +214,7 @@ button.tag:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
 .dn-row .btn{flex:0 0 auto;margin:0;padding:3px 10px;font-size:.8rem;box-shadow:2px 2px 0 var(--dk)}
 </style>
 <!-- Extra stylesheets that live next to this file -->
+<link rel="stylesheet" href="games/games.css">
 <link rel="stylesheet" href="animations.css">
 <link rel="stylesheet" href="bg-slider.css">
 <link rel="stylesheet" href="games-phone-fix.css">
@@ -292,6 +227,9 @@ button.tag:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
 <!-- nav = top menu, main = the current page. Both are filled by function r() -->
 <div class="c"><nav id="nav"></nav><main id="app"></main></div>
 <!-- ======================= CONTENT + LOGIC (JavaScript) ======================= -->
+<!-- Games toolkit + game list (open source, see games/README.md) -->
+<script src="games/core.js"></script>
+<script src="games/manifest.js"></script>
 <script>
 // ================================================================
 // EVENTS  (shown on Home timeline, Events page and each event page)
@@ -373,8 +311,7 @@ const DON={
   ['Reference','YANTRIKA FUNDING',0]
  ]
 };
-// Helper: makes text safe to put inside HTML. Wrap any user/data text with esc(...)
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
 // DONORS (thank-you line on the Sponsor or Donate page): ['Name', 'link or empty string']
 const DONORS=[
  ['Rhys Lindmark','https://www.rhyslindmark.com/'],['Priyanshu Kumar','https://www.linkedin.com/in/ramukp/']
@@ -431,7 +368,7 @@ about:()=>`<div class="card"><h1 class="m">About Yantrika</h1><p>Yantrika is the
 <p><a class="btn cy" href="#/games">Open the full Games Arcade &rarr;</a></p>
 <div class="card"><h2 class="m">What we aim for</h2><ul><li>500-800+ student participations across events.</li><li>100+ active hackers in competitive problem-solving.</li><li>2+ outreaches for underprivileged and local youth.</li><li>Reusable equipment that stays with the club for future batches.</li></ul></div>`,
 // ---------- GAMES PAGE (cards are built by gamesPage() further down) ----------
-games:()=>`<div class="card"><h1 class="m">Games Arcade</h1><p>Every game here connects to a Yantrika event. Pick a pillar, play, then jump to the event it prepares you for.</p><div id="gf"></div></div><div class="gl" id="gg"></div><div class="card pp" id="gp" hidden aria-live="polite"></div>`,
+games:()=>`<div class="card"><h1 class="m">Games Arcade</h1><p>Every game here connects to a Yantrika event. Pick a pillar, play, then jump to the event it prepares you for.</p><div id="gf"></div></div><div class="gl" id="gg"></div>${YK.ossCard()}<div class="card pp" id="gp" hidden aria-live="polite"></div>`,
 // ---------- EVENTS PAGE (groups EV by status) ----------
 events:()=>`<div class="card"><h1 class="m">Events</h1><p>From induction to hackathons. Dates for 2027 are planned and may shift.</p></div>${['done','plan','prop'].map(s=>`<h2 class="m">${ST[s][0]}</h2><div class="grid" style="margin-bottom:36px">${EV.filter(e=>e.s===s).map(evCard).join('')}</div>`).join('')}`,
 // ---------- MATERIALS PAGE (list is built by mats()) ----------
@@ -488,454 +425,40 @@ function mats(){
  q.oninput=d;d();
 }
 
-// ---- Small text used inside the pillar panels / game intros ----
-// LT = topics under "Learn", BP = bot parts, SH = ways to "Share"
-/* ---------- Pillar panel content (used by the Games page) ---------- */
-const LT={Arduino:'The tiny brain of most of our bots. Start with the UNO and Nano pinouts.',Sensors:'How a robot sees: distance, light and line sensors, starting with the ultrasonic one.',Motors:'Drivers, power and speed control, plus the LiPo battery safety rules.',Code:'Your first sketches: blink an LED, read a sensor, make a decision. Examples from Workshop I.'};
-const BP=[['Arduino Nano','The brain. It reads sensors and decides what the motors do.','🧠'],['Ultrasonic sensor','Sends out a sound pulse and times the echo to measure distance.','📡'],['Motor driver','Lets the small Arduino pins control power-hungry motors.','⚙️'],['DC motors','Turn the wheels. Speed is set with PWM signals.','🛞'],['LiPo battery','Powers everything. Read the safety sheet before charging.','🔋']];
-const SH=[['Mentor a newcomer','Walk a first-timer through their first circuit. Everyone you help becomes a builder too.','Join as a mentor','#/join'],['Teach at a school','Help run the free hands-on workshop for school students planned for Dec 2026.','Volunteer with us','#/join'],['Sponsor an event','Companies and individuals can back a workshop or a hackathon.','Support the club','#/donate'],['Spread the word','Follow us and show a friend what you built.','Follow on Instagram',LINKS.ig]];
-let best=Infinity;
 
-/* ---------- Prisoner's Dilemma data ---------- */
-/* Payoffs (you, them): both cooperate 3/3, you defect on a cooperator 5/0, both defect 1/1. T(5)>R(3)>P(1)>S(0) and 2R>T+S, so this is a valid dilemma. */
-// Scores per round [you, them]: C = cooperate, D = defect
-const PAY={CC:[3,3],CD:[0,5],DC:[5,0],DD:[1,1]};
-// The six computer opponents (name, emoji, hint, reveal text and strategy function f)
-const OPP=[
- {k:'tft',n:'Mirror Mike',e:'🪞',h:'Plays nice, then copies you.',r:'Tit for Tat: cooperates first, then repeats your last move. Nice, retaliating and forgiving.',f:(h)=>h.length?h[h.length-1]:'C'},
- {k:'allc',n:'Kind Kim',e:'😇',h:'Always hopeful.',r:'Always Cooperate: never defects, which makes her easy to exploit.',f:()=>'C'},
- {k:'alld',n:'Sly Sam',e:'😈',h:'Out for himself.',r:'Always Defect: betrays every round, no matter what you do.',f:()=>'D'},
- {k:'grudge',n:'Grudge Gary',e:'😠',h:'Never forgets.',r:'Grudger: cooperates until you defect once, then defects forever.',f:(h)=>h.includes('D')?'D':'C'},
- {k:'pav',n:'Pavlov Pat',e:'🔁',h:'Repeats what works.',r:'Win-Stay, Lose-Shift: keeps his move after a good outcome and switches after a bad one.',f:(h,o)=>{if(!h.length)return 'C';return h[h.length-1]===o[o.length-1]?'C':'D';}},
- {k:'rand',n:'Chaos Chip',e:'🎲',h:'Flips a coin.',r:'Random: cooperates or defects 50/50, ignoring you completely.',f:()=>Math.random()<.5?'C':'D'}
-];
-const pdBest={};
-const pdMx=l=>`<div style="overflow-x:auto"><table class="pdm" aria-label="Payoff matrix: your points, then their points"><tr><th></th><th>They cooperate 🤝</th><th>They cheat 🗡️</th></tr><tr><th>You cooperate 🤝</th><td class="${l==='CC'?'hl':''}">${PAY.CC.join(' , ')}</td><td class="${l==='CD'?'hl':''}">${PAY.CD.join(' , ')}</td></tr><tr><th>You cheat 🗡️</th><td class="${l==='DC'?'hl':''}">${PAY.DC.join(' , ')}</td><td class="${l==='DD'?'hl':''}">${PAY.DD.join(' , ')}</td></tr></table></div>`;
 
-// ---- Sound effects (Web Audio, no files). Mute button bottom-right; choice is remembered. ----
-const SFX=(()=>{let ac=null,on=true;try{on=localStorage.getItem('yk_snd')!=='0'}catch(e){}
- const cx=()=>{try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();return ac}catch(e){return null}};
- const t=(f,d=.15,ty='sine',v=.1,at=0,f2)=>{const a=cx();if(!a||!on)return;const o=a.createOscillator(),g=a.createGain(),st=a.currentTime+at;o.type=ty;o.frequency.setValueAtTime(f,st);if(f2)o.frequency.exponentialRampToValueAtTime(f2,st+d);g.gain.setValueAtTime(v,st);g.gain.exponentialRampToValueAtTime(.001,st+d);o.connect(g);g.connect(a.destination);o.start(st);o.stop(st+d+.02);};
- const S={
-  click:()=>t(520,.04,'square',.03),
-  on:()=>{t(600,.07,'square',.06);t(900,.09,'square',.06,.06)},
-  off:()=>{t(900,.07,'square',.05);t(520,.09,'square',.05,.06)},
-  step:()=>t(260,.05,'triangle',.07,0,200),
-  bump:()=>t(90,.12,'square',.09,0,60),
-  hint:()=>{t(660,.1,'sine',.1);t(990,.16,'sine',.1,.09)},
-  tick:()=>t(1500,.04,'square',.05),
-  ping:()=>t(1300,.35,'sine',.1,0,700),
-  go:()=>t(880,.3,'square',.09),
-  tie:()=>{t(440,.12,'triangle',.09);t(440,.12,'triangle',.09,.14)},
-  coin:()=>{t(988,.07,'square',.06);t(1319,.22,'square',.06,.07)},
-  win:()=>[523,659,784,1047].forEach((f,i)=>t(f,.2,'triangle',.11,i*.1)),
-  lose:()=>[392,370,349,311].forEach((f,i)=>t(f,.3,'sawtooth',.07,i*.22,f*.93)),
-  buzz:()=>{t(120,.3,'sawtooth',.1);t(114,.3,'square',.05)},
-  gavel:()=>{t(180,.1,'square',.14,0,60);t(140,.16,'square',.12,.16,50)},
-  whoosh:()=>t(200,.35,'sawtooth',.05,0,1200),
-  devil:()=>{t(70,1.3,'sawtooth',.06);for(let i=0;i<5;i++){t(250-i*20,.15,'sawtooth',.09,i*.2,200-i*20);t(500-i*40,.1,'square',.025,i*.2+.02)}}
- };
- return{play:n=>{try{S[n]&&S[n]()}catch(e){}},toggle:()=>{on=!on;try{localStorage.setItem('yk_snd',on?'1':'0')}catch(e){}return on},get on(){return on}};
-})();
-(()=>{const mk=()=>{const b=document.createElement('button');b.id='sndb';b.type='button';b.className='chip';b.setAttribute('aria-label','Toggle sound effects');b.style.cssText='position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:60';const u=()=>{b.textContent=SFX.on?'🔊':'🔇';};u();b.onclick=e=>{e.stopPropagation();SFX.toggle();u();SFX.play('on');};document.body.appendChild(b);};
- document.readyState==='loading'?document.addEventListener('DOMContentLoaded',mk):mk();
- document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button');if(b&&b.id!=='sndb')SFX.play('click');},true);})();
 
-// Game of Trust scene: you (red fez) | coin machine | other player (blue fez)
-const pdFace=m=>({happy:'<path d="M-8 160Q0 169 8 160" fill="none"/>',sad:'<path d="M-7 165Q0 157 7 165" fill="none"/><circle cx="11" cy="158" r="2.6" fill="#338eda" stroke="none"/>',angry:'<path d="M-13 144L-3 149M13 144L3 149M-7 163H7" fill="none"/>',devil:'<path d="M-14 143L-3 150M14 143L3 150" fill="none"/><path d="M-11 158Q0 176 11 158Z" fill="#17171d"/><path d="M-6 160V164M0 161V166M6 160V164" stroke="#fff" stroke-width="2.2" fill="none"/>'})[m]||'';
-const pdFig=(x,hat,m)=>`<g transform="translate(${x} 0)" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="var(--card)"><circle cx="0" cy="150" r="22"/><circle cx="-7" cy="152" r="2.8" fill="var(--ink)" stroke="none"/><circle cx="7" cy="152" r="2.8" fill="var(--ink)" stroke="none"/>${pdFace(m)}${m==='devil'?'<path d="M-14 132L-25 106L-6 124ZM14 132L25 106L6 124Z" fill="var(--red)"/>':''}<path d="M-24 214V192Q-24 176-12 174H12Q24 176 24 192V214"/><path d="M-14 132L-10 106H10L14 132Z" fill="${hat}"/><path d="M8 110Q28 98 24 120" fill="none"/></g>`;
-const pdMood=(S,fin)=>{if(!S||!S.h.length)return['normal','normal',0];const k=S.last,ld=S.ys-S.os,th=Math.max(5,.2*3*S.h.length);
- if(fin)return ld>=th?['devil','sad',1]:-ld>=th?['sad','devil',-1]:ld>0?['happy','normal',0]:ld<0?['normal','happy',0]:['happy','happy',0];
- if(k==='DC')return['devil','sad',1];if(k==='CD')return['sad','devil',-1];
- if(ld>=th)return['devil','sad',0];if(-ld>=th)return['sad','devil',0];
- return k==='CC'?['happy','happy',0]:['angry','angry',0];};
-const pdCoins=(n,cx)=>`<text x="${cx}" y="56" text-anchor="middle" font-size="22" fill="var(--ink)">+${n}</text>`+Array.from({length:n},(_,i)=>`<circle cx="${cx+(i-(n-1)/2)*21}" cy="84" r="9" fill="var(--yel)" stroke="var(--ink)" stroke-width="3" style="animation:pop .4s ease both;animation-delay:${i*.08}s"/>`).join('');
-const pdScene=(S,fin)=>{const [ym,tm,bb]=pdMood(S,fin),k=S&&S.last,v=k?PAY[k]:null,who=S?(S.mys?'other player':S.o.n.toLowerCase()):'other player';
- return `<svg class="tsc" viewBox="0 0 640 250" role="img" aria-label="You and the other player stand either side of a coin machine"><line x1="10" y1="214" x2="630" y2="214" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"/>
- <rect x="240" y="40" width="160" height="174" fill="#5a5a62" stroke="var(--ink)" stroke-width="4"/><path d="M255 135L320 80L385 135L320 190ZM290 108V162M350 108V162M255 135H385M320 80V190" fill="none" stroke="var(--ink)" stroke-width="3" opacity=".75"/><path d="M226 214Q226 198 240 198V214ZM414 214Q414 198 400 198V214Z" fill="#5a5a62" stroke="var(--ink)" stroke-width="3"/>
- <text x="70" y="26" text-anchor="middle" font-size="15" fill="var(--ink)" opacity=".55">you ↓</text><text x="570" y="26" text-anchor="middle" font-size="15" fill="var(--ink)" opacity=".55">${who} ↓</text>
- ${pdFig(70,'var(--red)',ym)}${pdFig(570,'#338eda',tm)}${bb?`<text x="${bb>0?170:470}" y="128" text-anchor="middle" font-size="19" fill="var(--red)" transform="rotate(${bb>0?-8:8} ${bb>0?170:470} 128)">MWAHAHA! 😈</text>`:''}
- ${v?pdCoins(v[0],70)+pdCoins(v[1],570)+`<text x="70" y="238" text-anchor="middle" font-size="14" fill="var(--ink)">${S.h[S.h.length-1]==='C'?'cooperated':'cheated'}</text><text x="570" y="238" text-anchor="middle" font-size="14" fill="var(--ink)">${S.p[S.p.length-1]==='C'?'cooperated':'cheated'}</text>`:''}</svg>`;};
 
-// ---- Pillar panels: the HTML of each pillar's mini-activity ----
-const PN={
-learn:()=>`<h2 class="m">Learn: flip the switch</h2><p>Every robot starts with a circuit. Close the switch and watch the current light the LED.</p>
-<svg viewBox="0 0 320 120" style="width:100%;max-width:460px;display:block;color:var(--ink)" role="img" aria-label="Circuit with a battery, a switch, a resistor and an LED">
-<g fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 30H70M120 30H150l8-14 12 28 12-28 12 28 8-14H236M264 30H300V90H20V30"/><circle cx="70" cy="30" r="4"/><circle cx="120" cy="30" r="4"/><line id="bl" x1="70" y1="30" x2="112" y2="8"/><rect x="145" y="72" width="30" height="36" style="fill:var(--card);stroke:none"/><path d="M152 74V106M168 82V98" stroke-width="6"/><circle id="led" cx="250" cy="30" r="14" style="fill:var(--soft)"/></g></svg>
-<button class="btn cy" id="sw" type="button" aria-pressed="false">Close the switch</button>
-<h3 class="m" style="margin-top:20px">What you will pick up</h3>
-<div>${Object.keys(LT).map(k=>`<button class="chip" type="button" aria-pressed="false" data-t="${k}">${k}</button>`).join('')}</div>
-<div class="info" id="li">Tap a topic to see what we cover.</div>
-<a class="btn" href="#/materials" style="margin-top:12px">Open Materials</a>`,
-build:()=>`<h2 class="m">Build: assemble an obstacle-avoiding bot</h2><p>Tap each part to add it to your robot. Tap again to take it off.</p>
-<div>${BP.map((b,i)=>`<button class="chip" type="button" aria-pressed="false" data-i="${i}">${b[0]}</button>`).join('')}</div>
-<div class="slots" aria-hidden="true">${BP.map(b=>`<div class="slot">${b[2]}</div>`).join('')}</div>
-<div class="bar"><i></i></div><p style="margin:6px 0 0"><b id="bc">0 of 5 parts</b></p>
-<div class="info" id="bi">Start with the brain: tap Arduino Nano.</div>
-<hr style="border:0;border-top:4px dashed var(--dk);margin:32px 0 24px">
-<div id="pd"></div>`,
-compete:()=>`<h2 class="m">Compete: reaction duel</h2><p>Duel Quick Quinn in a best-of-5. Tap only when the button turns green: a red FAKE is a trap, and Quinn gets faster each time you win a round.</p>
-<button class="btn" id="rx" type="button">Start the duel</button>
-<p id="rs" aria-live="polite" style="margin:6px 0 16px"><b>Your time shows up here.</b></p>
-<h3 class="m">Where to use it</h3>
-${['robotics-hackathon','game-theory-hackathon','technical-hackathon','team-challenge'].map(id=>{const e=EV.find(x=>x.id===id);return `<a class="btn" href="#/${id}">${esc(e.t)} (${e.d})</a>`}).join('')}`,
-share:()=>`<h2 class="m">Share: how will you pass it on?</h2><p>What we learn is worth more when it travels. Pick a way to share.</p>
-<div>${SH.map((s,i)=>`<button class="chip" type="button" aria-pressed="false" data-i="${i}">${s[0]}</button>`).join('')}</div>
-<div class="info" id="si">Choose one above and we will point you to the next step.</div>`
-};
 
-/* ---------- Prisoner's Dilemma game ---------- */
-// (Game logic from here down. Only edit if you want to change how a game plays.)
-function pdInit(el){
- let N=10,S=null,lock=false;
- const menu=()=>{
-  el.innerHTML=`<h2 class="m">Build trust: the Prisoner's Dilemma</h2>
-  <p>You have one choice. In front of you is a machine: if you put a coin in, the <i>other player</i> gets the payout, and vice versa. Each of you can <b>cooperate</b> (put in a coin) or <b>cheat</b> (keep it). Cheating pays more in a single round, yet two cheaters do worse than two cooperators. Can you build trust and still win?</p>
-  ${pdScene(null)}
-  ${pdMx('')}
-  <p style="margin:0"><small>Each cell shows <b>your points , their points</b>.</small></p>
-  <h3 class="m" style="margin-top:18px">1. Pick the number of rounds</h3>
-  <div>${[5,10,15,20].map(n=>`<button class="chip" type="button" data-n="${n}" aria-pressed="${n===N}">${n} rounds</button>`).join('')}</div>
-  <h3 class="m" style="margin-top:18px">2. Choose your opponent</h3>
-  <div class="grid" style="gap:14px">${OPP.map((o,i)=>`<button class="pdo" type="button" data-o="${i}"><span>${o.e}</span><b>${o.n}</b><br>${o.h}${pdBest[o.k]!=null?`<br><small>Your best: <b>${pdBest[o.k]}</b> pts</small>`:''}</button>`).join('')}<button class="pdo" type="button" data-o="-1"><span>❓</span><b>Mystery Opponent</b><br>A hidden strategy. Work it out!</button></div>`;
-  el.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{N=+b.dataset.n;el.querySelectorAll('[data-n]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));});
-  el.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{const i=+b.dataset.o;start(i<0?Math.floor(Math.random()*OPP.length):i,i<0);});
- };
- const start=(i,mys)=>{S={o:OPP[i],i,mys,h:[],p:[],ys:0,os:0,last:'',msg:'What should you do?'};lock=false;play();};
- const play=()=>{
-  const r=S.h.length,mx=5*N;
-  el.innerHTML=`<h2 class="m">${S.mys?'❓ Mystery Opponent':S.o.e+' '+S.o.n}</h2>
-  <p style="margin:0"><b>Round ${Math.min(r+1,N)} of ${N}</b></p>
-  <div class="pdsc"><div><b>You: <span id="ys">${S.ys}</span></b><div class="bar"><i id="yb" style="width:${S.ys/mx*100}%"></i></div></div><div><b>${S.mys?'Them':S.o.n}: <span id="os">${S.os}</span></b><div class="bar"><i class="o" id="ob" style="width:${S.os/mx*100}%"></i></div></div></div>
-  ${pdScene(S)}
-  <p class="pdbig m" id="pm2" aria-live="polite" style="text-align:center;margin:4px 0">${S.msg}</p>
-  <div class="tbs"><button class="tb" type="button" data-m="D">Cheat</button><button class="tb" type="button" data-m="C">Cooperate</button></div>
-  <p style="text-align:center;margin:0"><small>Cooperate = put in a coin. Cheat = keep it.</small></p>
-  ${pdMx(S.last)}
-  <div class="hist" id="hs" aria-label="Round history">${S.h.map((m,k)=>`<span class="hr" title="Round ${k+1}">${m==='C'?'🤝':'🗡️'}${S.p[k]==='C'?'🤝':'🗡️'}</span>`).join('')}</div>
-  <p style="margin:6px 0 0"><small>History shows you, then them. </small><button class="chip" type="button" id="qt">Quit game</button></p>`;
-  el.querySelector('#qt').onclick=menu;
-  el.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>move(b.dataset.m));
- };
- const move=m=>{
-  if(lock)return;lock=true;
-  const bs=el.querySelectorAll('[data-m]');bs.forEach(b=>b.disabled=true);
-  const msg=el.querySelector('#pm2');msg.textContent='🤔 '+(S.mys?'They are':S.o.n+' is')+' deciding...';
-  setTimeout(()=>{
-   const t=S.o.f(S.h,S.p),k=m+t,[a,b]=PAY[k];
-   S.h.push(m);S.p.push(t);S.ys+=a;S.os+=b;S.last=k;
-   const who=S.mys?'They':S.o.n;
-   S.msg={CC:`🤝 Both cooperated. +${a} each. Trust pays!`,CD:`😬 You cooperated but ${who} cheated. You get ${a}, they get ${b}.`,DC:`😏 You cheated a cooperator. You get ${a}, they get ${b}. They will remember...`,DD:`💥 Both cheated. Only +${a} each. Nobody wins.`}[k];
-   SFX.play({CC:'coin',CD:'lose',DC:'devil',DD:'buzz'}[k]);
-   if(S.h.length>=N){end();return;}
-   lock=false;play();
-   if(k==='CD'||k==='DD')el.querySelector('#pm2').classList.add('shake');
-  },550);
- };
- const end=()=>{
-  const mx=5*N,coop=Math.round(S.h.filter(x=>x==='C').length/N*100),tc=Math.round(S.p.filter(x=>x==='C').length/N*100);
-  const prev=pdBest[S.o.k];if(prev==null||S.ys>prev)pdBest[S.o.k]=S.ys;
-  SFX.play(S.ys-S.os>=Math.max(5,.6*N)?'devil':S.ys>S.os?'win':S.ys<S.os?'lose':'coin');
-  const win=S.ys>S.os?'🏆 You outscored them!':S.ys<S.os?'They outscored you this time.':'🤝 It is a tie.';
-  const cc=S.h.filter((x,i)=>x==='C'&&S.p[i]==='C').length;
-  const tip=cc===N?'Perfect trust: you both cooperated every round and earned the maximum shared score together.':S.o.k==='alld'?'Against a pure defector, defecting back is the only way to avoid being exploited.':S.o.k==='allc'?'Kind Kim can be exploited, but notice how much you could have earned by simply cooperating with a friendly partner.':S.ys>=3*N?'Excellent! You averaged at least the cooperative score.':'Tip: repeated games reward being nice, retaliating when needed, and forgiving. Try building trust early.';
-  el.innerHTML=`<h2 class="m">Game over!</h2>
-  ${pdScene(S,true)}
-  <div class="info pdbig"><b>${win}</b><br>You: <b>${S.ys}</b> pts &nbsp;|&nbsp; ${S.mys?'Them':S.o.n}: <b>${S.os}</b> pts<br><small>Max possible: ${mx}. Perfect mutual cooperation: ${3*N} each. Your best vs ${S.o.n}: ${pdBest[S.o.k]}.</small></div>
-  <p>You cooperated <b>${coop}%</b> of the time; they cooperated <b>${tc}%</b>.</p>
-  <div class="hist">${S.h.map((m,k)=>`<span class="hr">${m==='C'?'🤝':'🗡️'}${S.p[k]==='C'?'🤝':'🗡️'}</span>`).join('')}</div>
-  <div class="info"><b>${S.o.e} ${S.o.n} revealed:</b> ${S.o.r}<br><br>💡 ${tip}</div>
-  <p style="margin-top:14px"><button class="btn cy" type="button" id="ag">Play again</button><button class="btn" type="button" id="ch">Choose another opponent</button><a class="btn" href="#/game-theory-hackathon">Game Theory Hackathon</a></p>`;
-  el.querySelector('#ag').onclick=()=>start(S.i,S.mys);
-  el.querySelector('#ch').onclick=menu;
- };
- menu();
-}
 
-// ---- Auction Arena: data ----
-// Three formats. fp/sp = "private value" (each bidder knows what the item is worth TO THEM, 0-100).
-// cv = "common value" (one hidden true worth; everyone only gets a noisy estimate, +/-15).
-const AUF={
- fp:{n:'First-price',d:'Highest bid wins and pays <b>their own bid</b>. Bid below your value to keep a profit.'},
- sp:{n:'Second-price',d:'Highest bid wins but pays the <b>second-highest bid</b> (a Vickrey auction). What is the best bid now?'},
- cv:{n:"Winner's curse",d:'One hidden true worth, and everyone only sees a noisy estimate. Highest bid wins and pays their bid. Beware of winning!'}
-};
-// The three bots. f(x,m) = their bid given their value/estimate x in format m. Strategies stay hidden until the end.
-const AUB=[
- {n:'Truthful Tom',e:'😇',r:"Always bids exactly his value (or raw estimate). That is perfect in a second-price auction, but in a first-price auction he earns nothing when he wins, and in the winner's curse game he overpays.",f:x=>x},
- {n:'Rational Rita',e:'🧠',r:"Plays the equilibrium for each format: 75% of her value in a first-price auction with four bidders, her full value in a second-price auction, and her estimate minus 16 in the winner's curse game.",f:(x,m)=>m==='fp'?x*.75:m==='sp'?x:x-16},
- {n:'Bluffer Bruno',e:'🎭',r:'Bids a random amount, sometimes far below and sometimes above his value, hoping to bluff or get lucky. Randomness rarely beats a plan.',f:(x,m)=>m==='cv'?x-Math.random()*25:x*(.5+Math.random()*.6)}
-];
 
-// Auction scene: you + three bots (fez hats, paddles) around the item on a podium
-const auHat=['var(--red)','#338eda','#2fbf71','#ff8c37'],auX=[50,150,490,590],auNm=['you','Tom','Rita','Bruno'];
-const auScene=(bids,w,price,cur)=>`<svg class="tsc" viewBox="0 0 640 250" role="img" aria-label="Four bidders hold up paddles around an item on a podium"><line x1="10" y1="214" x2="630" y2="214" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"/>
- <rect x="250" y="150" width="140" height="64" fill="#5a5a62" stroke="var(--ink)" stroke-width="4"/><path d="M270 150V176H370V150" fill="none" stroke="var(--ink)" stroke-width="3" opacity=".7"/><text x="320" y="140" text-anchor="middle" font-size="54">📦</text>
- <text x="320" y="48" text-anchor="middle" font-size="${w!=null?24:30}" fill="var(--ink)">${w!=null?'SOLD for '+price+'!':'🔨'}</text>
- ${[0,1,2,3].map(i=>{const X=auX[i],win=w===i,v=bids?bids[i]:(i===0&&cur!=null?cur:'?');return pdFig(X,auHat[i],bids?(win?'devil':'sad'):'normal')+`<line x1="${X}" y1="84" x2="${X}" y2="106" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"/><rect x="${X-26}" y="38" width="52" height="46" rx="9" fill="${win?'var(--yel)':'var(--card)'}" stroke="var(--ink)" stroke-width="3.5"/><text x="${X}" y="70" text-anchor="middle" font-size="23" fill="${win?'#17171d':'var(--ink)'}">${v}</text><text x="${X}" y="238" text-anchor="middle" font-size="14" fill="var(--ink)">${auNm[i]}</text>${win?`<text x="${X}" y="30" text-anchor="middle" font-size="20">🏆</text>`:''}`;}).join('')}</svg>`;
 
-// ---- Auction Arena: game logic ----
-function auctionInit(el){
- let M='fp',N=10,S=null;
- const priv=()=>S?S.m!=='cv':M!=='cv';
- const nm=['You',...AUB.map(o=>o.n)],em=['🙋',...AUB.map(o=>o.e)];
- const menu=()=>{
-  el.innerHTML=`<h2 class="m">Auction Arena: bid to win (and to profit)</h2>
-  <p>Three bots and you compete for an item each round. Winning is easy: just bid a lot. Winning <b>with a profit</b> is the real game. You only know your own value, you cannot see rival bids, and the auction rules change what the smartest bid is.</p>
-  ${auScene(null,null,0,null)}
-  <h3 class="m" style="margin-top:18px">1. Pick an auction format</h3>
-  <div class="grid" style="gap:14px">${Object.keys(AUF).map(k=>`<button class="pdo" type="button" data-f="${k}" aria-pressed="${k===M}"><b>${AUF[k].n}</b><br>${AUF[k].d}</button>`).join('')}</div>
-  <h3 class="m" style="margin-top:18px">2. Pick the number of rounds</h3>
-  <div>${[5,10,15].map(n=>`<button class="chip" type="button" data-n="${n}" aria-pressed="${n===N}">${n} rounds</button>`).join('')}</div>
-  <div class="tbs"><button class="tb" type="button" id="go">Start bidding</button></div>`;
-  el.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{M=b.dataset.f;el.querySelectorAll('[data-f]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));});
-  el.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{N=+b.dataset.n;el.querySelectorAll('[data-n]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));});
-  el.querySelector('#go').onclick=start;
- };
- const start=()=>{S={m:M,rounds:[],tot:[0,0,0,0],rev:0,r:0};next();};
- // draw a fresh round: private values 0-100, or a hidden worth V with noisy estimates
- const next=()=>{
-  const c={};
-  if(priv()){c.x=[0,1,2,3].map(()=>Math.round(Math.random()*100));}
-  else{c.V=Math.round(50+Math.random()*100);c.x=[0,1,2,3].map(()=>Math.round(c.V+(Math.random()*30-15)));}
-  S.cur=c;bidScreen();
- };
- const bidScreen=()=>{
-  const c=S.cur,x=c.x[0],p=priv();
-  el.innerHTML=`<h2 class="m">${AUF[S.m].n} auction</h2>
-  <p style="margin:0"><b>Round ${S.r+1} of ${N}</b> | Your total profit: <b>${S.tot[0]}</b></p>
-  <div class="info pdbig">${p?`This item is worth <b>${x}</b> to you.`:`Your inspectors estimate the item is worth about <b>${x}</b>. The true worth is hidden, and each rival got their own estimate that is off by up to 15 either way.`}<br><small>${AUF[S.m].d}</small></div>
-  <div id="asc">${auScene(null,null,0,x)}</div>
-  <p class="pdbig m" style="text-align:center;margin:2px 0">What's your bid?</p>
-  <div style="display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap"><button class="chip" type="button" data-st="-5">−5</button><input id="ab" type="range" min="0" max="${p?100:170}" value="${x}" aria-label="Your bid" style="flex:1 1 220px;max-width:380px"><button class="chip" type="button" data-st="5">+5</button></div>
-  <p class="pdbig" id="abh" aria-live="polite" style="margin:4px 0;text-align:center"></p>
-  <div class="tbs"><button class="tb" type="button" id="bid">🔨 Place bid</button></div><p style="text-align:center;margin:0"><button class="chip" type="button" id="qt">Quit game</button></p>
-  <div class="hist" aria-label="Past rounds">${S.rounds.map((r,k)=>`<span class="hr" title="Round ${k+1}">${r.w===0?(r.profit>=0?'🏆':'😬'):'·'}${r.w===0?(r.profit>=0?'+':'')+r.profit:''}</span>`).join('')}</div>`;
-  const sl=el.querySelector('#ab'),sc=el.querySelector('#asc'),bh=el.querySelector('#abh');
-  const u=()=>{const b=+sl.value;sc.innerHTML=auScene(null,null,0,b);
-   bh.textContent=p?(x===0?'Your value is 0, so any win loses money.':Math.round(b/x*100)+'% of your value.'+(b>x?' Careful: above your value you lose money if you win.':'')):(b===x?'Same as your estimate.':b>x?(b-x)+' above your estimate.':(x-b)+' below your estimate.');};
-  sl.oninput=u;u();
-  el.querySelector('#qt').onclick=menu;el.querySelectorAll('[data-st]').forEach(c=>c.onclick=()=>{sl.value=Math.max(0,Math.min(+sl.max,+sl.value+ +c.dataset.st));u();});
-  el.querySelector('#bid').onclick=()=>resolve(+sl.value);
- };
- // all bids in, find the winner and the price
- const resolve=b0=>{
-  const c=S.cur,p=priv();
-  const bids=[b0,...AUB.map((o,i)=>Math.max(0,Math.round(o.f(c.x[i+1],S.m))))];
-  const mx=Math.max(...bids),tops=bids.map((b,i)=>b===mx?i:-1).filter(i=>i>=0),w=tops[Math.floor(Math.random()*tops.length)];
-  const sorted=[...bids].sort((a,b)=>b-a);
-  const price=S.m==='sp'?sorted[1]:mx;
-  const worth=p?c.x[w]:c.V,profit=worth-price;
-  S.tot[w]+=profit;S.rev+=price;SFX.play('gavel');setTimeout(()=>SFX.play(w===0?(profit>=0?'coin':'buzz'):'click'),260);
-  S.rounds.push({x:c.x[0],b:b0,w,price,profit,V:c.V,ws:c.x[w]});
-  S.r++;
-  const eq=S.m==='fp'?Math.round(c.x[0]*.75):S.m==='sp'?c.x[0]:c.x[0]-16;
-  let msg;
-  if(w===0)msg=profit>=0?`🏆 <b>You won!</b> The item was worth ${worth} and you paid ${price}: profit <b>+${profit}</b>.`:`😬 <b>You won, but lost money.</b> It was worth ${worth} and you paid ${price}: <b>${profit}</b>.${p?' Never bid above your value.':" That is the winner's curse in action."}`;
-  else msg=`You lost to <b>${nm[w]}</b>, who bid ${mx}${S.m==='sp'?' and paid '+price:''}.${profit<0?` Their win cost them ${-profit}.`:''}`;
-  const last=S.r>=N;
-  el.innerHTML=`<h2 class="m">Round ${S.r} result</h2>
-  ${auScene(bids,w,price)}
-  <div style="overflow-x:auto"><table class="pdm" aria-label="Bids this round"><tr><th>Bidder</th><th>Bid</th><th>Outcome</th></tr>${bids.map((b,i)=>`<tr><td>${em[i]} <b>${nm[i]}</b></td><td class="${i===w?'hl':''}">${b}</td><td>${i===w?'🏆 pays '+price:'–'}</td></tr>`).join('')}</table></div>
-  <p class="pdbig">${msg}</p>
-  ${p?'':`<div class="info">The true worth was <b>${c.V}</b>. The winning bidder's estimate was ${c.x[w]} (${c.x[w]>=c.V?'+':''}${c.x[w]-c.V} from the truth).</div>`}
-  <div class="info"><small>A rational bid for your ${p?'value':'estimate'} of ${c.x[0]} would have been about <b>${Math.max(0,eq)}</b>${S.m==='sp'?' (your true value, in a second-price auction)':''}. You bid ${b0}.</small></div>
-  <p>Your total profit: <b>${S.tot[0]}</b></p>
-  <div class="tbs"><button class="tb" type="button" id="nx">${last?'See final results':'Next round'}</button></div><p style="text-align:center"><button class="chip" type="button" id="qt">Quit game</button></p>`;
-  el.querySelector('#nx').onclick=last?end:next;
-  el.querySelector('#qt').onclick=menu;
- };
- const end=()=>{
-  const rs=S.rounds,p=priv(),wins=rs.filter(r=>r.w===0);
-  const order=[0,1,2,3].sort((a,b)=>S.tot[b]-S.tot[a]),mxa=Math.max(1,...S.tot.map(Math.abs));
-  const rat=rs.filter(r=>r.x>0).reduce((a,r)=>a+r.b/r.x,0)/Math.max(1,rs.filter(r=>r.x>0).length);
-  const truthful=rs.filter(r=>Math.abs(r.b-r.x)<=3).length/rs.length;
-  const wsErr=rs.reduce((a,r)=>a+(r.ws-r.V),0)/rs.length;
-  const myErr=wins.length?wins.reduce((a,r)=>a+(r.x-r.V),0)/wins.length:null;
-  let tip;
-  if(S.m==='fp')tip=rat>=.93?"You bid almost your full value. In a first-price auction that leaves no profit even when you win. Shading to about 75% (Rational Rita's rule with four bidders) balances winning often against keeping a margin.":rat<=.55?'You bid very low, so you won rarely. Shading is good, but too much means rivals take every item. The equilibrium is about 75% of your value with four bidders.':'Nice shading! The equilibrium with four bidders is about 75% of your value: low enough to profit, high enough to win often.';
-  else if(S.m==='sp')tip=truthful>=.7?'You bid close to your true value, which is the <b>dominant strategy</b> in a second-price auction: the price depends on rivals, not on you, so you only decide whether winning is worth it.':'In a second-price auction bidding your true value is optimal. Bidding lower risks losing items you would have profited from, and bidding higher risks paying more than the item is worth.';
-  else tip=S.tot[0]<0?"The winner's curse hit you. The bidder with the highest estimate usually has the biggest error in their favour, so winning is bad news about the item. Rational Rita shaves 16 off her estimate to compensate.":'You shaded your estimate and avoided the curse. Winning means your estimate was probably too high, so smart bidders bid below their estimate.';
-  el.innerHTML=`<h2 class="m">Auction over!</h2>
-  <div class="info pdbig"><b>${order[0]===0?'🏆 You finished first!':'You finished #'+(order.indexOf(0)+1)+'.'}</b><br>${order.map(i=>`${em[i]} ${nm[i]}: <b>${S.tot[i]}</b>`).join(' &nbsp;|&nbsp; ')}</div>
-  ${order.map(i=>`<p style="margin:6px 0"><small>${em[i]} ${nm[i]}</small><span class="bar" style="display:block;max-width:none"><i style="width:${Math.max(2,Math.abs(S.tot[i])/mxa*100)}%;${S.tot[i]<0?'background:var(--red)':''}"></i></span></p>`).join('')}
-  <p>You won <b>${wins.length}</b> of ${rs.length} rounds.${p?` On average you bid <b>${Math.round(rat*100)}%</b> of your value.`:''}</p>
-  ${p?`<div class="info"><b>Auctioneer's revenue:</b> ${S.rev} (${(S.rev/rs.length).toFixed(1)} per round). With four rational bidders and values spread evenly, theory says about 60 per round in <i>both</i> formats: this is the <b>revenue equivalence theorem</b>.</div>`:`<div class="info"><b>The curse in numbers:</b> the winning estimate was on average <b>${wsErr>=0?'+':''}${wsErr.toFixed(1)}</b> away from the true worth.${myErr!==null?` In rounds you won, your own estimate was ${myErr>=0?'+':''}${myErr.toFixed(1)} off.`:''} Winning selects for optimistic errors.</div>`}
-  <div class="info">💡 ${tip}</div>
-  <h3 class="m" style="margin-top:18px">The bots revealed</h3>
-  ${AUB.map(o=>`<div class="info"><b>${o.e} ${o.n}:</b> ${o.r}</div>`).join('')}
-  <p style="margin-top:14px"><button class="btn cy" type="button" id="ag">Play again</button><button class="btn" type="button" id="ch">Try another format</button><a class="btn" href="#/game-theory-hackathon">Game Theory Hackathon</a></p>`;
-  el.querySelector('#ag').onclick=start;
-  el.querySelector('#ch').onclick=menu;
- };
- menu();
-}
 
-// ---- Random Walk Lab: game logic ----
-// Three tabs: lab (watch a crowd of noisy robots), guess (predict how far they drift), ruin (battery gambler's ruin)
-function walkInit(el){
- let tab='lab',run=0;
- const TABS=[['lab','🤖 Drunk Robot Lab'],['guess','🎯 Predict the Drift'],['ruin','🔋 Battery Gambler']];
- const ink=()=>getComputedStyle(el).getPropertyValue('--ink').trim()||'#17171d';
- // one lattice step: pr = chance of stepping right (0.25 = fair), the other 3 directions share the rest
- const stepXY=pr=>{const po=(1-pr)/3,u=Math.random();return u<pr?[1,0]:u<pr+po?[-1,0]:u<pr+2*po?[0,1]:[0,-1];};
- const path=(N,pr)=>{let x=0,y=0;const p=[[0,0]];for(let i=0;i<N;i++){const d=stepXY(pr);x+=d[0];y+=d[1];p.push([x,y]);}return p;};
- const endDist=N=>{let x=0,y=0;for(let i=0;i<N;i++){const d=stepXY(.25);x+=d[0];y+=d[1];}return Math.hypot(x,y);};
- const RNG='style="display:block;width:100%;max-width:420px;margin:4px 0 8px"';
 
- // ---------- TAB 1: Drunk Robot Lab ----------
- const lab=box=>{
-  let N=200,R=20,D=0;
-  box.innerHTML=`<p>Each robot takes one cell-sized step per tick in a random direction (up, down, left or right), like a robot with noisy wheel encoders and nothing to correct it. Release a crowd and watch how they spread. Add <b>wheel bias</b> to mimic one wheel that is slightly stronger.</p>
-  <label for="wn"><b>Steps per robot: <span id="wnv"></span></b></label><input id="wn" type="range" min="10" max="2000" step="10" value="${N}" ${RNG}>
-  <label for="wr"><b>Number of robots: <span id="wrv"></span></b></label><input id="wr" type="range" min="1" max="60" value="${R}" ${RNG}>
-  <label for="wd"><b>Wheel bias to the right: <span id="wdv"></span>%</b></label><input id="wd" type="range" min="0" max="40" value="0" ${RNG}>
-  <button class="btn cy" type="button" id="wgo">▶ Release the robots</button>
-  <canvas id="wc" width="480" height="480" role="img" aria-label="Paths of random-walking robots" style="width:100%;max-width:480px;border:3px solid var(--dk);border-radius:10px;background:var(--card);display:block;margin:12px 0"></canvas>
-  <div class="info" id="wi" aria-live="polite">Press the button to start. The dashed circle shows the typical distance, the square root of the number of steps.</div>`;
-  const cv=box.querySelector('#wc'),cx=cv.getContext('2d'),wi=box.querySelector('#wi'),rd=q=>+box.querySelector(q).value;
-  const lbl=()=>{N=rd('#wn');R=rd('#wr');D=rd('#wd');box.querySelector('#wnv').textContent=N;box.querySelector('#wrv').textContent=R;box.querySelector('#wdv').textContent=D;};
-  ['#wn','#wr','#wd'].forEach(q=>box.querySelector(q).oninput=lbl);lbl();
-  // blank canvas: axes + dashed circle of radius sqrt(N)
-  const base=sc=>{
-   const c=ink();cx.clearRect(0,0,480,480);cx.strokeStyle=c;cx.globalAlpha=.25;cx.lineWidth=1;cx.beginPath();cx.moveTo(240,0);cx.lineTo(240,480);cx.moveTo(0,240);cx.lineTo(480,240);cx.stroke();cx.globalAlpha=1;
-   if(sc){cx.setLineDash([6,5]);cx.lineWidth=2;cx.globalAlpha=.8;cx.beginPath();cx.arc(240,240,Math.sqrt(N)*sc,0,7);cx.stroke();cx.setLineDash([]);cx.globalAlpha=1;}
-  };
-  base(0);
-  box.querySelector('#wgo').onclick=()=>{SFX.play('whoosh');
-   lbl();const tok=++run,pr=.25+D/200;
-   const W=Array.from({length:R},()=>path(N,pr));
-   let ext=4;W.forEach(p=>p.forEach(q=>{ext=Math.max(ext,Math.abs(q[0]),Math.abs(q[1]));}));
-   const sc=225/ext,per=Math.max(1,Math.ceil(N/160));let k=0;
-   const draw=()=>{
-    base(sc);const c=ink();
-    W.forEach((p,r)=>{
-     cx.strokeStyle=PC[r%6];cx.lineWidth=1.6;cx.globalAlpha=.75;cx.beginPath();
-     for(let i=0;i<=k;i++){const q=p[i],X=240+q[0]*sc,Y=240-q[1]*sc;i?cx.lineTo(X,Y):cx.moveTo(X,Y);}
-     cx.stroke();cx.globalAlpha=1;
-     const e=p[k];cx.fillStyle=PC[r%6];cx.beginPath();cx.arc(240+e[0]*sc,240-e[1]*sc,4,0,7);cx.fill();cx.strokeStyle=c;cx.lineWidth=1.5;cx.stroke();
-    });
-    cx.fillStyle=c;cx.beginPath();cx.arc(240,240,5,0,7);cx.fill();
-   };
-   const fin=()=>{
-    const E=W.map(p=>p[N]),dist=E.map(e=>Math.hypot(e[0],e[1])),mean=dist.reduce((a,b)=>a+b,0)/R,far=Math.max(...dist);
-    const mx=E.reduce((a,e)=>a+e[0],0)/R,my=E.reduce((a,e)=>a+e[1],0)/R;
-    wi.innerHTML=`<b>After ${N} steps</b> the average robot is <b>${mean.toFixed(1)}</b> cells from the start (farthest: ${far.toFixed(1)}).<br>`+(D===0
-     ?`Theory for an unbiased walk: about 0.89 x √${N} = <b>${(.886*Math.sqrt(N)).toFixed(1)}</b>. A straight line would have gone ${N} cells. The crowd's average position is (${mx.toFixed(1)}, ${my.toFixed(1)}): it stays centred while each robot wanders off.`
-     :`The bias pushes the whole crowd: average position (<b>${mx.toFixed(1)}</b>, ${my.toFixed(1)}). Expected drift is about <b>${(N*D/150).toFixed(0)}</b> cells to the right, against a random spread of only about ${Math.sqrt(N).toFixed(0)}.`);
-   };
-   const tick=()=>{
-    if(tok!==run||!box.isConnected)return;
-    k=Math.min(N,k+per);draw();
-    if(k<N){wi.innerHTML=`Step <b>${k}</b> of ${N}`;requestAnimationFrame(tick);}else fin();
-   };
-   if(matchMedia('(prefers-reduced-motion:reduce)').matches){k=N;draw();fin();}else tick();
-  };
- };
 
- // ---------- TAB 2: Predict the Drift (5 rounds) ----------
- const guess=box=>{
-  const NS=[25,64,100,225,400],T=5;let r=0,score=0,ratio=0;
-  const ask=()=>{
-   const N=NS[Math.floor(Math.random()*NS.length)];
-   box.innerHTML=`<h3 class="m">Round ${r+1} of ${T} | Score: ${score}</h3>
-   <p>A robot takes <b>${N}</b> random steps, one cell each, in random directions. We release 60 of them. How far from the start will the <b>average</b> robot be at the end?</p>
-   <label for="gs"><b>Your guess: <span id="gv"></span> cells</b></label><input id="gs" type="range" min="0" max="${N}" value="${Math.round(N/2)}" ${RNG}>
-   <p><small>Walking in a straight line for ${N} steps would put it ${N} cells away.</small></p>
-   <button class="btn cy" type="button" id="gl">🔒 Lock in my guess</button>`;
-   const sl=box.querySelector('#gs'),u=()=>{box.querySelector('#gv').textContent=sl.value;};sl.oninput=u;u();
-   box.querySelector('#gl').onclick=()=>{SFX.play('gavel');
-    const g=+sl.value;let tot=0;for(let i=0;i<60;i++)tot+=endDist(N);const a=tot/60;
-    const pts=Math.max(0,Math.round(100-100*Math.abs(g-a)/a));score+=pts;ratio+=g/N;r++;
-    const bar=(l,v,c)=>`<p style="margin:6px 0"><small>${l}: <b>${v.toFixed(1)}</b></small><span class="bar" style="display:block;max-width:none"><i style="width:${Math.max(1,v/N*100)}%;background:${c}"></i></span></p>`;
-    box.innerHTML=`<h3 class="m">Round ${r} of ${T} | Score: ${score}</h3>`+bar('Your guess',g,'var(--bl)')+bar('Actual average distance',a,'var(--cy)')+bar('Straight line',N,'var(--or)')+`<div class="info"><b>+${pts} points.</b> Theory says about 0.89 x √${N} = ${(.886*Math.sqrt(N)).toFixed(1)}. Random steps mostly cancel each other out, so distance grows like the <b>square root</b> of the steps, not the steps themselves.</div><p><button class="btn cy" type="button" id="gn">${r>=T?'See final score':'Next round'}</button></p>`;
-    box.querySelector('#gn').onclick=r>=T?finish:ask;
-   };
-  };
-  const finish=()=>{
-   const avg=ratio/T;
-   box.innerHTML=`<h3 class="m">Final score: ${score} / ${T*100}</h3>
-   <div class="info pdbig"><b>${score>=400?'🏆 You really understand random walks!':score>=200?'Not bad! You are getting a feel for the square-root law.':'Random walks are famously unintuitive. Most people guess far too high.'}</b><br>On average you guessed <b>${Math.round(avg*100)}%</b> of the straight-line distance.</div>
-   <div class="info">💡 4 times more steps only gets you 2 times farther. That is why a robot that relies on wheel counting alone slowly drifts off course, and why it needs sensors to correct itself.</div>
-   <p><button class="btn cy" type="button" id="ag">Play again</button></p>`;
-   box.querySelector('#ag').onclick=()=>guess(box);
-  };
-  ask();
- };
 
- // ---------- TAB 3: Battery Gambler (gambler's ruin) ----------
- const ruin=box=>{
-  const G=20;let B=10,P=50,pos=10,steps=0,done=false;
-  box.innerHTML=`<p>Your robot has a battery on a track from <b>0</b> (💀 dead) to <b>${G}</b> (⚡ docking station). Each move it either gains 1 unit (a bit of sunlight) or loses 1. Will it reach the dock before dying? This is the <b>gambler's ruin</b> problem.</p>
-  <label for="rb"><b>Starting charge: <span id="rbv"></span></b></label><input id="rb" type="range" min="1" max="19" value="10" ${RNG}>
-  <label for="rp"><b>Chance of gaining a unit each move: <span id="rpv"></span>%</b></label><input id="rp" type="range" min="40" max="60" value="50" ${RNG}>
-  <div id="rt" role="img" aria-label="Battery track" style="display:flex;flex-wrap:wrap;gap:3px;margin:12px 0"></div>
-  <div class="info" id="ri" aria-live="polite"></div>
-  <button class="btn cy" type="button" id="r1">Take a step</button><button class="btn" type="button" id="r2">Run to the end</button><button class="btn cy" type="button" id="r3">Simulate 2000 robots</button><button class="chip" type="button" id="r0">Reset</button>`;
-  const q=s=>box.querySelector(s);
-  // theory: chance of reaching G from b when each step is +1 with probability p
-  const theory=(b,p)=>{p/=100;if(p===.5)return b/G;const r=(1-p)/p;return (1-Math.pow(r,b))/(1-Math.pow(r,G));};
-  const track=()=>{q('#rt').innerHTML=Array.from({length:G+1},(_,i)=>`<span title="Charge ${i}" style="width:24px;height:34px;display:flex;align-items:center;justify-content:center;border:2px solid var(--dk);border-radius:6px;font-size:${i===pos||i===0||i===G?'.95rem':'.6rem'};background:${i===pos?'var(--yel)':i===0?'var(--red)':i===G?'var(--cy)':'var(--card)'};color:${i===pos||i===G?'#17171d':'inherit'}">${i===pos?'🤖':i===0?'💀':i===G?'⚡':i}</span>`).join('');};
-  const reset=()=>{B=+q('#rb').value;P=+q('#rp').value;q('#rbv').textContent=B;q('#rpv').textContent=P;pos=B;steps=0;done=false;track();q('#ri').innerHTML=`Charge <b>${pos}</b>. Theory says the chance of reaching the dock from here is <b>${(theory(B,P)*100).toFixed(1)}%</b>. Try 48% and see what a tiny edge does.`;};
-  const mv=()=>{pos+=Math.random()<P/100?1:-1;steps++;if(pos<=0||pos>=G)done=true;};
-  const status=()=>{track();q('#ri').innerHTML=done?(pos>=G?`⚡ <b>Docked after ${steps} steps!</b>`:`💀 <b>Battery dead after ${steps} steps.</b>`)+' Press Reset to try again.':`Charge <b>${pos}</b> after ${steps} steps.`;};
-  q('#r1').onclick=()=>{if(done)return;SFX.play('step');mv();status();};
-  q('#r2').onclick=()=>{SFX.play('whoosh');while(!done)mv();status();};
-  q('#r3').onclick=()=>{let ok=0,st=0;const T=2000;for(let i=0;i<T;i++){let x=B,s=0;while(x>0&&x<G){x+=Math.random()<P/100?1:-1;s++;}if(x>=G)ok++;st+=s;}q('#ri').innerHTML=`<b>${T} robots</b> starting at charge ${B} with a ${P}% chance of gaining: <b>${(ok/T*100).toFixed(1)}%</b> reached the dock (theory: ${(theory(B,P)*100).toFixed(1)}%). Average journey: ${(st/T).toFixed(0)} steps.`;};
-  q('#r0').onclick=reset;
-  q('#rb').oninput=reset;q('#rp').oninput=reset;
-  reset();
- };
 
- const show=()=>{
-  run++;
-  el.innerHTML=`<h2 class="m">Random Walk Lab: the drunkard's walk</h2>
-  <p>A random walk is a path made of random steps. It describes a robot's drifting wheel counts, a diffusing molecule, a shaky stock price, and even how web pages get ranked. Pick an experiment:</p>
-  <div>${TABS.map(t=>`<button class="chip" type="button" data-t="${t[0]}" aria-pressed="${t[0]===tab}">${t[1]}</button>`).join('')}</div>
-  <div id="wk" style="margin-top:14px"></div>`;
-  el.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tab=b.dataset.t;show();});
-  ({lab,guess,ruin})[tab](el.querySelector('#wk'));
- };
- show();
-}
 
-// ---- Pillar panels: the click handlers that make the panels interactive ----
-const PI={
-learn:root=>{
- const sw=root.querySelector('#sw'),bl=root.querySelector('#bl'),led=root.querySelector('#led'),li=root.querySelector('#li');
- sw.onclick=()=>{const on=sw.getAttribute('aria-pressed')!=='true';SFX.play(on?'on':'off');sw.setAttribute('aria-pressed',on);sw.textContent=on?'Open the switch':'Close the switch';bl.setAttribute('x2',on?120:112);bl.setAttribute('y2',on?30:8);led.style.fill=on?'#f1c40f':'var(--soft)';led.style.filter=on?'drop-shadow(0 0 8px #f1c40f)':'none';};
- root.querySelectorAll('[data-t]').forEach(c=>c.onclick=()=>{root.querySelectorAll('[data-t]').forEach(x=>x.setAttribute('aria-pressed',x===c));li.innerHTML='<b>'+c.dataset.t+'</b><br>'+LT[c.dataset.t];});
-},
-build:root=>{
- const on=new Set(),sl=root.querySelectorAll('.slot'),bar=root.querySelector('.bar i'),ct=root.querySelector('#bc'),inf=root.querySelector('#bi');
- root.querySelectorAll(':scope > div > [data-i]').forEach(c=>c.onclick=()=>{
-  const i=+c.dataset.i,was=on.has(i);was?on.delete(i):on.add(i);SFX.play(was?'off':'on');
-  c.setAttribute('aria-pressed',!was);sl[i].classList.toggle('on',!was);
-  bar.style.width=on.size*20+'%';if(on.size===5)SFX.play('win');ct.textContent=on.size+' of 5 parts';
-  inf.innerHTML=on.size===5?'<b>Your obstacle-avoiding bot is assembled!</b><br>The wiring guide and battery safety sheet are in Materials.<br><a class="btn cy" href="#/materials">Open Materials</a>':(was?'Removed '+BP[i][0]+'.':'<b>'+BP[i][0]+'</b><br>'+BP[i][1]);
- });
- const pd=root.querySelector('#pd');if(pd)pdInit(pd);
-},
-compete:root=>{
- const rx=root.querySelector('#rx'),out=root.querySelector('#rs');let st=0,t0=0,to=0,rd=0,yw=0,bw=0,bt=0,dc=0;
- const col=(t,c)=>{rx.textContent=t;rx.style.background=c;};
- const fin=(m,win)=>{clearTimeout(to);SFX.play(win?'win':'lose');rd++;win?yw++:bw++;const e=rd>=5;out.innerHTML='<b>'+m+'</b><br>Round '+rd+'/5 | You '+yw+' – '+bw+' Quinn'+(e?'<br><b>'+(yw>bw?'🏆 You win the duel!':'🤖 Quick Quinn wins. Rematch?')+'</b>':'');if(e)rd=yw=bw=0;col(e?'Rematch':'Next round','var(--yel)');st=0;};
- const go=()=>{st=2;SFX.play('go');bt=175+Math.random()*125-yw*15;t0=performance.now();col('GO! Tap now','var(--cy)');to=setTimeout(()=>{if(st===2)fin('🤖 Quinn tapped first ('+Math.round(bt)+' ms). Too slow!',false);},bt);};
- rx.onclick=()=>{
-  if(st===0){st=1;dc=Math.random()<.3;col('Wait for green...','var(--or)');out.innerHTML='<b>Get ready...</b> Beware of fakes!';const w=1200+Math.random()*2200;to=setTimeout(()=>{if(dc){st=3;SFX.play('buzz');col('⚠️ FAKE! Hold...','var(--pk)');to=setTimeout(go,700+Math.random()*900);}else go();},dc?w*.5:w);}
-  else if(st===1||st===3)fin('😬 False start! Quinn takes the round.',false);
-  else{const ms=Math.round(performance.now()-t0);best=Math.min(best,ms);ms<bt?fin('⚡ '+ms+' ms beats Quinn ('+Math.round(bt)+' ms). Best: '+best+' ms.',true):fin('🤖 Quinn was faster ('+Math.round(bt)+' ms vs your '+ms+' ms).',false);}
- };
-},
-share:root=>{
- const inf=root.querySelector('#si');
- root.querySelectorAll('[data-i]').forEach(c=>c.onclick=()=>{
-  root.querySelectorAll('[data-i]').forEach(x=>x.setAttribute('aria-pressed',x===c));
-  const s=SH[+c.dataset.i],ext=s[3].startsWith('http');
-  inf.innerHTML='<b>'+s[0]+'</b><br>'+s[1]+'<br><a class="btn cy" href="'+s[3]+'"'+(ext?' target="_blank" rel="noopener"':'')+'>'+s[2]+'</a>';
- });
-}
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ---------- Games Arcade: registry (2-3 games per pillar, each tied to events) ---------- */
 // ================================================================
@@ -944,308 +467,26 @@ share:root=>{
 const PCOL={learn:'var(--red)',build:'var(--bl)',compete:'var(--or)',share:'var(--cy)'};
 const evL=ids=>ids.map(id=>{const e=EV.find(x=>x.id===id);return `<a class="btn" href="#/${id}">${esc(e.t)} (${e.d})</a>`}).join('');
 let pendG=null;
+// The games, thumbnails, theory text and demos are filled in by games/*/game.js (see games/README.md)
+const GM=YK.games,GI=YK.thumbs,TH=YK.theory,TI=YK.demos;
 
-// GAME: Binary Rush (timed, lives, grows from 4 to 8 bits)
-function bin(el){
- let b=[],B=4,t=0,sc=0,lives=3,tl=0,tot=0,iv=0,best=0,on=false;
- const val=()=>b.reduce((a,x)=>a*2+x,0),stop=()=>{clearInterval(iv);iv=0;};
- const nt=()=>{B=sc<5?4:sc<10?6:8;b=Array(B).fill(0);t=1+Math.floor(Math.random()*(2**B-1));tot=tl=Math.max(4,12-sc*.5);};
- const run=()=>{stop();iv=setInterval(()=>{if(!el.isConnected){stop();return;}tl-=.1;if(tl>0&&tl<=3&&Math.round(tl*10)%10===0)SFX.play('tick');const f=el.querySelector('#tb');if(f)f.style.width=Math.max(0,tl/tot*100)+'%';if(tl<=0)lose('⏰ Too slow!');},100);};
- const lose=m=>{lives--;stop();SFX.play(lives<=0?'lose':'buzz');if(lives<=0){on=false;best=Math.max(best,sc);draw('💥 Game over! You solved '+sc+'. Best: '+best+'.');return;}nt();draw(m+' You lost a life.');run();};
- const draw=m=>{
-  el.innerHTML=`<h2 class="m">Binary Rush</h2>`+(!on?`<p>Light the LEDs so their bit values add up to the target, before the timer runs out. You get 3 lives. It starts with 4 bits, then grows to 6 and 8, and the timer shrinks. After 5 solves the live total is hidden, so you must add in your head.</p><p class="pdbig m" style="text-align:center">${m||'Ready?'}</p><div class="tbs"><button class="tb" id="bs" type="button">Start</button></div>`
-  :`<p style="margin:0;text-align:center">Make <b class="m" style="font-size:2.6rem">${t}</b></p><div class="bar" style="max-width:none;margin:6px 0"><i id="tb" style="width:${tl/tot*100}%;transition:none;background:var(--or)"></i></div>
-  <div class="slots" style="justify-content:center">${b.map((x,i)=>`<div style="text-align:center"><button class="slot ${x?'on':''}" type="button" data-b="${i}" aria-pressed="${!!x}" aria-label="Bit worth ${2**(B-1-i)}" style="opacity:1;cursor:pointer;font:inherit;color:inherit;background-color:${x?'var(--yel)':'transparent'}">${x?'💡':'⚫'}</button><br><b>${2**(B-1-i)}</b></div>`).join('')}</div>
-  <p class="pdbig m" style="text-align:center;margin:4px 0">${m||''}</p><div class="info">${'❤️'.repeat(lives)+'🖤'.repeat(3-lives)} &nbsp; Solved: <b>${sc}</b> &nbsp; ${sc<5?'Current value: <b>'+val()+'</b>':'🙈 Live total hidden'}</div>`);
-  const st=el.querySelector('#bs');if(st)st.onclick=()=>{on=true;sc=0;lives=3;nt();draw('');run();};
-  el.querySelectorAll('[data-b]').forEach(c=>c.onclick=()=>{b[+c.dataset.b]^=1;SFX.play(b[+c.dataset.b]?'on':'off');if(val()===t){sc++;SFX.play('coin');nt();draw('✅ Match!');run();}else draw('');});
- };
- draw('');
-}
 
-// GAME: Echo Distance Lab -> "Park the bot": hit a target distance, temperature changes the speed of sound
-function echo(el){
- let rd=0,sc=0,pg=3,tg=0,T=20,v=343,lk=false;
- const D=t=>t*v/20,nr=()=>{T=Math.round(Math.random()*40);v=331.3+.606*T;tg=15+Math.floor(Math.random()*70);pg=3;lk=false;};nr();
- el.innerHTML=`<h2 class="m">Echo Distance Lab: park the bot</h2><p>Distance = speed of sound × echo time ÷ 2. You are told where to stop, but not shown the distance. Set the echo time with the slider, fire up to 3 test pings, then lock in. The air temperature changes the speed of sound, so check it each round.</p>
- <div class="info" id="eh"></div><label for="et"><b>Echo time: <span id="etv"></span> ms</b></label><input id="et" type="range" min="0.5" max="12" step="0.05" value="4" style="width:100%;max-width:460px;display:block;margin:6px 0 14px">
- <div class="echo" aria-hidden="true"><span style="position:absolute;left:6px;top:8px;font-size:1.6rem">🤖</span><span id="wl" style="position:absolute;top:8px;font-size:1.6rem">🧱</span></div>
- <div class="info" id="eo">Fire a ping to measure, or trust your maths.</div><div class="tbs"><button class="tb" id="pgb" type="button">📡 Ping</button><button class="tb" id="lkb" type="button">Lock in</button></div>`;
- const q=x=>el.querySelector(x),sl=q('#et'),wl=q('#wl'),eo=q('#eo');
- const u=()=>{const t=+sl.value;q('#etv').textContent=t.toFixed(2);wl.style.left=(10+D(t)/210*82)+'%';q('#eh').innerHTML='<b>Round '+Math.min(rd+1,5)+' of 5</b> | Score: <b>'+sc+'</b> | Pings left: <b>'+pg+'</b><br>Stop the bot at <b>'+tg+' cm</b>. Air is <b>'+T+' °C</b>, so sound travels <b>'+v.toFixed(0)+' m/s</b>.';};
- sl.oninput=u;u();
- q('#pgb').onclick=()=>{if(lk||pg<=0){if(!lk)eo.innerHTML='🔇 No pings left!';return;}pg--;SFX.play('ping');eo.innerHTML='📡 Ping says the wall is <b>'+D(+sl.value).toFixed(0)+' cm</b> away at this echo time.';u();};
- q('#lkb').onclick=()=>{
-  if(lk){if(rd>=5){rd=0;sc=0;}nr();q('#lkb').textContent='Lock in';eo.innerHTML='New round. Do the maths!';u();return;}
-  lk=true;rd++;const d=D(+sl.value),e=Math.abs(d-tg),pt=e<=1?3:e<=3?2:e<=8?1:0;sc+=pt;SFX.play(pt===3?'win':pt?'coin':'lose');
-  eo.innerHTML='Wall at <b>'+d.toFixed(1)+' cm</b>, target <b>'+tg+' cm</b>: off by <b>'+e.toFixed(1)+' cm</b> → <b>+'+pt+'</b> '+(pt===3?'🎯 Perfect park!':pt?'👍':'💥 Crash!')+'<br>Right answer: t = 2 × '+tg+' ÷ '+(v*100/1000).toFixed(1)+' ≈ '+(tg*20/v).toFixed(2)+' ms'+(rd>=5?'<br><b>Final score: '+sc+' / 15</b>':'');
-  q('#lkb').textContent=rd>=5?'New game':'Next round';u();};
-}
 
-// GAME: Pattern Memory (3 modes, sound, speeds up)
-function simon(el){
- const C=['#ec3750','#338eda','#33d6a6','#f1c40f'],N=['Red','Blue','Green','Yellow'],F=[262,330,392,523],MD=['Classic','Backwards','Turbo'];let seq=[],pos=0,lock=true,bl=[0,0,0],g=0,md=0,au=null;
- el.innerHTML=`<h2 class="m">Pattern Memory</h2><p>Watch the sequence, then repeat it. <b>Backwards</b> mode asks for the sequence in reverse order. <b>Turbo</b> plays much faster. Every level adds a step and the playback speeds up.</p><div>${MD.map((m,i)=>`<button class="chip" type="button" data-m="${i}" aria-pressed="${i===0}">${m}</button>`).join('')}</div><div class="sg">${C.map((c,i)=>`<button type="button" data-s="${i}" aria-label="${N[i]}" style="background:${c}"></button>`).join('')}</div><p class="pdbig m" id="ss" aria-live="polite" style="text-align:center">Pick a mode, then press start.</p><div class="tbs"><button class="tb" id="go" type="button">Start</button></div>`;
- const bs=el.querySelectorAll('[data-s]'),ss=el.querySelector('#ss');
- const beep=i=>{try{au=au||new(window.AudioContext||window.webkitAudioContext)();const o=au.createOscillator(),k=au.createGain();o.frequency.value=F[i];o.connect(k);k.connect(au.destination);k.gain.setValueAtTime(.15,au.currentTime);k.gain.exponentialRampToValueAtTime(.001,au.currentTime+.3);o.start();o.stop(au.currentTime+.3);}catch(e){}};
- const fl=i=>{beep(i);bs[i].style.filter='brightness(1.7) saturate(1.4)';bs[i].style.transform='scale(.94)';setTimeout(()=>{bs[i].style.filter='';bs[i].style.transform='';},220);};
- const gap=()=>Math.max(200,(md===2?420:700)-seq.length*(md===2?12:25));
- const show=()=>{const my=++g,gp=gap();lock=true;pos=0;ss.textContent='Watch... level '+seq.length;seq.forEach((x,k)=>setTimeout(()=>{if(my===g)fl(x)},gp*k+500));setTimeout(()=>{if(my===g){lock=false;ss.textContent=md===1?'Your turn: BACKWARDS!':'Your turn!';}},gp*seq.length+500);};
- const nxt=()=>{seq.push(Math.floor(Math.random()*4));show();};
- el.querySelectorAll('[data-m]').forEach(c=>c.onclick=()=>{md=+c.dataset.m;g++;seq=[];lock=true;el.querySelectorAll('[data-m]').forEach(x=>x.setAttribute('aria-pressed',String(x===c)));ss.textContent=MD[md]+' mode. Press start.';});
- el.querySelector('#go').onclick=()=>{seq=[];el.querySelector('#go').textContent='Restart';nxt();};
- bs.forEach(b=>b.onclick=()=>{if(lock)return;const i=+b.dataset.s,ex=md===1?seq[seq.length-1-pos]:seq[pos];fl(i);
-  if(i!==ex){lock=true;SFX.play('lose');const l=seq.length-1;bl[md]=Math.max(bl[md],l);ss.textContent='❌ Wrong! You cleared '+l+' level'+(l===1?'':'s')+'. Best in '+MD[md]+': '+bl[md]+'.';seq=[];return;}
-  pos++;if(pos===seq.length){lock=true;SFX.play('coin');const my=g;ss.textContent='✅ Level '+seq.length+' cleared!';setTimeout(()=>{if(my===g)nxt()},900);}});
-}
 
-// GAME: Rock Paper Scissors vs a bot that reads your last two moves (15-round match)
-function rps(el){
- const M=['🪨','📄','✂️'],NM=['Rock','Paper','Scissors'],R=15;let fq,cx,hs,w,l,d;
- const nw=()=>{fq=[0,0,0];cx={};hs=[];w=l=d=0;};nw();
- el.innerHTML=`<h2 class="m">Rock Paper Scissors vs a learning bot</h2><p>This bot remembers what you played after your last <b>two</b> moves and counters it. Game theory says the unbeatable strategy is to be random. A 15-round match: can you stay unpredictable?</p>
- <div class="tbs">${M.map((m,i)=>`<button class="tb" type="button" data-r="${i}" aria-label="${NM[i]}">${m} ${NM[i]}</button>`).join('')}</div>
- <p class="pdbig m" id="rr" aria-live="polite" style="text-align:center">Pick your move.</p><div class="bar" style="max-width:none"><i id="rb" style="background:var(--cy)"></i></div><div class="info" id="rt"></div><div class="hist" id="rh"></div><p><button class="tb" type="button" id="rz" style="font-size:1rem;padding:6px 18px">New match</button></p>`;
- const q=x=>el.querySelector(x),sc=()=>{const n=hs.length,rd=w+l+d,pr=n>=3?Math.round(Math.max(...fq)/n*100):0;q('#rb').style.width=(rd?w/rd*100:0)+'%';
-  q('#rt').innerHTML='Round <b>'+Math.min(n+1,R)+' / '+R+'</b> | Wins <b>'+w+'</b> | Losses <b>'+l+'</b> | Ties <b>'+d+'</b>'+(n>=6?'<br><small>🧠 Bot confidence in reading you is rising. Random play wins about 1 round in 3.</small>':'');
-  q('#rh').innerHTML=hs.map(h=>'<span class="hr">'+M[h[0]]+M[h[1]]+'</span>').join('');};sc();
- el.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{
-  if(hs.length>=R)return;const me=+b.dataset.r,k=hs.slice(-2).map(h=>h[0]).join('');let bot=Math.floor(Math.random()*3);
-  if(hs.length>=3&&Math.random()<.85){const c=cx[k]||fq,pr=c.indexOf(Math.max(...c));bot=(pr+1)%3;}
-  if(hs.length>=2){cx[k]=cx[k]||[0,0,0];cx[k][me]++;}fq[me]++;
-  const r=(me-bot+3)%3;r===0?d++:r===1?w++:l++;SFX.play(r===0?'tie':r===1?'coin':'lose');hs.push([me,bot]);
-  q('#rr').textContent=M[me]+' vs '+M[bot]+' → '+(r===0?'Tie.':r===1?'You win! 🎉':'Bot wins. 🤖')+(hs.length>=R?(w>l?'  🏆 Match won!':w<l?'  🤖 Bot takes the match.':'  🤝 Match drawn.'):'');sc();
- });
- q('#rz').onclick=()=>{nw();q('#rr').textContent='Fresh match. Pick your move.';sc();};
-}
 
-// GAME: Outreach Planner (4 scenarios with surprises, budget, mentor cap)
-function plan(el){
- const SC=[[70,12000,20,'A normal workshop day.'],[90,15000,20,'🌧️ Word spread! 20 extra students turned up.'],[70,11000,20,'💸 A sponsor pulled out, so the budget is tight.'],[40,9000,6,'🤒 Only 6 mentors can make it today.']],KC=600,MC=250;let r=0,pts=0,ran=false;
- el.innerHTML=`<h2 class="m">Outreach Planner</h2><p>Plan each Schools Outreach workshop. Every kit costs ₹${KC} and every mentor ₹${MC} (food and travel). Meet all four checks, then press <b>Run workshop</b>. Surprises will change the plan!</p><div class="info" id="ph"></div>
- <label for="kv"><b>Kits: <span id="kvv"></span></b></label><input id="kv" type="range" min="4" max="30" value="10" style="width:100%;max-width:460px;display:block;margin:6px 0 14px">
- <label for="vl"><b>Volunteer mentors: <span id="vlv"></span></b></label><input id="vl" type="range" min="2" max="20" value="6" style="width:100%;max-width:460px;display:block;margin:6px 0 14px">
- <div class="info" id="po"></div><div class="tbs"><button class="tb" id="rn" type="button">Run workshop</button></div>`;
- const q=x=>el.querySelector(x),k=q('#kv'),v=q('#vl');
- const calc=()=>{const [S,B,M]=SC[r],K=+k.value,V=Math.min(+v.value,M),pk=Math.ceil(S/K),pm=Math.ceil(S/V),km=Math.ceil(K/V),cost=K*KC+V*MC;
-  return{c:[[pk<=5,'Students per kit: '+pk+' (aim for 5 or fewer)'],[pm<=8,'Students per mentor: '+pm+' (aim for 8 or fewer)'],[km<=2,'Kits per mentor: '+km+' (aim for 2 or fewer)'],[cost<=B,'Cost: ₹'+cost+' of ₹'+B+' budget']],K,V};};
- const u=()=>{const x=calc(),M=SC[r][2];q('#kvv').textContent=x.K;q('#vlv').textContent=x.V+(M<20&&+v.value>M?' (capped at '+M+')':'');
-  q('#ph').innerHTML='<b>Scenario '+(r+1)+' of 4:</b> '+SC[r][3]+'<br><b>'+SC[r][0]+'</b> students | Score: <b>'+pts+'</b>';
-  if(!ran)q('#po').innerHTML=x.c.map(y=>(y[0]?'✅ ':'⚠️ ')+y[1]).join('<br>');};
- k.oninput=v.oninput=()=>{if(!ran)u();};
- q('#rn').onclick=()=>{
-  if(ran){ran=false;if(r>=3){r=0;pts=0;}else r++;q('#rn').textContent='Run workshop';u();return;}
-  const x=calc(),ok=x.c.every(y=>y[0]);ran=true;if(ok)pts++;SFX.play(ok?'win':'buzz');
-  q('#po').innerHTML=x.c.map(y=>(y[0]?'✅ ':'❌ ')+y[1]).join('<br>')+'<br><br><b>'+(ok?'🎉 A brilliant workshop!':'😕 Some students were left watching.')+'</b>'+(r>=3?'<br><b>Final: '+pts+' / 4 workshops</b>':'');
-  q('#rn').textContent=r>=3?'New game':'Next scenario';q('#ph').innerHTML=q('#ph').innerHTML.replace(/Score: <b>\d+/,'Score: <b>'+pts);};
- u();
-}
 
-// GAME: Maze Finder
-// Levels: [name, size, fog radius (0 = none), battery multiplier (0 = unlimited), hints allowed]
-function maze(el){
- const LV=[['Easy',10,0,0,1],['Medium',16,0,3,1],['Hard',22,6,3,1],['Nightmare',30,5,2.5,0]],HC=8,SZ=600,DX=[0,1,0,-1],DY=[-1,0,1,0],AR=[['▲',0],['◀',3],['▼',2],['▶',1]];
- let lv=1,n=16,walls=[],p=0,goal=0,hint=null,moves=0,cap=0,seen=new Set(),t0=0,won=false,lost=false;const best={};
- el.innerHTML=`<h2 class="m">Maze Finder</h2><p>Robots need to find their way out. Guide the bot 🤖 to the flag 🏁 using arrow keys, WASD or the buttons. Harder levels add a <b>limited battery 🔋</b> (every move costs charge) and <b>fog of war 🌫️</b>: you only see what is close to you, so remember the dead ends. The flag is always placed as far from the start as possible.</p>
- <div id="mlv">${LV.map((l,i)=>`<button class="chip" type="button" data-l="${i}" aria-pressed="${i===lv}">${l[0]}</button>`).join('')}</div>
- <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:center;margin:12px 0"><canvas id="mz" width="${SZ}" height="${SZ}" style="flex:1 1 300px;min-width:0;max-width:600px;aspect-ratio:1;border:3px solid var(--dk);border-radius:10px;background:var(--card);display:block;margin:0" role="img" aria-label="Maze board"></canvas><div style="display:grid;grid-template-columns:repeat(3,68px);grid-template-areas:'. u .' 'l d r';gap:8px;margin:0;flex:0 0 auto">${AR.map((a,i)=>`<button class="btn" type="button" data-d="${a[1]}" aria-label="Move ${['up','left','down','right'][i]}" style="margin:0;grid-area:${['u','l','d','r'][i]};padding:16px 0;font-size:1.4rem">${a[0]}</button>`).join('')}</div></div>
- <div class="info" id="mi" aria-live="polite"></div>
- <button class="btn cy" type="button" id="mn">New maze</button><button class="btn" type="button" id="mr">Retry this maze</button><button class="btn" type="button" id="ms">Show shortest path</button>`;
- const cv=el.querySelector('#mz'),cx=cv.getContext('2d'),mi=el.querySelector('#mi');
- const bfs=s0=>{const pr=new Array(n*n).fill(-1),ds=new Array(n*n).fill(0),q=[s0];pr[s0]=s0;for(let i=0;i<q.length;i++){const c=q[i];for(let d=0;d<4;d++){if(walls[c][d])continue;const nc=((c/n|0)+DY[d])*n+c%n+DX[d];if(pr[nc]<0){pr[nc]=c;ds[nc]=ds[c]+1;q.push(nc);}}}return[pr,ds];};
- const info=m=>{const left=cap-moves;if(LV[lv][2]&&!won&&!lost){const gx=(goal%n)-(p%n),gy=(goal/n|0)-(p/n|0);m+=' 🧭 Flag is '+(Math.abs(gy)>2?(gy<0?'north':'south'):'')+(Math.abs(gx)>2?(gx<0?'-west':'-east'):'')+' of you.';m=m.replace('is -','is ');}mi.innerHTML='<b>'+m+'</b><br>Moves: <b>'+moves+'</b>'+(cap?' of <b>'+cap+'</b> 🔋':'')+' | Best on '+LV[lv][0]+': <b>'+(best[lv]!=null?best[lv]+' moves':'none yet')+'</b>'+(cap?'<div class="bar" style="margin-top:6px"><i style="width:'+Math.max(0,left/cap*100)+'%;background:'+(left<cap*.25?'var(--red)':'var(--cy)')+'"></i></div>':'');};
- const reveal=()=>{const r=LV[lv][2];if(!r)return;const px=p%n,py=p/n|0;for(let y=-r;y<=r;y++)for(let x=-r;x<=r;x++){const X=px+x,Y=py+y;if(X>=0&&Y>=0&&X<n&&Y<n&&x*x+y*y<=r*r)seen.add(Y*n+X);}};
- const reset=()=>{p=0;hint=null;moves=0;t0=0;won=lost=false;seen=new Set();reveal();info(LV[lv][2]?'🌫️ Fog of war! Only the lit area around your bot is visible, explored cells stay on the map.':'Reach the flag!');draw();};
- const gen=()=>{
-  n=LV[lv][1];walls=Array.from({length:n*n},()=>[1,1,1,1]);
-  const sn=new Set([0]),st=[0];
-  while(st.length){
-   const c=st[st.length-1],x=c%n,y=(c/n)|0,o=[0,1,2,3].filter(d=>{const nx=x+DX[d],ny=y+DY[d];return nx>=0&&ny>=0&&nx<n&&ny<n&&!sn.has(ny*n+nx);});
-   if(!o.length){st.pop();continue;}
-   const d=o[Math.floor(Math.random()*o.length)],nc=(y+DY[d])*n+x+DX[d];
-   walls[c][d]=0;walls[nc][(d+2)%4]=0;sn.add(nc);st.push(nc);
-  }
-  const ds=bfs(0)[1];goal=ds.indexOf(Math.max(...ds));cap=LV[lv][3]?Math.ceil(ds[goal]*LV[lv][3]):0;
-  reset();
- };
- const draw=()=>{
-  const s=SZ/n,r=LV[lv][2],px=p%n,py=p/n|0,ink=getComputedStyle(cv).getPropertyValue('--ink').trim()||'#17171d';
-  cx.clearRect(0,0,SZ,SZ);cx.font=(s*.6)+'px sans-serif';cx.textAlign='center';cx.textBaseline='middle';
-  cx.strokeStyle=ink;cx.lineWidth=n>18?2.5:4;cx.lineCap='round';cx.beginPath();
-  walls.forEach((w,c)=>{const x=(c%n)*s,y=((c/n)|0)*s;
-   if(w[0]){cx.moveTo(x,y);cx.lineTo(x+s,y);}if(w[1]){cx.moveTo(x+s,y);cx.lineTo(x+s,y+s);}
-   if(w[2]){cx.moveTo(x,y+s);cx.lineTo(x+s,y+s);}if(w[3]){cx.moveTo(x,y);cx.lineTo(x,y+s);}});
-  cx.stroke();
-  if(r)for(let c=0;c<n*n;c++){const x=c%n,y=c/n|0;if(!seen.has(c)){cx.fillStyle='#2b2e3d';cx.fillRect(x*s-.5,y*s-.5,s+1,s+1);cx.fillStyle='#454a60';cx.fillRect(x*s+s/2-1.5,y*s+s/2-1.5,3,3);}else if((x-px)**2+(y-py)**2>r*r){cx.fillStyle='rgba(43,46,61,.45)';cx.fillRect(x*s,y*s,s,s);}}
-  if(r){cx.strokeStyle='#f1c40f';cx.lineWidth=2.5;cx.setLineDash([6,5]);cx.beginPath();cx.arc((px+.5)*s,(py+.5)*s,r*s,0,7);cx.stroke();cx.setLineDash([]);}
-  if(hint){cx.strokeStyle='#33d6a6';cx.lineWidth=s*.25;cx.lineJoin='round';cx.beginPath();hint.forEach((c,i)=>{const X=(c%n+.5)*s,Y=((c/n|0)+.5)*s;i?cx.lineTo(X,Y):cx.moveTo(X,Y);});cx.stroke();}
-  if(!r||seen.has(goal)||hint)cx.fillText('🏁',(goal%n+.5)*s,((goal/n|0)+.55)*s);
-  cx.fillText('🤖',(px+.5)*s,(py+.55)*s);
- };
- const go=d=>{
-  if(won||lost)return;if(walls[p][d]){SFX.play('bump');return;}SFX.play('step');
-  if(!t0)t0=performance.now();
-  p=((p/n|0)+DY[d])*n+p%n+DX[d];moves++;hint=null;reveal();
-  if(p===goal){won=true;SFX.play('win');const sec=Math.round((performance.now()-t0)/1000);if(best[lv]==null||moves<best[lv])best[lv]=moves;info('🎉 Escaped in '+moves+' moves and '+sec+' s!');}
-  else if(cap&&moves>=cap){lost=true;SFX.play('lose');info('🪫 Battery dead! Press Retry this maze, or make a new one.');}
-  else info(cap&&cap-moves<=10?'⚠️ Battery low!':'Keep going!');
-  draw();
- };
- const key=e=>{
-  if(!el.isConnected){removeEventListener('keydown',key);return;}
-  const d={ArrowUp:0,w:0,W:0,ArrowRight:1,d:1,D:1,ArrowDown:2,s:2,S:2,ArrowLeft:3,a:3,A:3}[e.key];
-  if(d===undefined)return;e.preventDefault();go(d);
- };
- addEventListener('keydown',key);
- el.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>go(+b.dataset.d));
- el.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{lv=+b.dataset.l;el.querySelectorAll('[data-l]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));gen();});
- el.querySelector('#mn').onclick=gen;
- el.querySelector('#mr').onclick=reset;
- el.querySelector('#ms').onclick=()=>{
-  if(won||lost)return;
-  if(!LV[lv][4]){info('🚫 No shortest-path help on '+LV[lv][0]+'.');return;}
-  const pr=bfs(p)[0],path=[];let c=goal;while(c!==p){path.push(c);c=pr[c];}path.push(p);hint=path.reverse();SFX.play('hint');
-  if(cap){moves+=HC;if(moves>=cap){lost=true;SFX.play('lose');hint=null;info('🪫 The hint drained the last of your battery!');draw();return;}}
-  info('Shortest path from here: '+(hint.length-1)+' moves'+(cap?' (hint cost '+HC+' charge)':''));draw();
- };
- gen();
-}
 
-// GAME: Breadboard Lab (drag a sensor, wire it to the Arduino)
-function breadboard(el){
- const NC=20,cx=c=>64+26*c,RY=[144,162,180,198,216,250,268,286,304,322],HX=80,HY=394;
- const AP=['5V','GND','D2','D3','D4','A0'],AC={'5V':'#ec3750',GND:'#222','D2':'#338eda',D3:'#ff8c37',D4:'#8e44ad',A0:'#2bb673'};
- const MS=[
-  {n:'IR',t:'IR Obstacle Sensor',c:'#338eda',p:['OUT','GND','VCC'],q:[['OUT','D2'],['GND','GND'],['VCC','5V']],s:()=>Math.random()<.5?'🚧 Obstacle detected (OUT goes LOW)':'✅ Path clear (OUT stays HIGH)'},
-  {n:'HC-SR04',t:'Ultrasonic Sensor',c:'#1f7a9c',p:['VCC','TRIG','ECHO','GND'],q:[['VCC','5V'],['TRIG','D2'],['ECHO','D3'],['GND','GND']],s:()=>'📡 Distance: '+Math.round(5+Math.random()*195)+' cm'},
-  {n:'LM35',t:'Temperature Sensor',c:'#3b3b46',p:['+VS','VOUT','GND'],q:[['+VS','5V'],['VOUT','A0'],['GND','GND']],s:()=>'🌡️ Temperature: '+(24+Math.random()*10).toFixed(1)+' °C'}
- ];
- const PT=[],PM={},add=p=>{PT.push(p);PM[p.id]=p;};
- AP.forEach((a,i)=>add({id:'P:'+a,key:'P:'+a,x:110+80*i,y:62,k:'ard'}));
- for(let c=0;c<NC;c++){add({id:'R+'+c,key:'R+',x:cx(c),y:100,k:'rail'});add({id:'R-'+c,key:'R-',x:cx(c),y:114,k:'rail'});}
- for(let r=0;r<10;r++)for(let c=0;c<NC;c++)add({id:'H'+r+'_'+c,key:(r<5?'T':'B')+c,x:cx(c),y:RY[r],k:'hole'});
- let mi=0,wires=[],pl=null,drag=null,wiring=null,msg='',ok=false;const done=new Set();
- const M=()=>MS[mi],K=()=>M().p.length;
- el.innerHTML=`<h2 class="m">Breadboard Lab</h2><p>Real circuits start on a breadboard. <b>1.</b> Drag the sensor from the parts tray and press its pins into the board. <b>2.</b> Drag from an Arduino pin to a hole in the same column as the sensor pin it must reach (or via the + and − rails). <b>3.</b> Press Check wiring. Tap the dot at the end of a wire to remove it.</p>
- <div id="bbc"></div><div class="info" id="bbg"></div>
- <svg id="bbs" viewBox="0 0 620 424" style="width:100%;max-width:760px;display:block;margin:12px 0;touch-action:none;user-select:none;-webkit-user-select:none;border:3px solid var(--dk);border-radius:10px;background:var(--card)" role="img" aria-label="Breadboard with an Arduino pin header and a parts tray"></svg>
- <div class="info" id="bbi" aria-live="polite"></div>
- <button class="btn cy" type="button" id="bbk">Check wiring</button><button class="btn" type="button" id="bbw">Clear wires</button><button class="btn" type="button" id="bbr">Reset sensor</button><button class="btn cy" type="button" id="bbn" hidden>Next sensor &rarr;</button>
- <p style="margin:8px 0 0"><small>Hint: on a breadboard, the 5 holes of one column (a–e, or f–j) are joined. The + and − rails run along the whole board.</small></p>`;
- const svg=el.querySelector('#bbs'),info=el.querySelector('#bbi');
- const chips=()=>{el.querySelector('#bbc').innerHTML=MS.map((s,i)=>`<button class="chip" type="button" data-m="${i}" aria-pressed="${i===mi}">${done.has(i)?'✅ ':''}${s.t}</button>`).join('')+`<small style="margin-left:6px"><b>${done.size} of ${MS.length} wired</b></small>`;
-  el.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{mi=+b.dataset.m;reset();});
-  el.querySelector('#bbg').innerHTML='<b>Goal for the '+M().n+':</b> '+M().q.map(q=>`<span class="badge" style="background:var(--yel)">${q[0]} &rarr; ${q[1]}</span>`).join(' ');};
- const hid=(r,c)=>'H'+r+'_'+c;
- const occ=()=>{const o=new Set();wires.forEach(w=>{o.add(w.a);o.add(w.b);});if(pl)for(let i=0;i<K();i++)o.add(hid(pl.r,pl.c+i));return o;};
- const spos=()=>{const k=K();return Array.from({length:k},(_,i)=>drag?[drag.ox+26*i,drag.oy]:pl?[cx(pl.c+i),RY[pl.r]]:[HX+26*i,HY]);};
- const snap=(ox,oy)=>{let b=null,bd=30;const o=new Set();wires.forEach(w=>{o.add(w.a);o.add(w.b);});
-  for(let r=0;r<10;r++)for(let c=0;c<=NC-K();c++){const d=Math.hypot(cx(c)-ox,RY[r]-oy);if(d<bd){let f=true;for(let i=0;i<K();i++)if(o.has(hid(r,c+i)))f=false;if(f){bd=d;b={r,c};}}}return b;};
- const wcol=w=>{const A=PM[w.a],B=PM[w.b],a=A.k==='ard'?A:B.k==='ard'?B:null;if(a)return AC[a.id.slice(2)];return A.key==='R+'||B.key==='R+'?'#ec3750':A.key==='R-'||B.key==='R-'?'#222':'#f1c40f';};
- const wpath=w=>{let A=PM[w.a],B=PM[w.b];if(B.k==='ard')[A,B]=[B,A];
-  if(A.k==='ard'){const m=(A.y+B.y)/2;return `M${A.x} ${A.y}C${A.x} ${m},${B.x} ${m},${B.x} ${B.y}`;}
-  const t=Math.min(A.y,B.y)-34;return `M${A.x} ${A.y}C${A.x} ${t},${B.x} ${t},${B.x} ${B.y}`;};
- const render=()=>{
-  const sp=spos(),k=K(),m=M(),placed=!!pl&&!drag;let h='';
-  h+=`<rect x="60" y="8" width="500" height="44" rx="6" fill="#0b6e8a"/><text x="70" y="24" fill="#fff" font-size="11" font-weight="700">Arduino Nano</text>`;
-  AP.forEach((a,i)=>{const p=PM['P:'+a];h+=`<text x="${p.x}" y="44" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">${a}</text><circle cx="${p.x}" cy="${p.y}" r="6" fill="#f1c40f" stroke="#17171d" stroke-width="2"/>`;});
-  h+=`<rect x="36" y="88" width="550" height="250" rx="10" fill="#f5f1e6" stroke="#17171d" stroke-width="3"/><rect x="44" y="226" width="534" height="14" fill="#d9d3c0"/>`;
-  h+=`<line x1="52" x2="578" y1="92" y2="92" stroke="#ec3750" stroke-width="2"/><line x1="52" x2="578" y1="122" y2="122" stroke="#338eda" stroke-width="2"/><text x="46" y="104" font-size="11" font-weight="700" fill="#ec3750" text-anchor="middle">+</text><text x="46" y="118" font-size="11" font-weight="700" fill="#338eda" text-anchor="middle">−</text>`;
-  for(let c=0;c<NC;c++)h+=`<text x="${cx(c)}" y="134" font-size="8" fill="#777" text-anchor="middle">${c+1}</text>`;
-  for(let r=0;r<10;r++)h+=`<text x="46" y="${RY[r]+3}" font-size="9" fill="#777" text-anchor="middle">${'abcdefghij'[r]}</text>`;
-  PT.forEach(p=>{if(p.k!=='ard')h+=`<circle cx="${p.x}" cy="${p.y}" r="4.2" fill="#2b2b33"/>`;});
-  h+=`<rect x="36" y="346" width="550" height="70" rx="8" fill="#e4e9ec" stroke="#17171d" stroke-width="2" stroke-dasharray="6 4"/><text x="570" y="408" font-size="10" fill="#556" text-anchor="end">PARTS TRAY</text>`;
-  wires.forEach((w,i)=>{const c=wcol(w),A=PM[w.a],B=PM[w.b];h+=`<path d="${wpath(w)}" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity=".6"/><path d="${wpath(w)}" fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round"/>`+[A,B].map(p=>`<circle data-w="${i}" cx="${p.x}" cy="${p.y}" r="7" fill="${c}" stroke="#fff" stroke-width="2" style="cursor:pointer"/>`).join('');});
-  if(placed){
-   h+=`<rect x="${sp[0][0]-13}" y="${sp[0][1]-9}" width="${26*k}" height="18" rx="4" fill="${m.c}" stroke="${ok?'#33d6a6':'#17171d'}" stroke-width="${ok?4:2}" style="cursor:grab"/>`+sp.map((p,i)=>`<text x="${p[0]}" y="${p[1]+3}" font-size="8" font-weight="700" fill="#fff" text-anchor="middle" style="pointer-events:none">${m.p[i]}</text>`).join('');
-  }else{
-   h+=`<g opacity="${drag?.85:1}" style="cursor:grab"><rect x="${sp[0][0]-13}" y="${sp[0][1]-38}" width="${26*k}" height="30" rx="5" fill="${m.c}" stroke="#17171d" stroke-width="2"/><text x="${sp[0][0]-13+13*k}" y="${sp[0][1]-19}" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">${m.n}</text>`+sp.map((p,i)=>`<rect x="${p[0]-3}" y="${p[1]-8}" width="6" height="16" fill="#c9a227" stroke="#17171d" stroke-width="1"/><text x="${p[0]}" y="${p[1]+20}" font-size="8" font-weight="700" fill="#17171d" text-anchor="middle">${m.p[i]}</text>`).join('')+`</g>`;
-  }
-  if(drag){const s=snap(drag.ox,drag.oy);if(s)for(let i=0;i<k;i++)h+=`<circle cx="${cx(s.c+i)}" cy="${RY[s.r]}" r="8" fill="none" stroke="#33d6a6" stroke-width="3"/>`;}
-  if(wiring){const f=wiring.from,o=occ(),t=near(wiring.x,wiring.y,12,p=>p.id!==f.id&&(p.k==='ard'||!o.has(p.id)));
-   h+=`<line x1="${f.x}" y1="${f.y}" x2="${wiring.x}" y2="${wiring.y}" stroke="${f.k==='ard'?AC[f.id.slice(2)]:'#f1c40f'}" stroke-width="4" stroke-dasharray="6 5" stroke-linecap="round"/><circle cx="${f.x}" cy="${f.y}" r="8" fill="none" stroke="#33d6a6" stroke-width="3"/>`+(t?`<circle cx="${t.x}" cy="${t.y}" r="8" fill="none" stroke="#33d6a6" stroke-width="3"/>`:'');}
-  svg.innerHTML=h;
-  info.innerHTML=msg||'Drag the <b>'+m.t+'</b> onto the breadboard.';
-  el.querySelector('#bbn').hidden=!ok;
- };
- function near(x,y,rad,f){let b=null,bd=rad;PT.forEach(p=>{if(!f(p))return;const d=Math.hypot(p.x-x,p.y-y);if(d<=bd){bd=d;b=p;}});return b;}
- const pt=e=>{const s=svg.createSVGPoint();s.x=e.clientX;s.y=e.clientY;const q=s.matrixTransform(svg.getScreenCTM().inverse());return [q.x,q.y];};
- function reset(){wires=[];pl=null;drag=null;wiring=null;msg='';ok=false;chips();render();}
- svg.onpointerdown=e=>{
-  const [x,y]=pt(e),w=e.target.closest&&e.target.closest('[data-w]');
-  if(w){wires.splice(+w.dataset.w,1);msg='';ok=false;render();return;}
-  const sp=spos(),k=K(),top=pl?sp[0][1]-12:sp[0][1]-40;
-  if(x>=sp[0][0]-14&&x<=sp[k-1][0]+14&&y>=top&&y<=sp[0][1]+(pl?12:24)){
-   drag={dx:x-sp[0][0],dy:y-sp[0][1],ox:sp[0][0],oy:sp[0][1]};pl=null;ok=false;msg='';svg.setPointerCapture(e.pointerId);e.preventDefault();render();return;}
-  const o=occ(),p=near(x,y,11,q=>q.k==='ard'||!o.has(q.id));
-  if(p){wiring={from:p,x,y};ok=false;svg.setPointerCapture(e.pointerId);e.preventDefault();render();}
- };
- svg.onpointermove=e=>{
-  if(!drag&&!wiring)return;const [x,y]=pt(e);
-  if(drag){drag.ox=x-drag.dx;drag.oy=y-drag.dy;}else{wiring.x=x;wiring.y=y;}render();
- };
- const up=(e,cancel)=>{
-  if(drag){const s=cancel?null:snap(drag.ox,drag.oy);drag=null;pl=s;msg=s?'Sensor placed. Now add the wires.':'Sensor returned to the tray. Drop it closer to the holes.';render();}
-  else if(wiring){const [x,y]=pt(e),f=wiring.from,o=occ(),t=cancel?null:near(x,y,12,p=>p.id!==f.id&&(p.k==='ard'||!o.has(p.id)));
-   wiring=null;
-   if(t&&!(t.k==='ard'&&f.k==='ard')){wires.push({a:f.id,b:t.id});msg='';}else if(t)msg='Connect an Arduino pin to the breadboard, not to another Arduino pin.';
-   render();}
- };
- svg.onpointerup=e=>up(e,false);svg.onpointercancel=e=>up(e,true);
- el.querySelector('#bbw').onclick=()=>{wires=[];ok=false;msg='All wires removed.';render();};
- el.querySelector('#bbr').onclick=()=>{pl=null;ok=false;msg='Sensor back in the tray.';render();};
- el.querySelector('#bbn').onclick=()=>{mi=(mi+1)%MS.length;reset();};
- el.querySelector('#bbk').onclick=()=>{setTimeout(()=>{if(!ok)SFX.play('buzz');},0);
-  ok=false;
-  if(!pl){msg='⚠️ Place the sensor on the breadboard first.';render();return;}
-  const uf={},f=a=>{if(!(a in uf))uf[a]=a;return uf[a]===a?a:(uf[a]=f(uf[a]));},un=(a,b)=>{uf[f(a)]=f(b);};
-  wires.forEach(w=>un(PM[w.a].key,PM[w.b].key));
-  M().p.forEach((p,i)=>un('S:'+p,PM[hid(pl.r,pl.c+i)].key));
-  const nodes=[...M().p.map(p=>'S:'+p),...AP.map(a=>'P:'+a)],g={},bad=[];
-  nodes.forEach(n=>{(g[f(n)]=g[f(n)]||[]).push(n);});
-  const isReq=(a,b)=>M().q.some(q=>('S:'+q[0]===a&&'P:'+q[1]===b)||('S:'+q[0]===b&&'P:'+q[1]===a));
-  Object.values(g).forEach(L=>{if(L.length<2)return;
-   if(L.includes('P:5V')&&L.includes('P:GND'))bad.push('⚡ Short circuit! 5V and GND are connected. Unplug a wire right away.');
-   else if(!(L.length===2&&isReq(L[0],L[1])))bad.push('❌ '+L.map(n=>n.slice(2)).join(' and ')+' are connected together, which is not what we want.');});
-  M().q.forEach(q=>{if(f('S:'+q[0])!==f('P:'+q[1]))bad.push('🔌 '+q[0]+' is not connected to '+q[1]+' yet.');});
-  const uniq=[...new Set(bad)];
-  if(uniq.length){msg=uniq.join('<br>');}
-  else{ok=true;done.add(mi);chips();SFX.play('win');msg='<b>✅ Wired correctly!</b> The '+M().t+' is powered.<br>'+M().s()+'<br><small>Wires used: '+wires.length+'</small>';}
-  render();
- };
- chips();render();
-}
 
-// ================================================================
-// GAMES LIST  (cards on Home + Games page)
-//   id : unique   p : pillar ('learn'|'build'|'compete'|'share')   i : emoji icon
-//   t  : title    d : one-line description
-//   ev : events the game prepares for -> shows on those event pages
-//   run: function that draws the game
-// To add a game: write its function, add a line here, add an image in GI,
-// and optionally theory text in TH and a mini demo in TI.
-// ================================================================
-const GM=[
-{id:'circuit',p:'learn',i:'💡',t:'Circuit Switch',d:'Close the switch and light the LED.',ev:['induction','workshop-1','workshop-2'],run:el=>{el.innerHTML=PN.learn();PI.learn(el);}},
-{id:'binary',p:'learn',i:'🔢',t:'Binary LEDs',d:'Light the bits to match the target number.',ev:['workshop-1','ai-robotics-workshop'],run:bin},
-{id:'walk',p:'learn',i:'🚶',t:'Random Walk Lab',d:'Release drunk robots, predict how far they drift, and gamble a battery.',ev:['workshop-2','ai-robotics-workshop','robotics-hackathon','game-theory-hackathon'],run:el=>{el.innerHTML='<div id="wk0"></div>';walkInit(el.firstChild);}},
-{id:'echo',p:'learn',i:'📡',t:'Echo Distance Lab',d:'Turn echo time into distance and decide when to turn.',ev:['expert-talks','workshop-2'],run:echo},
-{id:'bot',p:'build',i:'🤖',t:'Bot Builder',d:'Assemble an obstacle-avoiding bot part by part.',ev:['workshop-2','prototyping-session','summer-camp'],run:el=>{el.innerHTML=PN.build();el.querySelector('hr').remove();el.querySelector('#pd').remove();PI.build(el);}},
-{id:'breadboard',p:'build',i:'🔌',t:'Breadboard Lab',d:'Place a sensor on the breadboard with your hand, then wire it to the Arduino.',ev:['workshop-1','workshop-2','prototyping-session'],run:breadboard},
-{id:'pd',p:'build',i:'🤝',t:"Prisoner's Dilemma",d:'Build trust against six strategies.',ev:['game-theory-hackathon','technical-hackathon','team-challenge'],run:el=>{el.innerHTML='<div id="pd"></div>';pdInit(el.firstChild);}},
-{id:'duel',p:'compete',i:'⚡',t:'Reaction Duel',d:'Tap the moment the button turns green.',ev:['robotics-hackathon','team-challenge'],run:el=>{el.innerHTML=PN.compete();PI.compete(el);}},
-{id:'simon',p:'compete',i:'🧠',t:'Pattern Memory',d:'Repeat a growing colour sequence.',ev:['robotics-hackathon','technical-hackathon'],run:simon},
-{id:'maze',p:'compete',i:'🧭',t:'Maze Finder',d:'Guide the bot through a random maze to the flag.',ev:['robotics-hackathon','technical-hackathon','team-challenge'],run:maze},
-{id:'rps',p:'compete',i:'✂️',t:'Rock Paper Scissors vs Bot',d:'Outsmart a bot that learns your habits.',ev:['game-theory-hackathon','team-challenge'],run:rps},
-{id:'auction',p:'compete',i:'🔨',t:'Auction Arena',d:"Bid against 3 bots in real auction formats and beat the winner's curse.",ev:['game-theory-hackathon','robotics-hackathon','technical-hackathon','team-challenge'],run:el=>{el.innerHTML='<div id="au"></div>';auctionInit(el.firstChild);}},
-{id:'pick',p:'share',i:'📣',t:'Pass It On',d:'Choose how you will share what you learn.',ev:['schools-outreach','semester-outreach','talks-mentorship'],run:el=>{el.innerHTML=PN.share();PI.share(el);}},
-{id:'plan',p:'share',i:'🏫',t:'Outreach Planner',d:'Balance kits and mentors for 70 students.',ev:['schools-outreach','summer-camp','semester-outreach'],run:plan}
-];
 
-/* Game images (files in the images/ folder) + home-page slider */
-// Game thumbnails (file names inside images/) + helper for the home slider
-// (the auction thumbnail is embedded right here as a data: URI, so it needs no file)
-const GI={circuit:'images/circuit_switch.png',binary:'images/binary_led.jpg',echo:'images/echo_distance_lab.jpg',bot:'images/bot_builder.jpg',breadboard:'images/bread_board_lab.jpg',pd:'images/prisoners_dilema.png',walk:'images/random_walk.jpg',auction:'images/auction_bot.jpg',duel:'images/reaction_duel.jpg',simon:'images/pattern_memory.png',maze:'images/maze_finder.png',rps:'images/rock_paper_scissor.png',pick:'images/pass_it_on.png',plan:'images/outreach.jpg'};
+
+
+
+
+
+
+
+
+
 const gameSlider=()=>{const set=GM.map(g=>{const p=PIL.find(x=>x.k===g.p);return `<button class="gsc" type="button" data-g="${g.id}" style="--c:${p.c}"><img src="${GI[g.id]}" alt="${esc(g.t)}" loading="lazy" onerror="this.remove()"><div class="lb"><em style="background:${p.c};color:${p.f}">${p.t}</em><b>${esc(g.t)}</b><small>${esc(g.d)}</small></div></button>`}).join('');return `<div class="gs"><div class="gst">${set}${set}</div></div>`;};
 
 /* Pillar buttons (home + about) open the Games page, pre-filtered to that pillar */
@@ -1257,49 +498,11 @@ function pillars(){
  });
 }
 
-/* Theory shown under each game */
-// ---- THEORY TEXT shown under each game (key = game id; plain HTML allowed) ----
-const TH={
-rps:`<p>Rock Paper Scissors looks like a children's game, but it is the textbook <b>zero-sum game</b>: whatever you win, the other player loses.</p><ul><li><b>Nash equilibrium:</b> the only stable strategy is a <b>mixed strategy</b>: play each move with probability 1/3, completely at random. Then nothing your opponent does beats you in the long run (expected score 0).</li><li><b>Why patterns lose:</b> if you favour one move, a smart opponent plays the <b>best response</b> and exploits you. That is exactly what this bot does after a few rounds.</li><li><b>Minimax theorem (von Neumann):</b> in zero-sum games, maximising your worst case and minimising your opponent's best case give the same answer.</li><li><b>In the real world:</b> penalty kicks, tennis serves and poker bluffs all depend on being unpredictable. It is also the basis of adversarial and multi-agent AI.</li></ul>`,
-pd:`<p>The Prisoner's Dilemma shows why rational individuals can end up worse off than if they had trusted each other.</p><ul><li><b>Nash equilibrium:</b> in one round, defecting is the best reply to anything, so both defect and earn 1 each, though both cooperating would give 3 each. That outcome is not <b>Pareto optimal</b>.</li><li><b>Repeated games:</b> when you meet again, the "shadow of the future" makes cooperation worthwhile. Robert Axelrod's tournaments were won by the simplest strategy, <b>Tit for Tat</b>.</li><li><b>Winning traits:</b> be nice, retaliate, forgive, stay clear. Useful for multi-robot teams, networks and negotiations.</li></ul>`,
-auction:`<p>Auctions are <b>games of hidden information</b>: you know your own value but not what rivals will bid. They decide who gets mobile spectrum and oil leases, and every Google search runs an ad auction in milliseconds. Multi-robot teams even use them to share tasks, with each robot bidding its own cost (distance, battery) and the cheapest bid taking the job.</p><ul><li><b>First-price:</b> bidding your value earns nothing, so you <b>shade</b>. With n bidders and values spread evenly, the equilibrium bid is <b>value x (n-1)/n</b>: 75% with four bidders, 90% with ten. More rivals means less shading.</li><li><b>Second-price (Vickrey):</b> bidding your true value is a <b>dominant strategy</b>. The price depends on the runner-up, not on you, so honesty is optimal. William Vickrey won a Nobel Prize for this.</li><li><b>Revenue equivalence:</b> if everyone plays the equilibrium, the seller earns the same on average in both formats.</li><li><b>Winner's curse:</b> when the item has one true worth and you only get a noisy estimate, the winner is usually the one who overestimated the most. Winning is bad news, so smart bidders bid <b>below</b> their estimate.</li></ul>`,
-walk:`<p>A <b>random walk</b> is a path built from random steps, also called the drunkard's walk. It models a robot's drifting wheel counts, diffusing molecules (Brownian motion), shaky prices, and even how Google's PageRank surfs the web.</p><ul><li><b>The square-root law:</b> after N unit steps in random directions, the typical distance from the start is about <b>the square root of N</b>, not N. Four times more steps only gets you twice as far (about 0.89 x the square root of N for the average distance on a grid).</li><li><b>Drift beats noise:</b> a small bias, like one slightly stronger wheel, adds a push that grows like N while the random spread grows like the square root of N. Past a crossover point the drift dominates, which is why dead-reckoning robots need sensors to correct themselves.</li><li><b>Gambler's ruin:</b> a fair walk starting at charge B between 0 and G reaches G first with probability <b>B/G</b>. Even a 2% house edge badly cuts the odds, and the walk always ends at one of the edges.</li><li><b>Used in:</b> Monte Carlo simulation, particle filters for robot localisation, simulated annealing, and search algorithms.</li></ul>`,
-circuit:`<p><b>Ohm's law: V = I × R.</b> Current flows only in a closed loop. An LED needs a resistor to limit current, otherwise it burns out. A switch is just a gap you can open or close in that loop.</p>`,
-binary:`<p>Computers store everything as bits (0 or 1). Each position doubles in value (1, 2, 4, 8...), so <b>4 bits give 2&#8308; = 16 values (0 to 15)</b> and 8 bits give 256. Arduino pins, memory and sensor readings are all numbers in binary.</p>`,
-echo:`<p>Ultrasonic sensors use <b>time of flight</b>. Sound travels about 343 m/s in air at 20 °C, so <b>distance = speed × time ÷ 2</b>, halved because the pulse goes out and comes back. Temperature changes the speed of sound, which is why real sensors drift outdoors.</p>`,
-bot:`<p>Every simple robot runs a <b>sense, think, act</b> loop: the sensor measures, the Arduino decides, the motors move. Obstacle avoidance is the rule "if distance &lt; threshold, turn" repeated many times a second, a basic <b>feedback control system</b>.</p>`,
-breadboard:`<p>A breadboard is a set of <b>electrical nets</b>: holes in the same strip are connected, and a circuit works only if the right pins share a net. Joining 5V directly to GND is a <b>short circuit</b>: almost no resistance means a huge current, so we always check wiring before powering on.</p>`,
-duel:`<p><b>Reaction time</b> is the delay between a stimulus and a response. Humans average about 250 ms because the signal must travel through eyes, brain and muscles. Microcontrollers respond in microseconds using <b>interrupts</b>. Hackathons reward both speed and accuracy, the <b>speed-accuracy trade-off</b>: tapping early costs you.</p>`,
-simon:`<p>Your <b>working memory</b> holds roughly 7 ± 2 items (Miller's law). Experts go further by <b>chunking</b>: grouping steps into patterns. Programmers do the same by breaking long programs into small functions.</p>`,
-maze:`<p>The maze is generated with <b>depth-first search</b> (a random walk that backtracks), giving a <b>perfect maze</b> with exactly one path between any two cells. The shortest-path button uses <b>breadth-first search</b>, which explores outward level by level. Robot navigation and GPS routing use the same graph ideas (A*, Dijkstra).</p>`,
-pick:`<p>Teaching is one of the best ways to learn, known as the <b>protégé effect</b>. Knowledge also has a <b>network effect</b>: each person who learns can teach several more, so impact grows far faster than one club could manage alone.</p>`,
-plan:`<p>This is a <b>resource allocation</b> problem: your output is limited by the scarcest resource, the <b>bottleneck</b>. Ratios (students per kit, students per mentor) matter more than totals. Engineers and project managers use the same reasoning for budgets and schedules.</p>`
-};
 
-/* Tiny interactive theory (one per game) */
-// ---- Tiny interactive demos under the theory (key = game id) ----
-const SL=(id,l,a,b,v,st)=>`<label for="ti_${id}"><b>${l}: <span id="ti_${id}v"></span></b></label><input id="ti_${id}" type="range" min="${a}" max="${b}" step="${st||1}" value="${v}" style="display:block;width:100%;max-width:420px;margin:4px 0 8px">`;
-const TIN=(box,title,html,fn)=>{box.innerHTML=`<div class="tiny"><h4 class="m">🧪 ${title}</h4>${html}<div id="ti_o"></div></div>`;const v=k=>+box.querySelector('#ti_'+k).value,u=()=>{box.querySelectorAll('input[type=range]').forEach(i=>{const t=box.querySelector('#'+i.id+'v');if(t)t.textContent=i.value});box.querySelector('#ti_o').innerHTML=fn(v)};box.querySelectorAll('input,select').forEach(i=>i.oninput=i.onchange=u);u();};
-const TI={
-rps:b=>TIN(b,'Try it: how exploitable is your habit?',SL('r','How often you play Rock (%)',0,100,60)+'<small>Paper and Scissors share the rest equally.</small>',v=>{const r=v('r')/100,s=(1-r)/2,val=-Math.abs(r-s),sc=Math.round(val*100);return `Against an opponent who counters your habit${r>s?' (by always playing Paper)':r<s?' (by always playing Rock or Scissors accordingly)':''}, you score <b>${sc}</b> per 100 rounds.<br>${Math.abs(sc)<2?'✅ Unexploitable: this is the Nash equilibrium (1/3 each).':'⚠️ Any lean away from 1/3 can be punished. Randomness is the best defence.'}`}),
-pd:b=>TIN(b,'Try it: does the future change the best move?',SL('n','Rounds you will meet again',1,20,1),v=>{const n=v('n'),c=3*n,d=5+n-1;return `Two Tit-for-Tat players: <b>${c}</b> points each.<br>A defector against Tit for Tat: <b>${d}</b> points.<br><b>${c>d?'🤝 Trust wins from 3 rounds on.':c===d?'😐 Exactly a tie.':'🗡️ One round only: defecting wins. Longer relationships reward trust.'}</b>`}),
-auction:b=>TIN(b,'Try it: how much should you shade?',SL('v','Your value',10,100,70)+SL('n','Number of bidders',2,12,4),v=>{const x=v('v'),n=v('n'),bid=x*(n-1)/n,pw=Math.pow(x/100,n-1),ep=x/n*pw;return `First-price: bid <b>${bid.toFixed(0)}</b> (shade by ${(100/n).toFixed(0)}%).<br>Second-price: bid your true value, <b>${x}</b>.<br>Chance of winning with the first-price bid: <b>${(pw*100).toFixed(1)}%</b>, expected profit <b>${ep.toFixed(1)}</b>.<br><small>More bidders: less shading, but a much lower chance of winning.</small>`}),
-walk:b=>TIN(b,'Try it: when does drift beat noise?',SL('n','Steps taken',4,2500,400)+SL('d','Wheel bias to the right (%)',1,40,10),v=>{const n=v('n'),d=v('d'),sp=Math.sqrt(n),dr=n*d/150,cr=Math.pow(150/d,2);return `Random spread: about <b>${sp.toFixed(0)}</b> cells.<br>Systematic drift: about <b>${dr.toFixed(0)}</b> cells.<br>${dr>sp?'🧭 Drift wins: the bias now matters more than the noise.':'🎲 Noise still wins at this point.'}<br><small>Drift overtakes the spread after about ${cr.toFixed(0)} steps. A smaller bias takes longer, but it always wins eventually.</small>`}),
-circuit:b=>TIN(b,'Try it: pick a resistor',SL('r','Resistor (Ω)',50,1000,220,10)+'<small>5 V supply, red LED drops about 2 V.</small>',v=>{const R=v('r'),I=3/R*1000;return `Current = (5 − 2) ÷ ${R} = <b>${I.toFixed(1)} mA</b><br>${I>20?'🔥 Too much current: the LED may burn out.':I<3?'🌑 Very dim.':'✅ Bright and safe (about 10–20 mA is ideal).'}`}),
-binary:b=>TIN(b,'Try it: any number as 8 bits',SL('d','Number',0,255,13),v=>{const d=v('d');return `<b style="font-size:1.4rem;letter-spacing:.1em">${d.toString(2).padStart(8,'0')}</b> = ${d}<br>Needs <b>${d.toString(2).length}</b> bit${d?'s':''}. 1 byte (8 bits) holds up to 255.`}),
-echo:b=>TIN(b,'Try it: why temperature matters',SL('t','Air temperature (°C)',-10,50,20),v=>{const t=v('t'),s=331.3+0.606*t,rd=100*343/s;return `Speed of sound: <b>${s.toFixed(0)} m/s</b><br>A wall really 100 cm away looks like <b>${rd.toFixed(1)} cm</b> if the code assumes 343 m/s.`}),
-bot:b=>TIN(b,'Try it: sense, think, act',SL('d','Sensor reading (cm)',2,100,40)+SL('th','Turn threshold (cm)',5,60,20),v=>`Sense: ${v('d')} cm → Think: is ${v('d')} &lt; ${v('th')}? → Act: <b>${v('d')<v('th')?'↪️ Turn away':'⬆️ Drive forward'}</b>`),
-breadboard:b=>{const o=(n,f)=>Array.from({length:n},(_,i)=>`<option value="${i}">${f(i)}</option>`).join('');TIN(b,'Try it: are two holes connected?',`<p style="margin:0 0 6px">Hole A: column <select id="ti_c1">${o(6,i=>i+1)}</select> row <select id="ti_r1">${o(10,i=>'abcdefghij'[i])}</select> &nbsp; Hole B: column <select id="ti_c2">${o(6,i=>i+1)}</select> row <select id="ti_r2">${o(10,i=>'abcdefghij'[i])}</select></p>`,v=>{const same=v('c1')===v('c2')&&(v('r1')<5)===(v('r2')<5);return same?'✅ <b>Connected</b>: same column, same half of the board.':'❌ <b>Not connected</b>: columns are joined only within rows a–e or f–j.'});},
-duel:b=>TIN(b,'Try it: reaction time on the road',SL('ms','Reaction time (ms)',150,600,250,10),v=>{const m=v('ms');return `At 60 km/h a car travels <b>${(16.67*m/1000).toFixed(1)} m</b> before you even start braking. At 100 km/h: <b>${(27.78*m/1000).toFixed(1)} m</b>.`}),
-simon:b=>TIN(b,'Try it: chunking',SL('g','Group size',1,6,1)+'<small>Remember: 948371625034</small>',v=>{const g=v('g'),s='948371625034'.match(new RegExp('.{1,'+g+'}','g'));return `<b style="font-size:1.3rem">${s.join(' ')}</b><br>Items to remember: <b>${s.length}</b> ${s.length<=4?'✅ easy':s.length<=7?'🙂 doable':'😵 hard'}`}),
-maze:b=>{const RW=['S.........','..#####.#.','..#...#.#.','..#.#.#...','....#...#.','.####.###.','.#..#...#.','.#.##.#.#.','.#....#...','.####.##.E'],C=10,st=RW.join('').indexOf('S'),gl=RW.join('').indexOf('E'),W=RW.join('');const NM={bfs:['BFS','Explores level by level. Always finds the shortest path, but visits many cells.'],dfs:['DFS','Dives deep, backtracks at dead ends. Low memory, but the path found may be long.'],gr:['Greedy','Always heads toward the goal. Fast when the way is open, but walls can fool it into a longer path.'],as:['A*','Mixes steps taken with distance left. Shortest path, usually fewer cells explored.']};
-const run=a=>{const hh=n=>Math.abs((n/C|0)-(gl/C|0))+Math.abs(n%C-gl%C),prev={[st]:-1},dist={[st]:0},seen=new Set([st]),op=[st],ord=[];while(op.length){let i=a==='dfs'?op.length-1:0;if(a==='gr'||a==='as'){let bs=1e9;op.forEach((n,k)=>{const f=a==='gr'?hh(n):dist[n]+hh(n);if(f<bs){bs=f;i=k}})}const n=op.splice(i,1)[0];ord.push(n);if(n===gl)break;[[0,1],[1,0],[0,-1],[-1,0]].forEach(([dy,dx])=>{const y=(n/C|0)+dy,x=n%C+dx,m=y*C+x;if(y<0||x<0||y>=C||x>=C||W[m]==='#'||seen.has(m))return;seen.add(m);prev[m]=n;dist[m]=dist[n]+1;op.push(m)})}const path=new Set();for(let n=gl;n!==-1&&n!==undefined;n=prev[n])path.add(n);return{ord,path}};
-b.innerHTML=`<div class="tiny"><h4 class="m">🧪 Try it: same maze, different algorithms</h4><div>${Object.keys(NM).map(k=>`<button class="chip" type="button" data-a="${k}" aria-pressed="false">${NM[k][0]}</button>`).join('')}</div><div id="tg" style="display:grid;grid-template-columns:repeat(${C},22px);gap:2px;margin:10px 0"></div><div id="ti_o">Pick an algorithm to watch it search.</div></div>`;
-const g=b.querySelector('#tg'),draw=(vis,path)=>{g.innerHTML=[...W].map((c,n)=>`<div style="width:22px;height:22px;font-size:.8rem;line-height:22px;text-align:center;border-radius:3px;background:${c==='#'?'var(--dk)':path&&path.has(n)?'var(--cy)':vis&&vis.has(n)?'var(--yel)':'var(--soft)'}">${n===st?'🤖':n===gl?'🏁':''}</div>`).join('')};draw();
-b.querySelectorAll('[data-a]').forEach(c=>c.onclick=()=>{b.querySelectorAll('[data-a]').forEach(x=>x.setAttribute('aria-pressed',x===c));const a=c.dataset.a,r=run(a);draw(new Set(r.ord),r.path);b.querySelector('#ti_o').innerHTML=`<b>${NM[a][0]}</b>: explored <b>${r.ord.length}</b> cells (yellow), path of <b>${r.path.size-1}</b> steps (green).<br>${NM[a][1]}`})},
-pick:b=>TIN(b,'Try it: the network effect',SL('k','New people each learner teaches per round',1,5,2),v=>{const k=v('k');return `After 5 rounds, starting from 1 person: <b>${(k+1)**5}</b> people know it.`}),
-plan:b=>TIN(b,'Try it: find the bottleneck',SL('k','Kits',4,20,10)+SL('m','Mentors',2,20,6),v=>{const kc=v('k')*5,mc=v('m')*8,cap=Math.min(kc,mc);return `Kits support <b>${kc}</b> students, mentors support <b>${mc}</b>.<br>Real capacity: <b>${Math.min(cap,70)} of 70</b>. Bottleneck: <b>${kc<mc?'kits':mc<kc?'mentors':'balanced 👌'}</b>.`})
-};
+
+
+
+
 
 // ---- Games page: filter chips, game list, full-screen game panel ----
 let closeGame=()=>{};
@@ -1319,9 +522,10 @@ function gamesPage(){
   if(f!=='all'&&g.p!==f)f='all';
   cards();
   gp.hidden=false;
-  gp.innerHTML=`<div class="gbar"><a class="logo m" href="#/"><img src="images/old_text.png" alt="YANTRIKA" onerror="this.replaceWith(document.createTextNode('YANTRIKA'))"></a><span class="badge" style="background:${PCOL[g.p]};color:#fff;margin-right:auto">${g.i} ${esc(g.t)}</span><button class="btn cy" type="button" id="gfs">⛶ Full screen</button><button class="btn" type="button" id="gx">✕ Close</button></div><div id="gb" style="margin-top:8px"></div>${TH[g.id]?`<div class="info th"><h3 class="m">🎓 The theory behind it</h3>${TH[g.id]}<div id="ti"></div></div>`:''}<hr style="border:0;border-top:4px dashed var(--dk);margin:24px 0 16px"><h3 class="m">Events this game prepares you for</h3><p>${evL(g.ev)}</p>`;
-  g.run(gp.querySelector('#gb'));
-  if(TI[g.id]&&gp.querySelector('#ti'))TI[g.id](gp.querySelector('#ti'));
+  gp.innerHTML=`<div class="gbar"><a class="logo m" href="#/"><img src="images/old_text.png" alt="YANTRIKA" onerror="this.replaceWith(document.createTextNode('YANTRIKA'))"></a><span class="badge" style="background:${PCOL[g.p]};color:#fff;margin-right:auto">${g.i} ${esc(g.t)}</span><a class="btn" href="${YK.srcUrl(g.id)}" target="_blank" rel="noopener" title="Read this game's source code">&lt;/&gt; Source</a><button class="btn cy" type="button" id="gfs">⛶ Full screen</button><button class="btn" type="button" id="gx">✕ Close</button></div><div id="gb" style="margin-top:8px"></div>${TH[g.id]?`<div class="info th"><h3 class="m">🎓 The theory behind it</h3>${TH[g.id]}<div id="ti"></div></div>`:''}<hr style="border:0;border-top:4px dashed var(--dk);margin:24px 0 16px"><h3 class="m">Events this game prepares you for</h3><p>${evL(g.ev)}</p>${YK.srcStrip(g)}`;
+  // a broken game must not take the page down with it
+  try{g.run(gp.querySelector('#gb'));}catch(err){console.error(err);gp.querySelector('#gb').innerHTML='<div class="info"><b>This game hit an error.</b> Please <a href="'+YK.bugUrl(g.id)+'" target="_blank" rel="noopener">report it</a> or try again.</div>';}
+  try{if(TI[g.id]&&gp.querySelector('#ti'))TI[g.id](gp.querySelector('#ti'));}catch(err){console.error(err);}
   gp.classList.remove('open');void gp.offsetWidth;gp.classList.add('open');
   gp.classList.add('gfull','gbgi');gp.style.setProperty('--gimg','url("'+GI[g.id]+'")');document.body.style.overflow='hidden';gp.scrollTop=0;
   gp.querySelector('#gx').onclick=closeG;
@@ -1421,7 +625,7 @@ function r(){
  scrollTo(0,0);
  document.title=(e&&!V[id]?e.t+' | ':p==='home'?'':PAGES.find(x=>x[0]===p)[1]+' | ')+'YANTRIKA';
 }
-onhashchange=r;r();
+onhashchange=()=>YK.load().then(r);YK.load().then(r);
 </script>
 <!-- Chat bubble (Typebot) shown on every page -->
 <script type="module">

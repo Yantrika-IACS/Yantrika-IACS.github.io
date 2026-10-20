@@ -1,0 +1,19 @@
+{
+  "name": "yantrika-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Yantrika Robotics & Coding Club website and open-source games arcade",
+  "license": "MIT",
+  "scripts": {
+    "check": "node tools/check-games.js",
+    "smoke": "node tools/smoke-test.js",
+    "lint": "eslint games",
+    "new-game": "node tools/new-game.js",
+    "test": "npm run check && npm run lint && npm run smoke"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "globals": "^15.0.0",
+    "jsdom": "^24.0.0"
+  }
+}
