@@ -1,27 +1,60 @@
-/* Yantrika game: Reaction Duel
-   Open source (MIT). Edit freely and send a pull request: see CONTRIBUTING.md
-   and games/README.md for the game API. */
 (function(){
 'use strict';
 
 let best=Infinity;
+const sfx=n=>{try{SFX.play(n)}catch(e){}};
 
-const panel=()=>`<h2 class="m">Compete: reaction duel</h2><p>Duel Quick Quinn in a best-of-5. Tap only when the button turns green: a red FAKE is a trap, and Quinn gets faster each time you win a round.</p>
+const panel=()=>`<h2 class="m">Compete: reaction duel</h2><p>Duel Quick Quinn in a best-of-5. Tap only when the button turns green: a FAKE is a trap, and Quinn gets faster each time you win a round.</p>
 <button class="btn" id="rx" type="button">Start the duel</button>
 <p id="rs" aria-live="polite" style="margin:6px 0 16px"><b>Your time shows up here.</b></p>
 <h3 class="m">Where to use it</h3>
-${['robotics-hackathon','game-theory-hackathon','technical-hackathon','team-challenge'].map(id=>{const e=EV.find(x=>x.id===id);return `<a class="btn" href="#/${id}">${esc(e.t)} (${e.d})</a>`}).join('')}`;
+${['robotics-hackathon','team-challenge'].map(id=>EV.find(x=>x.id===id)).filter(Boolean).map(e=>`<a class="btn" href="#/${e.id}">${esc(e.t)} (${e.d})</a>`).join('')}`;
 
 const wire=root=>{
- const rx=root.querySelector('#rx'),out=root.querySelector('#rs');let st=0,t0=0,to=0,rd=0,yw=0,bw=0,bt=0,dc=0;
+ const rx=root.querySelector('#rx'),out=root.querySelector('#rs');
+ let st=0,t0=0,to=0,rd=0,yw=0,bw=0,bt=0,dc=0,lock=0;
  const col=(t,c)=>{rx.textContent=t;rx.style.background=c;};
- const fin=(m,win)=>{clearTimeout(to);SFX.play(win?'win':'lose');rd++;win?yw++:bw++;const e=rd>=5;out.innerHTML='<b>'+m+'</b><br>Round '+rd+'/5 | You '+yw+' – '+bw+' Quinn'+(e?'<br><b>'+(yw>bw?'🏆 You win the duel!':'🤖 Quick Quinn wins. Rematch?')+'</b>':'');if(e)rd=yw=bw=0;col(e?'Rematch':'Next round','var(--yel)');st=0;};
- const go=()=>{st=2;SFX.play('go');bt=175+Math.random()*125-yw*15;t0=performance.now();col('GO! Tap now','var(--cy)');to=setTimeout(()=>{if(st===2)fin('🤖 Quinn tapped first ('+Math.round(bt)+' ms). Too slow!',false);},bt);};
- rx.onclick=()=>{
-  if(st===0){st=1;dc=Math.random()<.3;col('Wait for green...','var(--or)');out.innerHTML='<b>Get ready...</b> Beware of fakes!';const w=1200+Math.random()*2200;to=setTimeout(()=>{if(dc){st=3;SFX.play('buzz');col('⚠️ FAKE! Hold...','var(--pk)');to=setTimeout(go,700+Math.random()*900);}else go();},dc?w*.5:w);}
-  else if(st===1||st===3)fin('😬 False start! Quinn takes the round.',false);
-  else{const ms=Math.round(performance.now()-t0);best=Math.min(best,ms);ms<bt?fin('⚡ '+ms+' ms beats Quinn ('+Math.round(bt)+' ms). Best: '+best+' ms.',true):fin('🤖 Quinn was faster ('+Math.round(bt)+' ms vs your '+ms+' ms).',false);}
+ const fin=(m,win)=>{
+  clearTimeout(to);sfx(win?'win':'lose');
+  rd++;win?yw++:bw++;
+  const e=rd>=5;
+  out.innerHTML='<b>'+m+'</b><br>Round '+rd+'/5 | You '+yw+' – '+bw+' Quinn'+(e?'<br><b>'+(yw>bw?'🏆 You win the duel!':'🤖 Quick Quinn wins. Rematch?')+'</b>':'');
+  if(e)rd=yw=bw=0;
+  col(e?'Rematch':'Next round','var(--yel)');
+  st=0;lock=performance.now()+600; // ignore accidental late taps
  };
+ const go=()=>{
+  if(!rx.isConnected)return;
+  bt=Math.max(150,175+Math.random()*125-yw*10);
+  st=2;t0=performance.now();
+  col('GO! Tap now','var(--cy)');
+  sfx('go');
+  to=setTimeout(()=>{if(st===2)fin('🤖 Quinn tapped first ('+Math.round(bt)+' ms). Too slow!',false);},bt);
+ };
+ const hit=()=>{
+  const now=performance.now();
+  if(st===0){
+   if(now<lock)return;
+   st=1;dc=Math.random()<.3;
+   col('Wait for green...','var(--or)');
+   out.innerHTML='<b>Get ready...</b> Beware of fakes!';
+   const w=1200+Math.random()*2200;
+   to=setTimeout(()=>{
+    if(!rx.isConnected)return;
+    if(dc){st=3;sfx('buzz');col('⚠️ FAKE! Hold...','var(--pk)');to=setTimeout(go,700+Math.random()*900);}
+    else go();
+   },dc?w*.5:w);
+  }
+  else if(st===1||st===3)fin('😬 False start! Quinn takes the round.',false);
+  else{
+   const ms=Math.round(now-t0);best=Math.min(best,ms);
+   ms<bt?fin('⚡ '+ms+' ms beats Quinn ('+Math.round(bt)+' ms). Best: '+best+' ms.',true)
+        :fin('🤖 Quinn was faster ('+Math.round(bt)+' ms vs your '+ms+' ms).',false);
+  }
+ };
+ rx.addEventListener('pointerdown',e=>{e.preventDefault();hit();});
+ rx.addEventListener('keydown',e=>{if((e.key===' '||e.key==='Enter')&&!e.repeat){e.preventDefault();hit();}});
+ rx.addEventListener('click',e=>e.preventDefault());
 };
 
 YK.register({
