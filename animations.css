@@ -5,6 +5,11 @@
    Pure CSS, no JavaScript. New boxes/links you add later are
    picked up automatically (cards, grid items, buttons, pills,
    chips, event links, menu links).
+
+   All animations here are plain TIMED animations: they play once
+   when a page is drawn and always finish by themselves. Nothing is
+   tied to the scroll position, so scrolling fast (scrollbar drag,
+   Page Down, jump links) can never leave a box invisible.
    ========================================================== */
 
 :root{
@@ -73,8 +78,7 @@ nav .btn{animation-delay:.58s}
    NOT animated on purpose:
    .wire  the sticky scroll-built circuit (it is 320vh tall)
    .pp    panels that already have their own pop animation
-   #gg    game cards are re-drawn on every click (they only animate
-          in browsers with scroll-triggered animation, see below)
+   #gg    game cards are re-drawn on every click
 
    The fullscreen game screen (#gov) and the score popup (.smod) live
    outside <main>, so the rules above never touch them. They get their
@@ -119,39 +123,6 @@ main a.ev{display:inline-block}          /* inline links ignore transforms */
 #gov{animation:fadeIn .25s ease backwards}
 .smod{animation:fadeIn .2s ease backwards}
 .smod .card{animation:floatIn .6s var(--ease) .05s backwards}
-
-/* ---------- scroll-triggered version (Chrome, Edge, Safari 26+) ----------
-   Each box and link floats in as it scrolls into view, instead of
-   everything animating once at page load.                              */
-@supports (animation-timeline:view()){
-  main > :not(.grid):not(.pp):not(.hero2):not(.wire),
-  .grid > *,
-  .tl .ti,
-  .tbwrap{
-    animation:floatIn linear backwards;
-    animation-timeline:view();
-    animation-range:entry 0% entry 65%;
-  }
-  main .btn:not(.pdgo),
-  main .pill,
-  main .chip,
-  main a.ev{
-    animation:linkIn linear backwards;
-    animation-timeline:view();
-    animation-range:entry 0% entry 90%;
-  }
-  .tl .ti::before{
-    animation:dotPop linear backwards;
-    animation-timeline:view();
-    animation-range:entry 20% entry 70%;
-  }
-  /* the score popup is a plain timed animation, never scroll-driven */
-  .smod .card{
-    animation:floatIn .6s var(--ease) .05s backwards;
-    animation-timeline:auto;
-    animation-range:normal;
-  }
-}
 
 /* ---------- respect people who turn motion off ---------- */
 @media (prefers-reduced-motion:reduce){
