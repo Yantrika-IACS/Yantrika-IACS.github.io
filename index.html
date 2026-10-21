@@ -142,8 +142,8 @@ input,textarea{font:inherit}
 .poster.has{padding:0;overflow:hidden}
 .poster h2{font-size:2rem;text-shadow:3px 3px 0 var(--dk);margin:0}
 a.ev{text-decoration:none;}
-.tbwrap{border:3px solid var(--dk);border-radius:10px;overflow:hidden;margin-top:16px}
-typebot-standard{display:block;width:100%;height:600px}
+.join-fab{position:fixed;right:18px;bottom:18px;z-index:50;background:#FFEF02;color:#17171d;border:3px solid #17171d;border-radius:999px;padding:12px 22px;font-weight:700;text-decoration:none;box-shadow:4px 4px 0 #17171d}
+.join-fab:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #17171d}
 .upi{font-size:1.3rem;word-break:break-all;background:var(--soft);border:3px dashed var(--dk);border-radius:8px;padding:10px 14px;margin:10px 0;font-weight:700}
 /* Phone layout tweaks for the basics above */
 @media(max-width:600px){.c{padding-left:14px;padding-right:14px}nav{padding-left:14px;padding-right:14px}.card{padding:20px}nav .logo{font-size:1.3rem}.bgal{height:560px}.hero2{min-height:420px}.hero2 .txt{padding:30px 10px}}
@@ -430,6 +430,8 @@ const INDP_F=[['name','Full name'],['inst','Affiliated institution'],['title','P
 // endpoint: paste a Google Apps Script web-app URL here to collect sign-ups in a sheet.
 // Leave '' and the form opens the visitor's email app addressed to JOIN.mail instead.
 const JOIN={endpoint:'',mail:'contact@yantrika.in'};
+// The one joining link, used by the Join page button and the floating "Join Us" button
+const JOIN_LINK='https://script.google.com/macros/s/AKfycbzraT17l5Rqqrt-uCe7zrDI9YonIuC4ZbhlYSq-uqDqEoATvRUskCCZniJFf4qFUU1c/exec';
 const JOIN_ROLES=['Undergraduate student','Master\'s student','PhD / research scholar','Faculty or staff','Alumni','School student','Working professional','Other'];
 const JOIN_WANT=['Join the club as a member','Volunteer at events','Mentor or give a talk','Sponsor or donate','Collaborate with Yantrika','Something else'];
 const JOIN_LEVEL=['Complete beginner','Some experience','Experienced'];
@@ -504,7 +506,7 @@ team:()=>`<div class="card"><h1 class="m">Meet the Team</h1><p>The students and 
 <h3 class="m" style="color:var(--pk);margin-top:24px">Core Committee</h3><div class="grid">${TEAM.core.map(person).join('')}</div>
 <h3 class="m" style="color:var(--cy);margin-top:24px">Leads &amp; Editors</h3><div class="grid">${TEAM.lead.map(person).join('')}</div>
 <h3 class="m" style="color:var(--or);margin-top:24px">Backend Core Members</h3>${TEAM.back.map(n=>`<span class="pill">${esc(n)}</span>`).join('')}</div>`,
-// ---------- JOIN PAGE (chat form is Typebot, see joinBot()) ----------
+// ---------- JOIN PAGE ----------
 join:()=>`<div class="card"><h1 class="m">Join &amp; Contact</h1><p>Want to join, volunteer, sponsor, or collaborate? Fill in the form below and we will get back to you. No experience needed. Curiosity is enough.</p></div>
 <div class="card fm"><h2 class="m">🤖 Join Yantrika</h2><p>Fill this in and press Submit. Fields marked * are required.</p>
 <form id="join-form" novalidate>
@@ -520,7 +522,7 @@ join:()=>`<div class="card"><h1 class="m">Join &amp; Contact</h1><p>Want to join
 <button class="btn" type="submit">Submit</button>
 <p id="join-st" aria-live="polite"></p>
 </form></div>
-<div class="card"><h2 class="m">Prefer to chat?</h2><p>Talk to our chat assistant instead and we will pick it up from there.</p><div class="tbwrap"><typebot-standard></typebot-standard></div></div>
+<div class="card"><h2 class="m">Prefer another way to join?</h2><p>Use our online joining link and we will pick it up from there.</p><p><a class="btn" href="${JOIN_LINK}" target="_blank" rel="noopener">Open the joining link &rarr;</a></p></div>
 <div class="card foot"><h2 class="m">Find us</h2><p><a class="btn" href="mailto:${LINKS.mail}">✉️ Email</a><a class="btn" href="${LINKS.web}" target="_blank" rel="noopener">🌐 Website</a><a class="btn" href="${LINKS.ig}" target="_blank" rel="noopener">📸 Instagram</a><a class="btn" href="${LINKS.li}" target="_blank" rel="noopener">💼 LinkedIn</a></p></div>`,
 // ---------- DONATE PAGE (UPI id comes from DON) ----------
 donate:()=>`<div class="card"><h1 class="m">Sponsor or Donate to Yantrika</h1><p>Yantrika is a student-led club. Every contribution helps us buy kits and components, run free workshops and hackathons, and take robotics to school students who would otherwise never get to touch real hardware.</p>
@@ -670,18 +672,6 @@ function promo(){
  new IntersectionObserver(en=>en.forEach(x=>{if(x.isIntersecting){v.play().catch(()=>{})}else{v.pause()}}),{threshold:.25}).observe(v);
 }
 
-/* Typebot standard embed for the Join page */
-// Loads the Typebot chat form on the Join page
-function joinBot(){
- const typebotInitScript = document.createElement("script");
- typebotInitScript.type = "module";
- typebotInitScript.innerHTML = `import Typebot from 'https://cdn.jsdelivr.net/npm/@typebot.io/js@0/dist/web.js'
-
-Typebot.initStandard({ typebot: "yantrika" });
-`;
- document.body.append(typebotInitScript);
-}
-
 // Independent Projects form: validate, then send to INDP.endpoint or open an email
 function projInit(){
  const f=document.getElementById('indp-form'),st=document.getElementById('indp-st');if(!f)return;
@@ -760,18 +750,15 @@ function r(){
  if(p==='donate')donateInit();
  if(p==='materials')mats();
  if(p==='projects')projInit();
- if(p==='join'){joinInit();joinBot();}
+ if(p==='join'){joinInit();}
  document.body.style.overflow='';if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});
  scrollTo(0,0);
  document.title=(e&&!V[id]?e.t+' | ':p==='home'?'':PAGES.find(x=>x[0]===p)[1]+' | ')+'YANTRIKA';
 }
 onhashchange=()=>YK.load().then(r);YK.load().then(r);
 </script>
-<!-- Chat bubble (Typebot) shown on every page -->
-<script type="module">
-import Typebot from 'https://cdn.jsdelivr.net/npm/@typebot.io/js@0/dist/web.js';
-Typebot.initBubble({typebot:"yantrika-workshop",theme:{button:{backgroundColor:"#FFEF02",color:"#17171d"},chatWindow:{backgroundColor:"#010000"}},customButton:{text:"Join Us"}});
-</script>
+<!-- Floating "Join Us" button shown on every page -->
+<a class="join-fab" id="join-fab" href="https://script.google.com/macros/s/AKfycbzraT17l5Rqqrt-uCe7zrDI9YonIuC4ZbhlYSq-uqDqEoATvRUskCCZniJFf4qFUU1c/exec" target="_blank" rel="noopener">Join Us</a>
 <!-- Sitemap helper script that lives next to this file -->
 <script src="sitemap.js"></script>
 </body>
