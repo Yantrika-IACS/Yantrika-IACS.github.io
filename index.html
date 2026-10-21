@@ -95,10 +95,10 @@ h1,h2,h3{margin-top:0}a{color:inherit}
 .hero2 h2{font-size:clamp(1.5rem,4vw,2.4rem);margin-bottom:6px}
 /* ===================== CSS: TOP NAV BAR ===================== */
 nav{position:sticky;top:0;z-index:9;background:var(--yel);border-bottom:4px solid var(--dk);margin:0 0 36px;padding:calc(8px + env(safe-area-inset-top,0px)) max(16px,calc(50vw - 600px)) 8px;display:flex;flex-wrap:nowrap;gap:12px;align-items:center;box-sizing:border-box}
-nav .logo{font-size:1.5rem;line-height:1.2;color:#17171d;text-decoration:none;margin-right:auto;display:flex;align-items:center;white-space:nowrap;flex:0 0 auto}
-.logo img{display:block;height:34px;width:auto;max-width:100%}
+nav .logo{font-size:1.85rem;line-height:1.2;color:#17171d;text-decoration:none;margin-right:auto;display:flex;align-items:center;white-space:nowrap;flex:0 0 auto}
+.logo img{display:block;height:44px;width:auto;max-width:100%}
 nav .nl{display:flex;flex-wrap:nowrap;align-items:center;gap:2px}
-nav a.l{color:#17171d;font-weight:700;font-size:.95rem;text-decoration:none;padding:3px 9px;border:3px solid transparent;border-radius:8px;white-space:nowrap}
+nav a.l{color:#17171d;font-weight:700;font-size:1.1rem;text-decoration:none;padding:3px 9px;border:3px solid transparent;border-radius:8px;white-space:nowrap}
 nav a.l:hover,nav a.l.on{border-color:var(--dk);background:#fff}
 nav #th{flex:0 0 auto;padding:3px 11px;box-shadow:3px 3px 0 var(--dk)}
 nav #mb{display:none;flex:0 0 auto;margin:0;padding:3px 11px;font-size:1.15rem;line-height:1.3;box-shadow:3px 3px 0 var(--dk)}
@@ -107,7 +107,7 @@ nav #mb{display:none;flex:0 0 auto;margin:0;padding:3px 11px;font-size:1.15rem;l
  nav #mb{display:inline-block}
  nav .nl{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;align-items:stretch;gap:4px;background:var(--yel);border-bottom:4px solid var(--dk);padding:10px max(16px,calc(50vw - 600px)) 14px;box-shadow:0 8px 0 rgba(0,0,0,.18)}
  nav .nl.open{display:flex}
- nav .nl a.l{font-size:1.05rem;padding:8px 12px}
+ nav .nl a.l{font-size:1.25rem;padding:8px 12px}
 }
 /* ===================== CSS: CARDS, BUTTONS, BADGES, GRIDS ===================== */
 /* .card big content block | .box small tile | .btn button | .badge status pill | .grid auto columns */
@@ -146,7 +146,7 @@ a.ev{text-decoration:none;}
 .join-fab:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #17171d}
 .upi{font-size:1.3rem;word-break:break-all;background:var(--soft);border:3px dashed var(--dk);border-radius:8px;padding:10px 14px;margin:10px 0;font-weight:700}
 /* Phone layout tweaks for the basics above */
-@media(max-width:600px){.c{padding-left:14px;padding-right:14px}nav{padding-left:14px;padding-right:14px}.card{padding:20px}nav .logo{font-size:1.3rem}.bgal{height:560px}.hero2{min-height:420px}.hero2 .txt{padding:30px 10px}}
+@media(max-width:600px){.c{padding-left:14px;padding-right:14px}nav{padding-left:14px;padding-right:14px}.card{padding:20px}nav .logo{font-size:1.6rem}.logo img{height:38px}.bgal{height:560px}.hero2{min-height:420px}.hero2 .txt{padding:30px 10px}}
 
 /*CSS part*/
 /* Home: photo slider + promo video + "come build with us" banner */
@@ -418,7 +418,7 @@ const jam=()=>`<section class="card jam" id="jam" aria-labelledby="jam-h"><div c
 // ================================================================
 const INDP={
  guide:'Yantrika_Independent_Projects_Guide.pdf',
- endpoint:'https://script.google.com/macros/s/AKfycbybraOXPBmxF6WyUi37O6y8r_C4T1a-Sg_0Jq-fVHWNXRPHSnxEIkNCHL2MgLRw50-wcA/exec',
+ endpoint:'https://script.google.com/macros/s/AKfycbwi7HluSWjLJ9mZlF4VW9iy_4zSzf9fXq8zWFlFBJUIsLXwDq5rqimt0LMC_9QTCXrbqg/exec',
  mail:'contact@yantrika.in',
  list:[]
 };
@@ -429,9 +429,7 @@ const INDP_F=[['name','Full name'],['inst','Affiliated institution'],['title','P
 // ---- JOIN FORM (Join page) ----
 // endpoint: paste a Google Apps Script web-app URL here to collect sign-ups in a sheet.
 // Leave '' and the form opens the visitor's email app addressed to JOIN.mail instead.
-const JOIN={endpoint:'',mail:'contact@yantrika.in'};
-// The one joining link, used by the Join page button and the floating "Join Us" button
-const JOIN_LINK='https://script.google.com/macros/s/AKfycbzraT17l5Rqqrt-uCe7zrDI9YonIuC4ZbhlYSq-uqDqEoATvRUskCCZniJFf4qFUU1c/exec';
+const JOIN={endpoint:'https://script.google.com/macros/s/AKfycbwi7HluSWjLJ9mZlF4VW9iy_4zSzf9fXq8zWFlFBJUIsLXwDq5rqimt0LMC_9QTCXrbqg/exec',mail:'contact@yantrika.in'};
 const JOIN_ROLES=['Undergraduate student','Master\'s student','PhD / research scholar','Faculty or staff','Alumni','School student','Working professional','Other'];
 const JOIN_WANT=['Join the club as a member','Volunteer at events','Mentor or give a talk','Sponsor or donate','Collaborate with Yantrika','Something else'];
 const JOIN_LEVEL=['Complete beginner','Some experience','Experienced'];
@@ -522,7 +520,6 @@ join:()=>`<div class="card"><h1 class="m">Join &amp; Contact</h1><p>Want to join
 <button class="btn" type="submit">Submit</button>
 <p id="join-st" aria-live="polite"></p>
 </form></div>
-<div class="card"><h2 class="m">Prefer another way to join?</h2><p>Use our online joining link and we will pick it up from there.</p><p><a class="btn" href="${JOIN_LINK}" target="_blank" rel="noopener">Open the joining link &rarr;</a></p></div>
 <div class="card foot"><h2 class="m">Find us</h2><p><a class="btn" href="mailto:${LINKS.mail}">✉️ Email</a><a class="btn" href="${LINKS.web}" target="_blank" rel="noopener">🌐 Website</a><a class="btn" href="${LINKS.ig}" target="_blank" rel="noopener">📸 Instagram</a><a class="btn" href="${LINKS.li}" target="_blank" rel="noopener">💼 LinkedIn</a></p></div>`,
 // ---------- DONATE PAGE (UPI id comes from DON) ----------
 donate:()=>`<div class="card"><h1 class="m">Sponsor or Donate to Yantrika</h1><p>Yantrika is a student-led club. Every contribution helps us buy kits and components, run free workshops and hackathons, and take robotics to school students who would otherwise never get to touch real hardware.</p>
@@ -758,8 +755,9 @@ function r(){
 onhashchange=()=>YK.load().then(r);YK.load().then(r);
 </script>
 <!-- Floating "Join Us" button shown on every page -->
-<a class="join-fab" id="join-fab" href="https://script.google.com/macros/s/AKfycbzraT17l5Rqqrt-uCe7zrDI9YonIuC4ZbhlYSq-uqDqEoATvRUskCCZniJFf4qFUU1c/exec" target="_blank" rel="noopener">Join Us</a>
+<a class="join-fab" id="join-fab" href="#/join">Join Us</a>
 <!-- Sitemap helper script that lives next to this file -->
 <script src="sitemap.js"></script>
 </body>
 </html>
+
