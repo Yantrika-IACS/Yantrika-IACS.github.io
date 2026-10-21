@@ -196,7 +196,13 @@ a.ev{text-decoration:none;}
 .jam-wall span{border:3px solid var(--yel);border-radius:8px;padding:6px 12px;font-weight:700}
 .jam-wall .jam-empty{border-style:dashed;opacity:.5}
 @media(prefers-reduced-motion:reduce){.jam-blink{animation:none}}
-
+/* Home: Independent Projects card (extends the Game Jam look) */
+.pj{padding:36px 32px;border-top:14px solid var(--cy)}
+.pj h2{color:var(--cy);text-shadow:3px 3px 0 var(--bl);font-size:clamp(2rem,6vw,3.4rem)}
+.pj .jam-blink{color:var(--cy)}
+.pj .jam-steps div,.pj .jam-wall span{border-color:var(--cy)}
+.pj .jam-steps b{color:var(--cy)}
+@media(max-width:600px){.pj{padding:22px 16px}}
 /* About page: interactive pillars */
 /* Pillars (About page), chips, info boxes, progress bars */
 .pil{display:block;width:100%;text-align:left;font:inherit;cursor:pointer;border:3px solid var(--dk);border-radius:10px;box-shadow:5px 5px 0 var(--dk);padding:18px;transition:transform .15s ease,box-shadow .15s ease}
@@ -437,7 +443,7 @@ const JOIN_LEVEL=['Complete beginner','Some experience','Experienced'];
 const JOIN_F=[['name','Full name'],['email','Email'],['inst','Institution / department'],['role','I am a'],['want','I would like to'],['level','Robotics / coding experience'],['msg','About you / message'],['agree','OK to be contacted by Yantrika']];
 const indpCard=p=>`<a class="box" href="${esc(p.u)}" target="_blank" rel="noopener" style="display:block;text-decoration:none;color:inherit"><span class="badge" style="background:var(--yel)">${esc(p.area)}</span> <span class="badge" style="background:var(--cy)">${esc(p.type)}</span><h3 class="m" style="margin:8px 0 2px">${esc(p.t)}</h3><small><b>by ${esc(p.by)}, ${esc(p.inst)}</b></small><p style="margin:6px 0 0">${esc(p.d)}</p><small><b>Open project &rarr;</b></small></a>`;
 // Home page: Independent Projects card (same arcade style as the Game Jam)
-const pjam=()=>`<section class="card jam pj" id="pj" aria-labelledby="pj-h"><div class="jam-top"><span class="jam-blink">▶ PRESS START</span><span class="badge plan">Open to everyone</span></div
+const pjam=()=>`<section class="card jam pj" id="pj" aria-labelledby="pj-h"><div class="jam-top"><span class="jam-blink">▶ PRESS START</span><span class="badge plan">Open to everyone</span></div>
 <h2 class="m" id="pj-h">🔬 Built a Simulation? Get Listed.</h2>
 <p><b>Your STEM simulation deserves an audience.</b> Share a simulation or interactive model of anything in science, technology, engineering or maths and we will list it on Yantrika with your name and institution. No membership needed.</p>
 <div class="jam-wall" style="margin:0 0 6px"><span>🧪 Simulation</span><span>🎛️ Interactive model</span><span>📈 Visualisation</span><span>📦 Toolkit</span></div>
@@ -767,4 +773,3 @@ onhashchange=()=>YK.load().then(r);YK.load().then(r);
 <script src="sitemap.js"></script>
 </body>
 </html>
-
