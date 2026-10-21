@@ -15,6 +15,7 @@
            DON     donation UPI id + QR image
            G       home-page photo gallery images
            JAM     Game Jam contest on the home page (status, perks, links)
+           INDP    Independent Projects page (listed projects, form link)
            WALL    Game Jam "Wall of Fame" (contributors)
            PIL     the four pillars (Learn / Build / Compete / Share)
            (the games are NOT in this file any more: see games/ below)
@@ -59,6 +60,7 @@
 <!-- Page basics: encoding + mobile scaling (leave as is) -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f1c40f">
 <!-- Browser-tab icon (emoji/SVG, inline) -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20x%3D%223%22%20y%3D%223%22%20width%3D%2258%22%20height%3D%2258%22%20rx%3D%2214%22%20fill%3D%22%23f1c40f%22%20stroke%3D%22%2317171d%22%20stroke-width%3D%225%22/%3E%3Cpath%20d%3D%22M18%2017L32%2035L46%2017M32%2035V50%22%20fill%3D%22none%22%20stroke%3D%22%23ec3750%22%20stroke-width%3D%229%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E">
 <!-- Browser-tab title -->
@@ -70,7 +72,7 @@
 /* ===================== CSS: THEME (change colours here) =====================
    --red/--yel/--cy/--bl/--or/--pk are the brand colours,
    --bg page background, --card card background, --ink text, --dk borders/shadows. */
-:root{--red:#ec3750;--yel:#f1c40f;--cy:#33d6a6;--bl:#338eda;--or:#ff8c37;--pk:#ff5a5f;--dk:#17171d;--bg:#f9f9f9;--card:#fff;--ink:#17171d;--soft:#f1f1f1;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--red:#ec3750;--yel:#f1c40f;--cy:#33d6a6;--bl:#338eda;--or:#ff8c37;--pk:#ff5a5f;--dk:#17171d;--bg:#f9f9f9;--card:#fff;--ink:#17171d;--soft:#f1f1f1;box-sizing:border-box;padding-bottom:env(safe-area-inset-bottom,0px)}
 /* Dark mode: automatic (follows the device) */
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101015;--card:#1e1e26;--ink:#f4f4f4;--soft:#2a2a34;--dk:#000}}
 /* Dark mode: when the user presses the theme button */
@@ -92,11 +94,21 @@ h1,h2,h3{margin-top:0}a{color:inherit}
 .ytitle img{display:block;margin:0 auto;width:min(100%,640px);height:auto}
 .hero2 h2{font-size:clamp(1.5rem,4vw,2.4rem);margin-bottom:6px}
 /* ===================== CSS: TOP NAV BAR ===================== */
-nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--yel);border-bottom:4px solid var(--dk);margin:0 -20px 36px;padding:10px 20px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-nav .logo{font-size:1.5rem;color:#17171d;text-decoration:none;margin-right:auto;display:flex;align-items:center}
+nav{position:sticky;top:0;z-index:9;background:var(--yel);border-bottom:4px solid var(--dk);margin:0 0 36px;padding:calc(8px + env(safe-area-inset-top,0px)) max(16px,calc(50vw - 600px)) 8px;display:flex;flex-wrap:nowrap;gap:12px;align-items:center;box-sizing:border-box}
+nav .logo{font-size:1.5rem;line-height:1.2;color:#17171d;text-decoration:none;margin-right:auto;display:flex;align-items:center;white-space:nowrap;flex:0 0 auto}
 .logo img{display:block;height:34px;width:auto;max-width:100%}
-nav a.l{color:#17171d;font-weight:700;text-decoration:none;padding:4px 12px;border:3px solid transparent;border-radius:8px}
+nav .nl{display:flex;flex-wrap:nowrap;align-items:center;gap:2px}
+nav a.l{color:#17171d;font-weight:700;font-size:.95rem;text-decoration:none;padding:3px 9px;border:3px solid transparent;border-radius:8px;white-space:nowrap}
 nav a.l:hover,nav a.l.on{border-color:var(--dk);background:#fff}
+nav #th{flex:0 0 auto;padding:3px 11px;box-shadow:3px 3px 0 var(--dk)}
+nav #mb{display:none;flex:0 0 auto;margin:0;padding:3px 11px;font-size:1.15rem;line-height:1.3;box-shadow:3px 3px 0 var(--dk)}
+/* Narrow screens: links fold into a dropdown so the bar always stays ONE row */
+@media(max-width:1180px){
+ nav #mb{display:inline-block}
+ nav .nl{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;align-items:stretch;gap:4px;background:var(--yel);border-bottom:4px solid var(--dk);padding:10px max(16px,calc(50vw - 600px)) 14px;box-shadow:0 8px 0 rgba(0,0,0,.18)}
+ nav .nl.open{display:flex}
+ nav .nl a.l{font-size:1.05rem;padding:8px 12px}
+}
 /* ===================== CSS: CARDS, BUTTONS, BADGES, GRIDS ===================== */
 /* .card big content block | .box small tile | .btn button | .badge status pill | .grid auto columns */
 .card{border:4px solid var(--dk);border-radius:12px;box-shadow:8px 8px 0 var(--dk);padding:28px;margin-bottom:36px;background:var(--card)}
@@ -134,7 +146,7 @@ a.ev{text-decoration:none;}
 typebot-standard{display:block;width:100%;height:600px}
 .upi{font-size:1.3rem;word-break:break-all;background:var(--soft);border:3px dashed var(--dk);border-radius:8px;padding:10px 14px;margin:10px 0;font-weight:700}
 /* Phone layout tweaks for the basics above */
-@media(max-width:600px){.c{padding-left:14px;padding-right:14px}nav{margin-left:-14px;margin-right:-14px}.card{padding:20px}nav .logo{width:100%;margin-right:0}.bgal{height:560px}.hero2{min-height:420px}.hero2 .txt{padding:30px 10px}}
+@media(max-width:600px){.c{padding-left:14px;padding-right:14px}nav{padding-left:14px;padding-right:14px}.card{padding:20px}nav .logo{font-size:1.3rem}.bgal{height:560px}.hero2{min-height:420px}.hero2 .txt{padding:30px 10px}}
 
 /*CSS part*/
 /* Home: photo slider + promo video + "come build with us" banner */
@@ -158,6 +170,17 @@ typebot-standard{display:block;width:100%;height:600px}
 .cta .ov .btn{pointer-events:auto}
 @media(max-width:600px){.cta .slider{margin:0 -14px;width:calc(100% + 28px)}.cta .sl{width:200px}.cta{min-height:260px}}
 /*CSS part end*/
+
+/* Independent Projects submission form */
+.fm form{display:grid;gap:14px;max-width:620px}
+.fm label{display:grid;gap:4px;font-weight:700}
+.fm input:not([type=checkbox]),.fm select,.fm textarea{border:3px solid var(--dk);border-radius:8px;padding:9px 12px;font:inherit;background:var(--card);color:var(--ink);width:100%;box-sizing:border-box}
+.fm input:focus-visible,.fm select:focus-visible,.fm textarea:focus-visible{outline:3px solid var(--bl);outline-offset:2px}
+.fm .ck{display:flex;gap:10px;align-items:flex-start;font-weight:400}
+.fm .ck input{width:22px;height:22px;margin-top:3px;flex:0 0 auto}
+.fm .bad{border-color:var(--red)!important}
+.fm form .btn{justify-self:start}
+#indp-st{margin:0;font-weight:700}
 
 /* Game Jam (home page contest) */
 .jam{background:#17171d;color:#f4f4f4;position:relative;overflow:hidden;background-image:repeating-linear-gradient(to bottom,rgba(255,255,255,.04) 0 2px,transparent 2px 4px)}
@@ -242,8 +265,8 @@ button.tag:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
 <body>
 <!-- Hero photo grid behind the home page (filled by JS from G) -->
 <div class="bgal" id="bgal"></div>
-<!-- nav = top menu, main = the current page. Both are filled by function r() -->
-<div class="c"><nav id="nav"></nav><main id="app"></main></div>
+<!-- nav = top menu (full width), main = the current page. Both are filled by function r() -->
+<nav id="nav"></nav><div class="c"><main id="app"></main></div>
 <!-- ======================= CONTENT + LOGIC (JavaScript) ======================= -->
 <!-- Games toolkit + game list (open source, see games/README.md) -->
 <script src="games/core.js"></script>
@@ -296,6 +319,7 @@ const MAT=[
 {t:'Component Datasheets',k:'Docs',d:'Datasheets for sensors, drivers and modules.',u:'materials/component-datasheets.pdf'},
 {t:'LiPo Battery Safety Sheet',k:'Docs',d:'Charging, storage and handling rules.',u:'materials/lipo_safety.pdf'},
 {t:'Games Contributor Guide',k:'Docs',d:'How to add your own game to the Games Arcade.',u:'https://github.com/Yantrika-IACS/Yantrika-IACS.github.io/blob/main/Yantrika_Games_Contributor_Guide.pdf'},
+{t:'Independent Projects Guide',k:'Docs',d:'How to get your own STEM simulation listed on the site.',u:'https://github.com/Yantrika-IACS/Yantrika-IACS.github.io/blob/main/Yantrika_Independent_Projects_Guide.pdf'},
 {t:'Event Posters',k:'Posters',d:'Posters for all Yantrika events.',u:'materials/event_posters.pdf'}
 ];
 // ================================================================
@@ -337,7 +361,7 @@ const DONORS=[
 ];
 const donorLine=()=>DONORS.length?`<p><b>Our work is possible through our generous donors thus far: ${DONORS.map(d=>d[1]?`<a href="${esc(d[1])}" target="_blank" rel="noopener">${esc(d[0])}</a>`:esc(d[0])).join(', ')}. Thank you!</b></p>`:'';
 // Top menu: [ page id, label shown ].  Each id must exist in V = {...} below.
-const PAGES=[['home','Home'],['about','About'],['games','Games'],['events','Events'],['materials','Materials'],['team','Team'],['join','Join'],['donate','Sponsor or Donate']];
+const PAGES=[['home','Home'],['about','About'],['games','Games'],['projects','Projects'],['events','Events'],['materials','Materials'],['team','Team'],['join','Join'],['donate','Sponsor or Donate']];
 // Rotating colour palette used for gallery tiles and poster backgrounds
 const PC=['#ec3750','#338eda','#ff8c37','#33d6a6','#ff5a5f','#8e44ad'];
 
@@ -366,7 +390,7 @@ const person=p=>`<div class="box"><b style="font-size:1.1rem">${esc(p[0])}</b><b
 //   WALL       : Wall of Fame rows ->  ['Name', 'Game title', 'link or empty']
 // ================================================================
 const JAM={
- guide:'https://github.com/Yantrika-IACS/Yantrika-IACS.github.io/blob/main/Yantrika_Games_Contributor_Guide.pdf',
+ guide:'Yantrika_Games_Contributor_Guide.pdf',
  repo:'https://github.com/Yantrika-IACS/Yantrika-IACS.github.io',
  status:'Open for entries',
  perks:'Your game goes live in the Games Arcade and your name goes on the Wall of Fame.'
@@ -378,6 +402,40 @@ const jam=()=>`<section class="card jam" id="jam" aria-labelledby="jam-h"><div c
 <div class="jam-steps"><div><b>1</b>Read the Contributor Guide.</div><div><b>2</b>Build your game in its own <code>games/&lt;id&gt;/</code> folder.</div><div><b>3</b>Open a Pull Request and we will play-test it.</div></div>
 <p><a class="btn" href="${JAM.guide}" target="_blank" rel="noopener">📘 Contributor Guide (PDF)</a><a class="btn cy" href="${JAM.repo}" target="_blank" rel="noopener">&lt;/&gt; Add your game on GitHub</a></p>
 <h3 class="m">🏆 Wall of Fame</h3><div class="jam-wall">${WALL.length?WALL.map(w=>`<span>${w[2]?`<a href="${esc(w[2])}" target="_blank" rel="noopener">${esc(w[0])}</a>`:esc(w[0])} · ${esc(w[1])}</span>`).join(''):'<span class="jam-empty">Your name here</span><span class="jam-empty">Your game here</span>'}</div></section>`;
+
+// ================================================================
+// INDEPENDENT PROJECTS  (the #/projects page)
+//   INDP.guide : contributor guide PDF
+//   INDP.endpoint : the Google Apps Script web-app URL that saves each
+//                submission to a Google Sheet (setup: see apps-script/Code.gs).
+//                While it is empty, the on-page form opens an email to
+//                INDP.mail with everything pre-filled instead.
+//   INDP.list  : approved projects, one per line:
+//     {t:'Title', by:'Name', inst:'Institution or Independent contributor',
+//      area:'Physics', type:'Repository'|'Hosted website'|'Drive media',
+//      u:'https://link', d:'Two-sentence description'}
+//   To list a project: paste a line into INDP.list after review.
+// ================================================================
+const INDP={
+ guide:'Yantrika_Independent_Projects_Guide.pdf',
+ endpoint:'https://script.google.com/macros/s/AKfycbybraOXPBmxF6WyUi37O6y8r_C4T1a-Sg_0Jq-fVHWNXRPHSnxEIkNCHL2MgLRw50-wcA/exec',
+ mail:'contact@yantrika.in',
+ list:[]
+};
+const INDP_AREAS=['Physics','Mathematics','Chemistry','Biology','Computer Science','Electronics','Robotics','Statistics','Data Science','Earth & Environmental Science','Engineering','Game Theory','Other'];
+const INDP_TYPES=['Repository','Hosted website','Drive media'];
+// [form field name, label used in the email]
+const INDP_F=[['name','Full name'],['inst','Affiliated institution'],['title','Project title'],['area','STEM area'],['desc','Short description'],['link','Project link'],['type','Link type'],['email','Contact email (not shown publicly)'],['declare','Declaration (own work or credited, OK to link)']];
+// ---- JOIN FORM (Join page) ----
+// endpoint: paste a Google Apps Script web-app URL here to collect sign-ups in a sheet.
+// Leave '' and the form opens the visitor's email app addressed to JOIN.mail instead.
+const JOIN={endpoint:'',mail:'contact@yantrika.in'};
+const JOIN_ROLES=['Undergraduate student','Master\'s student','PhD / research scholar','Faculty or staff','Alumni','School student','Working professional','Other'];
+const JOIN_WANT=['Join the club as a member','Volunteer at events','Mentor or give a talk','Sponsor or donate','Collaborate with Yantrika','Something else'];
+const JOIN_LEVEL=['Complete beginner','Some experience','Experienced'];
+// [form field name, label used in the email]
+const JOIN_F=[['name','Full name'],['email','Email'],['inst','Institution / department'],['role','I am a'],['want','I would like to'],['level','Robotics / coding experience'],['msg','About you / message'],['agree','OK to be contacted by Yantrika']];
+const indpCard=p=>`<a class="box" href="${esc(p.u)}" target="_blank" rel="noopener" style="display:block;text-decoration:none;color:inherit"><span class="badge" style="background:var(--yel)">${esc(p.area)}</span> <span class="badge" style="background:var(--cy)">${esc(p.type)}</span><h3 class="m" style="margin:8px 0 2px">${esc(p.t)}</h3><small><b>by ${esc(p.by)}, ${esc(p.inst)}</b></small><p style="margin:6px 0 0">${esc(p.d)}</p><small><b>Open project &rarr;</b></small></a>`;
 
 // ---- PILLARS (the four coloured buttons on Home/About) ----
 /* About page pillars: the four buttons */
@@ -399,7 +457,7 @@ home:()=>`<div class="hero2"><div class="txt"><h1 class="m ytitle"><img src="ima
 <div class="card"><h2 class="m">Learning through making</h2><p>Yantrika is a student-led club that believes students learn best when they move beyond theory: work with real hardware, experiment, and solve problems together.</p></div>
 <div class="grid" style="margin-bottom:36px"><div class="box stat"><b style="color:var(--red)">40+</b>students per workshop</div><div class="box stat"><b style="color:var(--bl)">14</b>events, done and planned</div><div class="box stat"><b style="color:var(--or)">2+</b>community outreaches planned</div></div>
 <div class="card"><h2 class="m">Where we are now</h2><div class="tl">${EV.filter(e=>e.s!=='prop').map(e=>`<div class="ti"><b>${e.d} | <a class="ev" href="#/${e.id}">${esc(e.t)}</a></b> <span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><br>${esc(e.x)}</div>`).join('')}</div><a class="btn" href="#/events">All events &rarr;</a></div>
-<h2 class="m">Play our games</h2>${gameSlider()}<p><button class="btn cy" type="button" onclick="document.getElementById('jam').scrollIntoView({behavior:'smooth'})">➕ Add your own game</button></p>${jam()}<h2 class="m">Promo Video</h2><div class="vid"><video id="pv" src="images/intro_vid.mp4" autoplay muted loop playsinline preload="metadata">Your browser does not support video.</video><button class="btn" id="pm" type="button" aria-label="Mute or unmute video">&#128263; Unmute</button></div>
+<h2 class="m">Play our games</h2>${gameSlider()}<p><button class="btn cy" type="button" onclick="document.getElementById('jam').scrollIntoView({behavior:'smooth'})">➕ Add your own game</button></p>${jam()}<div class="card"><h2 class="m">🔬 Built a simulation? Get listed.</h2><p>Share your own STEM simulation or interactive model and we will list it on Yantrika, with your name and institution. Open to everyone, no membership needed.</p><a class="btn cy" href="#/projects">Independent Projects &rarr;</a></div><h2 class="m">Promo Video</h2><div class="vid"><video id="pv" src="images/intro_vid.mp4" autoplay muted loop playsinline preload="metadata">Your browser does not support video.</video><button class="btn" id="pm" type="button" aria-label="Mute or unmute video">&#128263; Unmute</button></div>
 <div class="cta"><div class="slider"><div class="track">${slides()}${slides()}</div></div><div class="ov"><h2 class="m">COME BUILD WITH US....</h2><p>No experience needed. Curiosity is enough.</p><a class="btn" href="#/join">Join Yantrika &rarr;</a></div></div>`,
 // ---------- ABOUT PAGE ----------
 about:()=>`<div class="card"><h1 class="m">About Yantrika</h1><p>Yantrika is the Robotics &amp; Coding Club of the Research Scholars' Association at IACS, Kolkata. We run workshops, hackathons, talks and outreach so that more students can get hands-on with robotics, electronics and code.</p></div>
@@ -409,6 +467,33 @@ about:()=>`<div class="card"><h1 class="m">About Yantrika</h1><p>Yantrika is the
 <div class="card"><h2 class="m">What we aim for</h2><ul><li>500-800+ student participations across events.</li><li>100+ active hackers in competitive problem-solving.</li><li>2+ outreaches for underprivileged and local youth.</li><li>Reusable equipment that stays with the club for future batches.</li></ul></div>`,
 // ---------- GAMES PAGE (cards are built by gamesPage() further down) ----------
 games:()=>`<div class="card"><h1 class="m">Games Arcade</h1><p>Every game here connects to a Yantrika event. Pick a pillar, play, then jump to the event it prepares you for.</p><div id="gf"></div></div><div class="gl" id="gg"></div>${YK.ossCard()}<div class="card pp" id="gp" hidden aria-live="polite"></div>`,
+// ---------- INDEPENDENT PROJECTS PAGE (data comes from INDP above) ----------
+projects:()=>`<div class="card"><span class="badge plan">Open to everyone</span><h1 class="m">Independent Projects</h1><p>Made a simulation or interactive model of something in science, technology, engineering or maths? Share it with us. After a quick review by a volunteer, it is listed here as a link with your name and institution. Your project stays where you built it, and you keep ownership.</p>
+<div class="grid" style="margin:16px 0"><div class="box"><h3 class="m">Who?</h3>Students, alumni, hobbyists and first-timers. You do not need to be a Yantrika member or belong to an institution.</div><div class="box"><h3 class="m">What?</h3>A simulation or interactive model, shared as a link: a repository, a website you host, or a Drive folder.</div><div class="box"><h3 class="m">What you get</h3>A listing with your name and institution, and a link straight to your work.</div></div>
+<p><button class="btn" type="button" onclick="document.getElementById('indp-form').scrollIntoView({behavior:'smooth'})">📨 Submit your project</button><a class="btn cy" href="${INDP.guide}" target="_blank" rel="noopener">📘 Contributor guide (PDF)</a></p></div>
+<h2 class="m">Projects from the community</h2>${INDP.list.length?`<div class="grid" style="margin-bottom:36px">${INDP.list.map(indpCard).join('')}</div>`:`<div class="card"><p><b>No projects listed yet. Yours could be the first.</b></p></div>`}
+<h2 class="m">What counts</h2><div class="grid" style="margin-bottom:36px"><div class="box"><h3 class="m">Simulation</h3>Imitates how a real system behaves over time. Projectile motion with drag, a random walk, heat flow in a rod.</div><div class="box"><h3 class="m">Interactive model</h3>Has controls that show how results change. An Ohm's law explorer, a Fourier series builder, a sorting visualiser.</div><div class="box"><h3 class="m">Visualisation</h3>Turns data or a concept into a picture you can explore. A graph theory visualiser, a phase portrait, an orbit viewer.</div><div class="box"><h3 class="m">Downloadable toolkit</h3>Notebooks or files shared through Drive to run locally. A Jupyter series on numerical methods.</div></div>
+<div class="card"><h2 class="m">How to submit</h2><p>Fill in the form with your name, institution, project title, STEM area, a short description, your link, the link type and a contact email (never shown publicly). Then pick the kind of link that suits your project:</p>
+<div class="grid"><div class="box"><span class="badge" style="background:var(--yel)">Repository</span><p>A public GitHub, GitLab or Codeberg repo with a README that explains what it is and how to run it.</p></div><div class="box"><span class="badge" style="background:var(--cy)">Hosted website</span><p>A page on GitHub Pages, Netlify or similar. It must open without a login and work on a phone.</p></div><div class="box"><span class="badge" style="background:var(--or)">Drive media</span><p>A folder or zip set to "anyone with the link", downloadable, with a README or short guide.</p></div></div>
+<h3 class="m" style="margin-top:24px">What happens next</h3><ol><li><b>Review.</b> A reviewer opens your link and checks it against the guidelines.</li><li><b>Feedback.</b> If something needs fixing, you get friendly, specific suggestions. This is not a rejection.</li><li><b>Listed.</b> Once approved, your project appears on this page.</li><li><b>Kept current.</b> If a link breaks, we contact you before removing it.</li></ol>
+<h3 class="m">Before you submit</h3><ul><li>It is a simulation or interactive model related to STEM.</li><li>Your link is public and opens when you are signed out.</li><li>A README or short guide says what it is and how to use it.</li><li>It is your own work, or third-party material is credited (and any AI tool's terms allow sharing).</li><li>No malware, tracking, ads or required sign-ins. It must be suitable for school students.</li></ul>
+<p>You keep your copyright and choose your own licence. By submitting you let us list your name, institution, title and link. Please do not use Yantrika or IACS logos to suggest official endorsement.</p>
+<p><button class="btn" type="button" onclick="document.getElementById('indp-form').scrollIntoView({behavior:'smooth'})">📨 Submit your project</button><a class="btn cy" href="${INDP.guide}" target="_blank" rel="noopener">📘 Read the full guide</a><a class="btn" href="mailto:${INDP.mail}">Questions? Email us</a></p></div>
+<div class="card fm"><h2 class="m">📨 Submit your project</h2><p>Fill this in and press Submit. All fields are required.</p>
+<form id="indp-form" novalidate>
+<label>Full name<input name="name" required maxlength="80" autocomplete="name"></label>
+<label>Affiliated institution<input name="inst" required maxlength="120" placeholder="School, college, university, or Independent contributor"></label>
+<label>Project title<input name="title" required maxlength="50" placeholder="Short and clear, under 50 characters"></label>
+<label>STEM area<select name="area" required><option value="">Choose one...</option>${INDP_AREAS.map(a=>`<option>${esc(a)}</option>`).join('')}</select></label>
+<label>Short description<textarea name="desc" required rows="4" maxlength="500" placeholder="What does it simulate or model, and what can a visitor do with it? (2-3 sentences)"></textarea></label>
+<label>Project link<input name="link" type="url" required placeholder="https://"></label>
+<label>Link type<select name="type" required><option value="">Choose one...</option>${INDP_TYPES.map(a=>`<option>${esc(a)}</option>`).join('')}</select></label>
+<label>Contact email<input name="email" type="email" required autocomplete="email" placeholder="Never shown publicly"></label>
+<label class="ck"><input name="declare" type="checkbox" required> This project is my own work, or any third-party material is credited, and I am happy for Yantrika to link to it.</label>
+<input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+<button class="btn" type="submit">Submit</button>
+<p id="indp-st" aria-live="polite"></p>
+</form></div>`,
 // ---------- EVENTS PAGE (groups EV by status) ----------
 events:()=>`<div class="card"><h1 class="m">Events</h1><p>From induction to hackathons. Dates for 2027 are planned and may shift.</p></div>${['done','plan','prop'].map(s=>`<h2 class="m">${ST[s][0]}</h2><div class="grid" style="margin-bottom:36px">${EV.filter(e=>e.s===s).map(evCard).join('')}</div>`).join('')}`,
 // ---------- MATERIALS PAGE (list is built by mats()) ----------
@@ -420,7 +505,22 @@ team:()=>`<div class="card"><h1 class="m">Meet the Team</h1><p>The students and 
 <h3 class="m" style="color:var(--cy);margin-top:24px">Leads &amp; Editors</h3><div class="grid">${TEAM.lead.map(person).join('')}</div>
 <h3 class="m" style="color:var(--or);margin-top:24px">Backend Core Members</h3>${TEAM.back.map(n=>`<span class="pill">${esc(n)}</span>`).join('')}</div>`,
 // ---------- JOIN PAGE (chat form is Typebot, see joinBot()) ----------
-join:()=>`<div class="card"><h1 class="m">Join &amp; Contact</h1><p>Want to join, sponsor, or collaborate? Chat with us below and we will get back to you.</p><div class="tbwrap"><typebot-standard></typebot-standard></div></div>
+join:()=>`<div class="card"><h1 class="m">Join &amp; Contact</h1><p>Want to join, volunteer, sponsor, or collaborate? Fill in the form below and we will get back to you. No experience needed. Curiosity is enough.</p></div>
+<div class="card fm"><h2 class="m">🤖 Join Yantrika</h2><p>Fill this in and press Submit. Fields marked * are required.</p>
+<form id="join-form" novalidate>
+<label>Full name *<input name="name" required maxlength="80" autocomplete="name"></label>
+<label>Email *<input name="email" type="email" required autocomplete="email" placeholder="We will reply here"></label>
+<label>Institution / department<input name="inst" maxlength="120" placeholder="e.g. IACS, School of Physical Sciences"></label>
+<label>I am a *<select name="role" required><option value="">Choose one...</option>${JOIN_ROLES.map(a=>`<option>${esc(a)}</option>`).join('')}</select></label>
+<label>I would like to *<select name="want" required><option value="">Choose one...</option>${JOIN_WANT.map(a=>`<option>${esc(a)}</option>`).join('')}</select></label>
+<label>Robotics / coding experience<select name="level"><option value="">Choose one...</option>${JOIN_LEVEL.map(a=>`<option>${esc(a)}</option>`).join('')}</select></label>
+<label>About you / message<textarea name="msg" rows="4" maxlength="600" placeholder="What are you curious about or hoping to build? (optional)"></textarea></label>
+<label class="ck"><input name="agree" type="checkbox" required> I am happy for Yantrika to contact me about this.</label>
+<input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+<button class="btn" type="submit">Submit</button>
+<p id="join-st" aria-live="polite"></p>
+</form></div>
+<div class="card"><h2 class="m">Prefer to chat?</h2><p>Talk to our chat assistant instead and we will pick it up from there.</p><div class="tbwrap"><typebot-standard></typebot-standard></div></div>
 <div class="card foot"><h2 class="m">Find us</h2><p><a class="btn" href="mailto:${LINKS.mail}">✉️ Email</a><a class="btn" href="${LINKS.web}" target="_blank" rel="noopener">🌐 Website</a><a class="btn" href="${LINKS.ig}" target="_blank" rel="noopener">📸 Instagram</a><a class="btn" href="${LINKS.li}" target="_blank" rel="noopener">💼 LinkedIn</a></p></div>`,
 // ---------- DONATE PAGE (UPI id comes from DON) ----------
 donate:()=>`<div class="card"><h1 class="m">Sponsor or Donate to Yantrika</h1><p>Yantrika is a student-led club. Every contribution helps us buy kits and components, run free workshops and hackathons, and take robotics to school students who would otherwise never get to touch real hardware.</p>
@@ -582,6 +682,62 @@ Typebot.initStandard({ typebot: "yantrika" });
  document.body.append(typebotInitScript);
 }
 
+// Independent Projects form: validate, then send to INDP.endpoint or open an email
+function projInit(){
+ const f=document.getElementById('indp-form'),st=document.getElementById('indp-st');if(!f)return;
+ const say=(m,ok)=>{st.textContent=m;st.style.color=ok?'':'var(--red)';};
+ f.onsubmit=async ev=>{
+  ev.preventDefault();
+  if(f.website.value)return;
+  let bad=null;
+  [...f.elements].forEach(x=>{if(x.name&&x.name!=='website'){const v=!x.checkValidity();x.classList.toggle('bad',v);if(v&&!bad)bad=x;}});
+  if(bad){say('Please complete the highlighted field.');bad.focus();return;}
+  const body=INDP_F.map(a=>{const x=f.elements[a[0]];return a[1]+': '+(x.type==='checkbox'?(x.checked?'Yes':'No'):x.value.trim());}).join('\n');
+  const mail=()=>{
+   location.href='mailto:'+INDP.mail+'?subject='+encodeURIComponent('Independent Project submission: '+f.title.value.trim())+'&body='+encodeURIComponent(body);
+   st.innerHTML='Your email app should open with everything filled in. Just press send. If nothing opened, copy the details and email them to <a href="mailto:'+INDP.mail+'">'+INDP.mail+'</a>. ';
+   const b=document.createElement('button');b.className='btn';b.type='button';b.textContent='Copy details';b.onclick=()=>cp(body,b);st.append(b);st.style.color='';
+  };
+  if(INDP.endpoint){
+   say('Sending...',true);
+   try{
+    const q=new URLSearchParams();INDP_F.forEach(a=>{const x=f.elements[a[0]];q.set(a[0],x.type==='checkbox'?(x.checked?'Yes':'No'):x.value.trim());});
+    // no-cors: works with Google Apps Script and similar; the reply cannot be read, so success means it was sent
+    await fetch(INDP.endpoint,{method:'POST',mode:'no-cors',body:q});
+    f.reset();say('Thank you! Your project has been received. A reviewer will be in touch by email.',true);}
+   catch(e){mail();}
+  }else mail();
+ };
+}
+
+// Join form: validate, then send to JOIN.endpoint or open an email
+function joinInit(){
+ const f=document.getElementById('join-form'),st=document.getElementById('join-st');if(!f)return;
+ const say=(m,ok)=>{st.textContent=m;st.style.color=ok?'':'var(--red)';};
+ const val=n=>{const x=f.elements[n];return x.type==='checkbox'?(x.checked?'Yes':'No'):x.value.trim();};
+ f.onsubmit=async ev=>{
+  ev.preventDefault();
+  if(f.elements.website.value)return;
+  let bad=null;
+  [...f.elements].forEach(x=>{if(x.name&&x.name!=='website'){const v=!x.checkValidity();x.classList.toggle('bad',v);if(v&&!bad)bad=x;}});
+  if(bad){say('Please complete the highlighted field.');bad.focus();return;}
+  const body=JOIN_F.map(a=>a[1]+': '+(val(a[0])||'-')).join('\n');
+  const mail=()=>{
+   location.href='mailto:'+JOIN.mail+'?subject='+encodeURIComponent('Join Yantrika: '+val('name'))+'&body='+encodeURIComponent(body);
+   st.innerHTML='Your email app should open with everything filled in. Just press send. If nothing opened, copy the details and email them to <a href="mailto:'+JOIN.mail+'">'+JOIN.mail+'</a>. ';
+   const b=document.createElement('button');b.className='btn';b.type='button';b.textContent='Copy details';b.onclick=()=>cp(body,b);st.append(b);st.style.color='';
+  };
+  if(JOIN.endpoint){
+   say('Sending...',true);
+   try{
+    const q=new URLSearchParams();q.set('form','join');JOIN_F.forEach(a=>q.set(a[0],val(a[0])));
+    await fetch(JOIN.endpoint,{method:'POST',mode:'no-cors',body:q});
+    f.reset();say('Thank you! We have received your details and will be in touch by email.',true);}
+   catch(e){mail();}
+  }else mail();
+ };
+}
+
 // ================================================================
 // ROUTER: runs on every page change (address bar #/...)
 //   1. work out which page / event is wanted
@@ -592,7 +748,8 @@ function r(){
  const id=location.hash.replace('#/','')||'home';
  const e=EV.find(x=>x.id===id);
  const p=V[id]?id:(e?'events':'home');
- document.getElementById('nav').innerHTML=`<a class="logo m" href="#/">YANTRIKA</a>${PAGES.map(x=>`<a class="l ${x[0]===p?'on':''}" href="#/${x[0]==='home'?'':x[0]}">${x[1]}</a>`).join('')}<button class="btn" id="th" type="button" style="margin:0" aria-label="Toggle theme">◐</button>`;
+ document.getElementById('nav').innerHTML=`<a class="logo m" href="#/">YANTRIKA</a><div class="nl" id="nl">${PAGES.map(x=>`<a class="l ${x[0]===p?'on':''}" href="#/${x[0]==='home'?'':x[0]}">${x[1]}</a>`).join('')}</div><button class="btn" id="th" type="button" aria-label="Toggle theme">◐</button><button class="btn" id="mb" type="button" aria-label="Menu" aria-expanded="false">☰</button>`;
+ (function(){const nl=document.getElementById('nl'),mb=document.getElementById('mb');mb.onclick=()=>{const o=nl.classList.toggle('open');mb.setAttribute('aria-expanded',o);mb.textContent=o?'✕':'☰';};nl.querySelectorAll('a').forEach(a=>a.onclick=()=>{nl.classList.remove('open');});})();
  document.getElementById('app').innerHTML=(e&&!V[id])?evPage(e):V[p]();
  document.getElementById('bgal').innerHTML=(p==='home'&&!e)?gal():'';
  document.getElementById('th').onclick=()=>{const R=document.documentElement;const isDark=getComputedStyle(R).getPropertyValue('--bg').trim()==='#101015';R.setAttribute('data-theme',isDark?'light':'dark');};
@@ -602,7 +759,8 @@ function r(){
  if(p==='about'||(p==='home'&&!e))pillars();
  if(p==='donate')donateInit();
  if(p==='materials')mats();
- if(p==='join')joinBot();
+ if(p==='projects')projInit();
+ if(p==='join'){joinInit();joinBot();}
  document.body.style.overflow='';if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});
  scrollTo(0,0);
  document.title=(e&&!V[id]?e.t+' | ':p==='home'?'':PAGES.find(x=>x[0]===p)[1]+' | ')+'YANTRIKA';
