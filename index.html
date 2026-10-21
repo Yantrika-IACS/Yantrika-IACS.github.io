@@ -14,6 +14,8 @@
            LINKS   email, website, Instagram, LinkedIn
            DON     donation UPI id + QR image
            G       home-page photo gallery images
+           JAM     Game Jam contest on the home page (status, perks, links)
+           WALL    Game Jam "Wall of Fame" (contributors)
            PIL     the four pillars (Learn / Build / Compete / Share)
            (the games are NOT in this file any more: see games/ below)
          PAGE TEMPLATES
@@ -39,6 +41,7 @@
     * Change the header logo text ......... function r() -> nav innerHTML
     * Change the donate UPI id ............ DON
     * Add or fix a game ................... games/README.md  (CONTRIBUTING.md)
+    * Run / close the Game Jam ............ JAM.status, add winners to WALL
 
   FOLDERS THE PAGE EXPECTS (next to this file)
     images/      photos, game thumbnails, logos
@@ -155,6 +158,21 @@ typebot-standard{display:block;width:100%;height:600px}
 .cta .ov .btn{pointer-events:auto}
 @media(max-width:600px){.cta .slider{margin:0 -14px;width:calc(100% + 28px)}.cta .sl{width:200px}.cta{min-height:260px}}
 /*CSS part end*/
+
+/* Game Jam (home page contest) */
+.jam{background:#17171d;color:#f4f4f4;position:relative;overflow:hidden;background-image:repeating-linear-gradient(to bottom,rgba(255,255,255,.04) 0 2px,transparent 2px 4px)}
+.jam h2{color:var(--yel);text-shadow:3px 3px 0 var(--red);font-size:clamp(1.8rem,5vw,3rem)}
+.jam a:not(.btn){color:var(--cy)}
+.jam-top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:6px}
+.jam-blink{font-family:'Permanent Marker',cursive;color:var(--red);font-size:1.2rem;animation:jamb 1s steps(2) infinite}
+@keyframes jamb{50%{opacity:0}}
+.jam-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:18px 0}
+.jam-steps div{border:3px solid var(--yel);border-radius:10px;padding:12px;background:rgba(255,255,255,.05)}
+.jam-steps b{display:block;color:var(--yel);font-size:1.6rem;font-family:'Permanent Marker',cursive}
+.jam-wall{display:flex;flex-wrap:wrap;gap:10px}
+.jam-wall span{border:3px solid var(--yel);border-radius:8px;padding:6px 12px;font-weight:700}
+.jam-wall .jam-empty{border-style:dashed;opacity:.5}
+@media(prefers-reduced-motion:reduce){.jam-blink{animation:none}}
 
 /* About page: interactive pillars */
 /* Pillars (About page), chips, info boxes, progress bars */
@@ -277,6 +295,7 @@ const MAT=[
 {t:'Arduino Circuit Simulation',k:'Docs',d:'A Beginner’s Guide to SimulIDE',u:'materials/ROBO_101.pdf'},
 {t:'Component Datasheets',k:'Docs',d:'Datasheets for sensors, drivers and modules.',u:'materials/component-datasheets.pdf'},
 {t:'LiPo Battery Safety Sheet',k:'Docs',d:'Charging, storage and handling rules.',u:'materials/lipo_safety.pdf'},
+{t:'Games Contributor Guide',k:'Docs',d:'How to add your own game to the Games Arcade.',u:'https://github.com/Yantrika-IACS/Yantrika-IACS.github.io/blob/main/Yantrika_Games_Contributor_Guide.pdf'},
 {t:'Event Posters',k:'Posters',d:'Posters for all Yantrika events.',u:'materials/event_posters.pdf'}
 ];
 // ================================================================
@@ -339,6 +358,27 @@ const slides=()=>G.filter(Boolean).map((u,i)=>`<div class="sl" style="background
 const evCard=e=>`<a class="box" href="#/${e.id}" style="display:block;text-decoration:none;color:inherit"><span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><h3 class="m" style="margin:8px 0 2px">${esc(e.t)}</h3><b>${e.d}</b><p style="margin:6px 0 0">${esc(e.x)}</p><small><b>${e.s==='done'?'See photos':'See poster'} &rarr;</b></small></a>`;
 const person=p=>`<div class="box"><b style="font-size:1.1rem">${esc(p[0])}</b><br>${esc(p[1])}<div style="margin-top:8px;font-size:1.2rem">${p[2]?`<a href="mailto:${p[2]}" title="Email" style="text-decoration:none;margin-right:8px">✉️</a>`:''}${p[3]?`<a href="${p[3]}" target="_blank" rel="noopener" title="Website" style="text-decoration:none">🌐</a>`:''}</div></div>`;
 
+// ================================================================
+// GAME JAM  (contest card on the Home page, below "Play our games")
+//   JAM.status : badge text, e.g. 'Open for entries' or 'Closes 30 Nov 2026'
+//   JAM.perks  : one line telling people what contributors get
+//   JAM.guide  : Contributor Guide PDF    JAM.repo : GitHub repo for pull requests
+//   WALL       : Wall of Fame rows ->  ['Name', 'Game title', 'link or empty']
+// ================================================================
+const JAM={
+ guide:'https://github.com/Yantrika-IACS/Yantrika-IACS.github.io/blob/main/Yantrika_Games_Contributor_Guide.pdf',
+ repo:'https://github.com/Yantrika-IACS/Yantrika-IACS.github.io',
+ status:'Open for entries',
+ perks:'Your game goes live in the Games Arcade and your name goes on the Wall of Fame.'
+};
+const WALL=[];
+const jam=()=>`<section class="card jam" id="jam" aria-labelledby="jam-h"><div class="jam-top"><span class="jam-blink">▶ INSERT COIN</span><span class="badge plan">${esc(JAM.status)}</span></div>
+<h2 class="m" id="jam-h">🕹️ The Yantrika Game Jam</h2>
+<p><b>Our arcade is open source, so the next game can be yours.</b> Turn an idea from robotics, code or math into something people can play. ${esc(JAM.perks)}</p>
+<div class="jam-steps"><div><b>1</b>Read the Contributor Guide.</div><div><b>2</b>Build your game in its own <code>games/&lt;id&gt;/</code> folder.</div><div><b>3</b>Open a Pull Request and we will play-test it.</div></div>
+<p><a class="btn" href="${JAM.guide}" target="_blank" rel="noopener">📘 Contributor Guide (PDF)</a><a class="btn cy" href="${JAM.repo}" target="_blank" rel="noopener">&lt;/&gt; Add your game on GitHub</a></p>
+<h3 class="m">🏆 Wall of Fame</h3><div class="jam-wall">${WALL.length?WALL.map(w=>`<span>${w[2]?`<a href="${esc(w[2])}" target="_blank" rel="noopener">${esc(w[0])}</a>`:esc(w[0])} · ${esc(w[1])}</span>`).join(''):'<span class="jam-empty">Your name here</span><span class="jam-empty">Your game here</span>'}</div></section>`;
+
 // ---- PILLARS (the four coloured buttons on Home/About) ----
 /* About page pillars: the four buttons */
 const PIL=[
@@ -359,7 +399,7 @@ home:()=>`<div class="hero2"><div class="txt"><h1 class="m ytitle"><img src="ima
 <div class="card"><h2 class="m">Learning through making</h2><p>Yantrika is a student-led club that believes students learn best when they move beyond theory: work with real hardware, experiment, and solve problems together.</p></div>
 <div class="grid" style="margin-bottom:36px"><div class="box stat"><b style="color:var(--red)">40+</b>students per workshop</div><div class="box stat"><b style="color:var(--bl)">14</b>events, done and planned</div><div class="box stat"><b style="color:var(--or)">2+</b>community outreaches planned</div></div>
 <div class="card"><h2 class="m">Where we are now</h2><div class="tl">${EV.filter(e=>e.s!=='prop').map(e=>`<div class="ti"><b>${e.d} | <a class="ev" href="#/${e.id}">${esc(e.t)}</a></b> <span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><br>${esc(e.x)}</div>`).join('')}</div><a class="btn" href="#/events">All events &rarr;</a></div>
-<h2 class="m">Play our games</h2>${gameSlider()}<h2 class="m">Promo Video</h2><div class="vid"><video id="pv" src="images/intro_vid.mp4" autoplay muted loop playsinline preload="metadata">Your browser does not support video.</video><button class="btn" id="pm" type="button" aria-label="Mute or unmute video">&#128263; Unmute</button></div>
+<h2 class="m">Play our games</h2>${gameSlider()}<p><button class="btn cy" type="button" onclick="document.getElementById('jam').scrollIntoView({behavior:'smooth'})">➕ Add your own game</button></p>${jam()}<h2 class="m">Promo Video</h2><div class="vid"><video id="pv" src="images/intro_vid.mp4" autoplay muted loop playsinline preload="metadata">Your browser does not support video.</video><button class="btn" id="pm" type="button" aria-label="Mute or unmute video">&#128263; Unmute</button></div>
 <div class="cta"><div class="slider"><div class="track">${slides()}${slides()}</div></div><div class="ov"><h2 class="m">COME BUILD WITH US....</h2><p>No experience needed. Curiosity is enough.</p><a class="btn" href="#/join">Join Yantrika &rarr;</a></div></div>`,
 // ---------- ABOUT PAGE ----------
 about:()=>`<div class="card"><h1 class="m">About Yantrika</h1><p>Yantrika is the Robotics &amp; Coding Club of the Research Scholars' Association at IACS, Kolkata. We run workshops, hackathons, talks and outreach so that more students can get hands-on with robotics, electronics and code.</p></div>
@@ -425,41 +465,6 @@ function mats(){
  q.oninput=d;d();
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* ---------- Games Arcade: registry (2-3 games per pillar, each tied to events) ---------- */
 // ================================================================
 // GAMES  (each game is one function below that draws into element el)
@@ -469,23 +474,6 @@ const evL=ids=>ids.map(id=>{const e=EV.find(x=>x.id===id);return `<a class="btn"
 let pendG=null;
 // The games, thumbnails, theory text and demos are filled in by games/*/game.js (see games/README.md)
 const GM=YK.games,GI=YK.thumbs,TH=YK.theory,TI=YK.demos;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 const gameSlider=()=>{const set=GM.map(g=>{const p=PIL.find(x=>x.k===g.p);return `<button class="gsc" type="button" data-g="${g.id}" style="--c:${p.c}"><img src="${GI[g.id]}" alt="${esc(g.t)}" loading="lazy" onerror="this.remove()"><div class="lb"><em style="background:${p.c};color:${p.f}">${p.t}</em><b>${esc(g.t)}</b><small>${esc(g.d)}</small></div></button>`}).join('');return `<div class="gs"><div class="gst">${set}${set}</div></div>`;};
 
@@ -497,12 +485,6 @@ function pillars(){
   b.onclick=()=>{pendF=b.dataset.k;location.hash='#/games';};
  });
 }
-
-
-
-
-
-
 
 // ---- Games page: filter chips, game list, full-screen game panel ----
 let closeGame=()=>{};
