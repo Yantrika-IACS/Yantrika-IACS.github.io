@@ -22,8 +22,8 @@
  /* ---------- tuning (change these numbers to taste) ---------- */
  const RUNWAY='300vh';      /* total scroll length of the scene (bigger = slower) */
  const OVERLAP='55vh';      /* how far "Where we are now" slides up over the scene */
- const HERO_SPEED=.35;      /* hero sinks at this fraction of the scroll speed */
- const BG_SPEED=.5;         /* photo background sinks at this fraction */
+ const HERO_SPEED=1.2;      /* hero sinks at this fraction of the scroll speed */
+ const BG_SPEED=1.1;         /* photo background sinks at this fraction */
 
  /* ---------- style ---------- */
  const css=`
@@ -91,12 +91,15 @@
 
   if(reduce){lm.classList.add('lm-static');paint(.82);return;}
 
-  const update=()=>{
-   tick=false;
-   if(!lm.isConnected){
-    removeEventListener('scroll',req);removeEventListener('resize',req);
-    if(bg)bg.style.transform='';
-    return;
+  const update=()=>{const hh=hero?(hero.offsetHeight||520):520,k=Math.min(1,y/(hh*.9));
+if(hero){
+ hero.style.transform='translate3d(0,'+(y*HERO_SPEED).toFixed(1)+'px,0)';
+ hero.style.opacity=(1-k).toFixed(3);
+}
+if(bg){
+ bg.style.transform='translate3d(0,'+(y*BG_SPEED).toFixed(1)+'px,0)';
+ bg.style.opacity=(1-k).toFixed(3);
+}
    }
    const y=scrollY,V=innerHeight,navH=nav?nav.offsetHeight:64;
    lm.style.setProperty('--navh',navH+'px');
