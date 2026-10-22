@@ -10,7 +10,8 @@
 
    TO TUNE: change --card-max below. Bigger = wider boxes on big
    screens (smaller gaps on the sides). 1440px suits most screens.
-   Only the home page is affected (it is the only page with .hero2).
+   Everything is home-page only (it is the only page with .hero2),
+   EXCEPT the navigation bar rule at the very bottom, which is on every page.
    ========================================================== */
 
 :root{--card-max:1440px;--vid-ratio:16/9}
@@ -47,3 +48,10 @@
  max-height:calc(100vh - 90px);max-height:calc(100svh - 90px);
 }
 #app:has(.hero2) > .vid video{width:100%;height:100%;max-height:none;object-fit:cover}
+
+/* ---- Navigation bar (every page): logo far left, links + theme button far right ----
+   The links keep their normal spacing and sit together next to the theme button.
+   Only on wide screens: below 1181px the bar keeps its existing menu-button dropdown. */
+@media(min-width:1181px){
+ nav{padding-left:clamp(20px,3vw,64px);padding-right:clamp(20px,3vw,64px)}
+}
