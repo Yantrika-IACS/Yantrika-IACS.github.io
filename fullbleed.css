@@ -15,6 +15,7 @@
    ========================================================== */
 
 :root{--card-max:1440px;--vid-ratio:16/9}
+
 /* ---- Play our games slider ---- */
 .gs{width:100vw;max-width:none;margin-left:calc(50% - 50vw)}
 
