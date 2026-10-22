@@ -1,0 +1,41 @@
+/* ==========================================================
+   YANTRIKA: home page layout
+     * the sliders and the promo video run edge to edge
+     * the boxes (Game Jam, Independent Projects, Where we are now)
+       stay as normal boxes, centred, and stop growing at --card-max
+
+   TO USE: add this as the LAST stylesheet in <head> of index.html,
+   after layout-shift-fix.css, so it wins over the older rules:
+       <link rel="stylesheet" href="fullbleed.css">
+
+   TO TUNE: change --card-max below. Bigger = wider boxes on big
+   screens (smaller gaps on the sides). 1440px suits most screens.
+   Only the home page is affected (it is the only page with .hero2).
+   ========================================================== */
+
+:root{--card-max:1440px}
+
+/* ---- Play our games slider ---- */
+.gs{width:100vw;max-width:none;margin-left:calc(50% - 50vw)}
+
+/* ---- Come build with us strip: full width, no faded edges, bigger tiles on big screens ---- */
+.cta{width:100vw;margin-left:calc(50% - 50vw)}
+.cta .slider{margin:0;width:100%;-webkit-mask-image:none;mask-image:none}
+.cta .sl{width:clamp(200px,20vw,420px)}
+@media(max-width:600px){.cta .slider{margin:0;width:100%}}
+
+/* ---- Home page boxes: wider than the old column, centred, capped ---- */
+/* --cw = the box width: as wide as the screen allows (minus a side margin), but never above --card-max */
+#app:has(.hero2){--cw:min(var(--card-max),calc(100vw - 56px))}
+@media(max-width:600px){#app:has(.hero2){--cw:calc(100vw - 28px)}}
+
+#app:has(.hero2) > .card,
+#app:has(.hero2) > h2.m,
+#app:has(.hero2) > p{
+ width:var(--cw);box-sizing:border-box;margin-left:calc(50% - var(--cw) / 2);
+}
+/* keep paragraphs readable inside the wide boxes */
+#app:has(.hero2) > .card > p{max-width:90ch}
+
+/* ---- Promo video: edge to edge, no rounded frame ---- */
+#app:has(.hero2) > .vid{width:100vw;margin-left:calc(50% - 50vw);border-left:0;border-right:0;border-radius:0;box-shadow:none}
