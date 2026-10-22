@@ -1,8 +1,8 @@
 /* ==========================================================
    YANTRIKA: home page layout
-     * the sliders and the promo video run edge to edge
+     * the sliders run edge to edge
      * the boxes (Game Jam, Independent Projects, Where we are now)
-       stay as normal boxes, centred, and stop growing at --card-max
+       and the framed promo video stay centred and stop growing at --card-max
 
    TO USE: add this as the LAST stylesheet in <head> of index.html,
    after layout-shift-fix.css, so it wins over the older rules:
@@ -37,5 +37,5 @@
 /* keep paragraphs readable inside the wide boxes */
 #app:has(.hero2) > .card > p{max-width:90ch}
 
-/* ---- Promo video: edge to edge, no rounded frame ---- */
-#app:has(.hero2) > .vid{width:100vw;margin-left:calc(50% - 50vw);border-left:0;border-right:0;border-radius:0;box-shadow:none}
+/* ---- Promo video: keeps its frame (border, rounded corners, shadow), centred and capped like the boxes ---- */
+#app:has(.hero2) > .vid{width:var(--cw);box-sizing:border-box;margin-left:calc(50% - var(--cw) / 2)}
