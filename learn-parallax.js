@@ -188,7 +188,7 @@
    tick=false;
    if(!lm.isConnected){
     removeEventListener('scroll',req);removeEventListener('resize',req);
-    if(bg&&!document.getElementById('lm')){bg.style.translate='';bg.style.opacity='';}
+    if(bg&&!document.getElementById('lm')){bg.style.translate='';bg.style.opacity='';bg.style.visibility='';}
     return;
    }
    const y=scrollY,V=innerHeight,navH=nav?nav.offsetHeight:64;
@@ -203,17 +203,18 @@
    lm.style.setProperty('--e',e.toFixed(4));
    paint(p);
    /* parallax: hero and photo grid sink while fading, so the big words arrive onto a clean stage.
-      They stop moving once fully faded (ys): a transform that kept growing with the scroll would
-      keep stretching the page, and the footer would never be the end of the scroll. */
-   const hh=hero?(hero.offsetHeight||520):520,k=Math.min(1,y/(hh*.9)),ys=Math.min(y,hh*.9);
+      The sinking STOPS once they have faded out: a moved element still counts towards the page
+      length, so letting it keep sinking would add empty scroll space below the footer. */
+   const hh=hero?(hero.offsetHeight||520):520,span=hh*.9,k=Math.min(1,y/span),ys=Math.min(y,span);
    if(hero){
     hero.style.translate='0 '+(ys*HERO_SPEED).toFixed(1)+'px';
     hero.style.opacity=(1-k).toFixed(3);
-    hero.style.pointerEvents=k>=1?'none':'';
+    hero.style.visibility=k>=1?'hidden':'';
    }
    if(bg){
     bg.style.translate='0 '+(ys*BG_SPEED).toFixed(1)+'px';
     bg.style.opacity=(1-k).toFixed(3);
+    bg.style.visibility=k>=1?'hidden':'';
    }
   };
   const req=()=>{if(!tick){tick=true;requestAnimationFrame(update);}};
