@@ -15,10 +15,8 @@
    ========================================================== */
 
 :root{--card-max:1440px;--vid-ratio:16/9}
-
 /* ---- Play our games slider ---- */
 .gs{width:100vw;max-width:none;margin-left:calc(50% - 50vw)}
-
 /* ---- Come build with us strip: full width, no faded edges, bigger tiles on big screens ---- */
 .cta{width:100vw;margin-left:calc(50% - 50vw)}
 .cta .slider{margin:0;width:100%;-webkit-mask-image:none;mask-image:none}
