@@ -1,17 +1,21 @@
 /* ==========================================================
    YANTRIKA: "Learn through making" scroll scene (home page)
 
-   One pinned, box-free scene that plays as you scroll:
+   One pinned, box-free, EDGE-TO-EDGE scene that plays as you scroll:
      1. the hero sinks DOWN and fades while the first word is arriving
      2. "Learn  through  making" is slammed in word by word, huge,
         each word dropping from above with a little overshoot
      3. the club message lights up word by word, like being read aloud
      4. 40+ / 14 / 2+ drop in one after another and count up
-     5. behind everything, three big gears turn with your scroll at
-        different speeds (that is the parallax) and a hollow "MAKE"
-        floats slowly through
+     5. behind everything, big gears turn with your scroll at different
+        speeds (that is the parallax) and a hollow "MAKE" floats through;
+        on wide screens extra gears fill the left and right sides
      6. the whole scene sinks downward while "Where we are now"
         slides up over it like a curtain
+
+   The scene breaks out of the page column and spans the full browser
+   width. All type scales up with the screen, so a 1920px laptop gets
+   much bigger words and numbers than a phone.
 
    TO USE (two small edits in index.html):
    A) add this line next to your other <script src=...> lines, BEFORE the
@@ -54,44 +58,51 @@
  const GEAR=gearPath(100,84,14,30);
  /* [css position + size + colour, spin over the whole scroll, drift, how far it sinks at the end] */
  const GEARS=[
-  'left:-6vw;bottom:-10%;--w:clamp(200px,32vw,460px);--c:var(--red);--rot:520deg;--py:-9vh;--sink:70vh',
-  'right:-5vw;top:2%;--w:clamp(170px,27vw,390px);--c:var(--bl);--rot:-560deg;--py:-5vh;--sink:48vh',
-  'right:15vw;bottom:-8%;--w:clamp(90px,13vw,210px);--c:var(--cy);--rot:820deg;--py:-14vh;--sink:90vh'
+  'left:-9vw;bottom:-14%;--w:clamp(200px,28vw,560px);--c:var(--red);--rot:520deg;--py:-9vh;--sink:70vh',
+  'right:-5vw;top:2%;--w:clamp(170px,27vw,520px);--c:var(--bl);--rot:-560deg;--py:-5vh;--sink:48vh',
+  'right:2vw;bottom:-12%;--w:clamp(90px,12vw,260px);--c:var(--cy);--rot:820deg;--py:-14vh;--sink:90vh'
+ ];
+ /* extra gears that only appear on wide screens, to fill the left and right sides */
+ const WIDE_GEARS=[
+  'left:3vw;top:-14%;--w:clamp(130px,15vw,340px);--c:var(--or);--rot:-700deg;--py:-12vh;--sink:60vh',
+  'right:19vw;top:-12%;--w:clamp(100px,10vw,240px);--c:var(--yel);--rot:640deg;--py:-8vh;--sink:80vh'
  ];
 
  /* ---------- style ---------- */
  const css=`
- .lm{--p:0;--e:0;--navh:64px;position:relative;z-index:2;height:${RUNWAY}vh;margin:0 0 -${OVERLAP}vh}
+ /* the scene is as wide as the browser window, not the 980px page column */
+ .lm{--p:0;--e:0;--navh:64px;position:relative;z-index:2;width:100vw;height:${RUNWAY}vh;margin:0 0 -${OVERLAP}vh calc(50% - 50vw)}
  .lm-st{position:sticky;top:var(--navh);height:calc(100vh - var(--navh));height:calc(100svh - var(--navh));display:flex;align-items:center;justify-content:center;text-align:center;clip-path:inset(0 -100vw)}
 
- /* back layer: full-width, so the gears can bleed past the page column */
- .lm-fx{position:absolute;top:0;bottom:0;left:50%;width:100vw;margin-left:-50vw;pointer-events:none;z-index:0;opacity:calc(var(--o,1) * (1 - var(--e) * .65))}
- .lm-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Permanent Marker',cursive;font-size:clamp(8rem,min(34vw,44vh),22rem);line-height:.8;color:transparent;-webkit-text-stroke:3px var(--ink);opacity:.09;user-select:none;transform:translateY(calc(var(--p) * 30vh - 15vh + var(--e) * 60vh))}
+ /* back layer */
+ .lm-fx{position:absolute;inset:0;pointer-events:none;z-index:0;opacity:calc(var(--o,1) * (1 - var(--e) * .65))}
+ .lm-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Permanent Marker',cursive;font-size:clamp(8rem,min(34vw,70vh),60rem);line-height:.8;color:transparent;-webkit-text-stroke:3px var(--ink);opacity:.09;user-select:none;transform:translateY(calc(var(--p) * 30vh - 15vh + var(--e) * 60vh))}
  .lm-g{position:absolute;width:var(--w);aspect-ratio:1;transform:translateY(calc(var(--e) * var(--sink) + var(--p) * var(--py))) rotate(calc(var(--p) * var(--rot)))}
+ .lm-gw{display:none}
  .lm-g svg{display:block;width:100%;height:100%;overflow:visible}
  .lm-g path{fill:var(--c);fill-opacity:.16;stroke:var(--c);stroke-width:5;stroke-linejoin:round}
  .lm-g circle{fill:none;stroke:var(--c);stroke-width:3;stroke-dasharray:6 9;opacity:.7}
 
  /* front layer */
- .lm-in{position:relative;z-index:1;width:100%;display:flex;flex-direction:column;align-items:center;gap:clamp(12px,3.2vh,34px);padding:0 4px}
+ .lm-in{position:relative;z-index:1;width:100%;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:clamp(12px,3.2vh,40px);padding:0 clamp(14px,3vw,64px)}
 
- /* big words */
- .lm-h{margin:0;font-family:'Permanent Marker',cursive;font-weight:400;font-size:clamp(2.4rem,min(9vw,12.5vh),6.4rem);line-height:1.04;opacity:calc(1 - var(--e) * .6);transform:translateY(calc(var(--e) * 24vh))}
- .lm-h .w{display:inline-block;margin:0 .1em;opacity:var(--o,1);text-shadow:4px 4px 0 var(--dk);transform:translateY(calc((1 - var(--k,1)) * -1.5em)) rotate(calc(var(--r,0deg) + (1 - var(--k,1)) * -12deg)) scale(calc(1 + (1 - var(--k,1)) * .3))}
+ /* big words: grow with the screen, capped by height so they never overflow */
+ .lm-h{margin:0;font-family:'Permanent Marker',cursive;font-weight:400;font-size:clamp(2.4rem,min(8.2vw,13.5vh),11rem);line-height:1.04;opacity:calc(1 - var(--e) * .6);transform:translateY(calc(var(--e) * 24vh))}
+ .lm-h .w{display:inline-block;margin:0 .1em;opacity:var(--o,1);text-shadow:.04em .04em 0 var(--dk);transform:translateY(calc((1 - var(--k,1)) * -1.5em)) rotate(calc(var(--r,0deg) + (1 - var(--k,1)) * -12deg)) scale(calc(1 + (1 - var(--k,1)) * .3))}
  .lm-h .w1{--r:-3deg;color:var(--red)}
  .lm-h .w2{--r:1.5deg;color:var(--ink)}
  .lm-h .w3{--r:-2deg;color:var(--bl);font-size:1.28em}
 
  /* message: every word lights up as you scroll */
- .lm-p{max-width:680px;margin:0;font-size:clamp(1.02rem,min(2.3vw,2.9vh),1.5rem);font-weight:700;line-height:1.45;opacity:calc(var(--o,1) * (1 - var(--e) * .85));transform:translateY(calc(var(--e) * 38vh))}
+ .lm-p{max-width:min(100%,70rem);margin:0;font-size:clamp(1.02rem,min(2.3vw,2.9vh),2.2rem);font-weight:700;line-height:1.45;opacity:calc(var(--o,1) * (1 - var(--e) * .85));transform:translateY(calc(var(--e) * 38vh))}
  .lm-p .t{display:inline-block;opacity:calc(.13 + .87 * var(--a,1));transform:translateY(calc((1 - var(--a,1)) * .5em))}
 
- /* numbers */
- .lm-n{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(10px,3vw,48px);width:100%;max-width:900px;opacity:calc(1 - var(--e) * .85);transform:translateY(calc(var(--e) * 54vh))}
+ /* numbers: spread across the width */
+ .lm-n{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(10px,4vw,120px);width:100%;max-width:1500px;opacity:calc(1 - var(--e) * .85);transform:translateY(calc(var(--e) * 54vh))}
  .lm-i{opacity:var(--o,1);transform:translateY(calc((1 - var(--k,1)) * -18vh)) scale(calc(1 + (1 - var(--k,1)) * .35))}
- .lm-i b{display:block;font-family:'Permanent Marker',cursive;font-weight:400;font-size:clamp(2.6rem,min(11vw,17vh),7.2rem);line-height:1;color:var(--c);text-shadow:4px 4px 0 var(--dk)}
- .lm-i i{display:block;width:min(70%,150px);height:10px;margin:8px auto 4px;border:3px solid var(--dk);border-radius:8px;background:var(--c);transform:scaleX(var(--a,1))}
- .lm-i span{display:block;font-weight:700;font-size:clamp(.8rem,1.8vw,1.15rem)}
+ .lm-i b{display:block;font-family:'Permanent Marker',cursive;font-weight:400;font-size:clamp(2.6rem,min(11vw,17vh),11rem);line-height:1;color:var(--c);text-shadow:.04em .04em 0 var(--dk)}
+ .lm-i i{display:block;width:min(60%,220px);height:clamp(8px,.9vw,16px);margin:8px auto 4px;border:3px solid var(--dk);border-radius:8px;background:var(--c);transform:scaleX(var(--a,1))}
+ .lm-i span{display:block;font-weight:700;font-size:clamp(.8rem,min(1.8vw,2.6vh),1.7rem)}
 
  /* the next block slides up over the scene like a curtain */
  .lm + .card{position:relative;z-index:3}
@@ -99,6 +110,8 @@
  .lm,.lm + .card{animation:none !important}
  .hero2,.bgal{will-change:translate,opacity}
 
+ /* wide screens: extra gears fill the sides */
+ @media(min-width:1100px){.lm-gw{display:block}}
  /* phones: one word per line so the text stays as big as possible */
  @media(max-width:600px){
   .lm-h{font-size:clamp(3rem,min(19vw,10.5vh),5rem)}
@@ -122,7 +135,8 @@
   const ev=(typeof EV!=='undefined')?EV.length:14;
   const words=TEXT.split(' ');
   const msg=words.map((w,i)=>`<span class="t" ${it((.34+.16*i/(words.length-1)).toFixed(3),.07,'lin')}>${w}</span>`).join(' ');
-  const gears=GEARS.map(g=>`<div class="lm-g" style="${g}"><svg viewBox="-110 -110 220 220" aria-hidden="true"><path fill-rule="evenodd" d="${GEAR}"/><circle r="56"/></svg></div>`).join('');
+  const gear=(g,c)=>`<div class="lm-g ${c}" style="${g}"><svg viewBox="-110 -110 220 220" aria-hidden="true"><path fill-rule="evenodd" d="${GEAR}"/><circle r="56"/></svg></div>`;
+  const gears=GEARS.map(g=>gear(g,'')).join('')+WIDE_GEARS.map(g=>gear(g,'lm-gw')).join('');
   const num=(s,to,sfx,c,label,aria)=>`<div class="lm-i" role="group" aria-label="${aria}" style="--c:${c}" ${it(s,.09,'back')}><b data-to="${to}" data-sfx="${sfx}">${to}${sfx}</b><i></i><span>${label}</span></div>`;
   return `<section class="lm" id="lm" aria-label="Learn through making"><div class="lm-st">
    <div class="lm-fx" aria-hidden="true" ${it(0,.1,'lin')}><div class="lm-bg">MAKE</div>${gears}</div>
@@ -188,14 +202,17 @@
    lm.style.setProperty('--p',p.toFixed(4));
    lm.style.setProperty('--e',e.toFixed(4));
    paint(p);
-   /* parallax: hero and photo grid sink while fading, so the big words arrive onto a clean stage */
-   const hh=hero?(hero.offsetHeight||520):520,k=Math.min(1,y/(hh*.9));
+   /* parallax: hero and photo grid sink while fading, so the big words arrive onto a clean stage.
+      They stop moving once fully faded (ys): a transform that kept growing with the scroll would
+      keep stretching the page, and the footer would never be the end of the scroll. */
+   const hh=hero?(hero.offsetHeight||520):520,k=Math.min(1,y/(hh*.9)),ys=Math.min(y,hh*.9);
    if(hero){
-    hero.style.translate='0 '+(y*HERO_SPEED).toFixed(1)+'px';
+    hero.style.translate='0 '+(ys*HERO_SPEED).toFixed(1)+'px';
     hero.style.opacity=(1-k).toFixed(3);
+    hero.style.pointerEvents=k>=1?'none':'';
    }
    if(bg){
-    bg.style.translate='0 '+(y*BG_SPEED).toFixed(1)+'px';
+    bg.style.translate='0 '+(ys*BG_SPEED).toFixed(1)+'px';
     bg.style.opacity=(1-k).toFixed(3);
    }
   };
