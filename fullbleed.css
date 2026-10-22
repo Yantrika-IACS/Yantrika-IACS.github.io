@@ -11,12 +11,14 @@
    TO TUNE: change --card-max below. Bigger = wider boxes on big
    screens (smaller gaps on the sides). 1440px suits most screens.
    Everything is home-page only (it is the only page with .hero2),
-   EXCEPT the navigation bar and footer rules at the very bottom, which are on every page.
+   EXCEPT the navigation bar rule at the very bottom, which is on every page.
    ========================================================== */
 
 :root{--card-max:1440px;--vid-ratio:16/9}
+
 /* ---- Play our games slider ---- */
 .gs{width:100vw;max-width:none;margin-left:calc(50% - 50vw)}
+
 /* ---- Come build with us strip: full width, no faded edges, bigger tiles on big screens ---- */
 .cta{width:100vw;margin-left:calc(50% - 50vw)}
 .cta .slider{margin:0;width:100%;-webkit-mask-image:none;mask-image:none}
@@ -52,14 +54,4 @@
    Only on wide screens: below 1181px the bar keeps its existing menu-button dropdown. */
 @media(min-width:1181px){
  nav{padding-left:clamp(20px,3vw,64px);padding-right:clamp(20px,3vw,64px)}
-}
-
-/* ---- Footer (every page): logo and contact far left, link columns far right ----
-   Matches the navigation bar. The footer background was already full width; now its content is too.
-   (footer#sitemap is deliberately more specific than the rules sitemap.js adds later, so these win.)
-   The two link columns keep a fixed gap between them; on phones the footer keeps its 2-column layout. */
-footer#sitemap{padding-left:clamp(20px,3vw,64px);padding-right:clamp(20px,3vw,64px)}
-footer#sitemap .sm-in{max-width:none;margin:0}
-@media(min-width:701px){
- footer#sitemap .sm-main{grid-template-columns:1fr auto auto;column-gap:clamp(60px,8vw,140px)}
 }
