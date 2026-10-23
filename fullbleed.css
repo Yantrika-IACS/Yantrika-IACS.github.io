@@ -55,17 +55,6 @@
 @media(min-width:1181px){
  nav{padding-left:clamp(20px,3vw,64px);padding-right:clamp(20px,3vw,64px)}
 }
-
-/* ---- Footer (every page): logo and contact far left, link columns far right ----
-   Matches the navigation bar. The footer background was already full width; now its content is too.
-   (footer#sitemap is deliberately more specific than the rules sitemap.js adds later, so these win.)
-   The two link columns keep a fixed gap between them; on phones the footer keeps its 2-column layout. */
-footer#sitemap{padding-left:clamp(20px,3vw,64px);padding-right:clamp(20px,3vw,64px)}
-footer#sitemap .sm-in{max-width:none;margin:0}
-@media(min-width:701px){
- footer#sitemap .sm-main{grid-template-columns:1fr auto auto;column-gap:clamp(60px,8vw,140px)}
-}
-
 /* ---- Sound (background music) button: lives in the navigation bar next to the theme toggle ----
    sound-nav.js moves the button there and sets data-snd="on|off"; these rules restyle it to match the
    toggle and replace the emoji with a plain black speaker icon (outline speaker; with an X when muted).
