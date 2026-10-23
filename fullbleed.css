@@ -11,7 +11,7 @@
    TO TUNE: change --card-max below. Bigger = wider boxes on big
    screens (smaller gaps on the sides). 1440px suits most screens.
    Everything is home-page only (it is the only page with .hero2),
-   EXCEPT the navigation bar rule at the very bottom, which is on every page.
+   EXCEPT the navigation bar and footer rules at the very bottom, which are on every page.
    ========================================================== */
 
 :root{--card-max:1440px;--vid-ratio:16/9}
@@ -55,3 +55,39 @@
 @media(min-width:1181px){
  nav{padding-left:clamp(20px,3vw,64px);padding-right:clamp(20px,3vw,64px)}
 }
+
+/* ---- Footer (every page): logo and contact far left, link columns far right ----
+   Matches the navigation bar. The footer background was already full width; now its content is too.
+   (footer#sitemap is deliberately more specific than the rules sitemap.js adds later, so these win.)
+   The two link columns keep a fixed gap between them; on phones the footer keeps its 2-column layout. */
+footer#sitemap{padding-left:clamp(20px,3vw,64px);padding-right:clamp(20px,3vw,64px)}
+footer#sitemap .sm-in{max-width:none;margin:0}
+@media(min-width:701px){
+ footer#sitemap .sm-main{grid-template-columns:1fr auto auto;column-gap:clamp(60px,8vw,140px)}
+}
+
+/* ---- Sound (background music) button: lives in the navigation bar next to the theme toggle ----
+   sound-nav.js moves the button there and sets data-snd="on|off"; these rules restyle it to match the
+   toggle and replace the emoji with a plain black speaker icon (outline speaker; with an X when muted).
+   !important cancels the button's own inline "position:fixed" (bottom-right corner) and hides the emoji. */
+nav #sndb{
+ position:static!important;right:auto!important;bottom:auto!important;z-index:auto!important;
+ font-size:0!important;line-height:0;
+ flex:0 0 auto;margin:0;cursor:pointer;
+ background:var(--yel);color:#17171d;border:3px solid var(--dk);border-radius:8px;
+ padding:4px 10px;box-shadow:3px 3px 0 var(--dk);
+ --snd-ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 5 6 9H2v6h4l5 4z'/%3E%3Cpath d='M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13'/%3E%3C/svg%3E");
+}
+nav #sndb[data-snd="off"]{
+ --snd-ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 5 6 9H2v6h4l5 4z'/%3E%3Cpath d='M22 9l-6 6M16 9l6 6'/%3E%3C/svg%3E");
+}
+nav #sndb::before{
+ content:"";display:block;width:24px;height:24px;background:#17171d;
+ -webkit-mask:var(--snd-ico) center/contain no-repeat;mask:var(--snd-ico) center/contain no-repeat;
+}
+nav #sndb:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--dk)}
+nav #sndb:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
+/* same float-in as the other navigation buttons (keyframes + --ease come from animations.css); it replays
+   on every page change because sound-nav.js re-inserts the button each time the bar is redrawn */
+nav #sndb{animation:linkIn .55s var(--ease) .66s backwards}
+@media(prefers-reduced-motion:reduce){nav #sndb{animation:none!important}}
