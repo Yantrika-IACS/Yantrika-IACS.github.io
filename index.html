@@ -298,6 +298,7 @@ button.tag:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
 <script src="games/core.js"></script>
 <script src="games/manifest.js"></script>
 <script src="learn-parallax.js"></script>
+<script src="logo.js"></script>
 <script>
 // ================================================================
 // EVENTS  (shown on Home timeline, Events page and each event page)
@@ -465,7 +466,7 @@ const JOIN_F=[['name','Full name'],['email','Email'],['inst','Institution / depa
 const indpCard=p=>`<a class="box" href="${esc(p.u)}" target="_blank" rel="noopener" style="display:block;text-decoration:none;color:inherit"><span class="badge" style="background:var(--yel)">${esc(p.area)}</span> <span class="badge" style="background:var(--cy)">${esc(p.type)}</span><h3 class="m" style="margin:8px 0 2px">${esc(p.t)}</h3><small><b>by ${esc(p.by)}, ${esc(p.inst)}</b></small><p style="margin:6px 0 0">${esc(p.d)}</p><small><b>Open project &rarr;</b></small></a>`;
 // Home page: Independent Projects card (same arcade style as the Game Jam)
 const pjam=()=>`<section class="card jam pj" id="pj" aria-labelledby="pj-h"><div class="jam-top"><span class="jam-blink">▶ PRESS START</span><span class="badge plan">Open to everyone</span></div>
-<h2 class="m" id="pj-h">🔬 Built a Simulation? Get Listed.</h2>
+<h2 class="m" id="pj-h">🔬 The Yantrika Builder's community</h2>
 <p><b>Your STEM simulation deserves an audience.</b> Share a simulation or interactive model of anything in science, technology, engineering or maths and we will list it on Yantrika with your name and institution. No membership needed.</p>
 <div class="jam-wall" style="margin:0 0 6px"><span>🧪 Simulation</span><span>🎛️ Interactive model</span><span>📈 Visualisation</span><span>📦 Toolkit</span></div>
 <div class="jam-steps"><div><b>1</b>Read the Independent Projects Guide.</div><div><b>2</b>Host your project and get a public link: a repo, a website or a Drive folder.</div><div><b>3</b>Submit the form and a volunteer will review it.</div></div>
@@ -768,7 +769,7 @@ function r(){
  const id=location.hash.replace('#/','')||'home';
  const e=EV.find(x=>x.id===id);
  const p=V[id]?id:(e?'events':'home');
- document.getElementById('nav').innerHTML=`<a class="logo m" href="#/">YANTRIKA</a><div class="nl" id="nl">${PAGES.map(x=>`<a class="l ${x[0]===p?'on':''}" href="#/${x[0]==='home'?'':x[0]}">${x[1]}</a>`).join('')}</div><button class="btn" id="th" type="button" aria-label="Toggle theme">◐</button><button class="btn" id="mb" type="button" aria-label="Menu" aria-expanded="false">☰</button>`;
+ document.getElementById('nav').innerHTML=`<a class="logo m" href="#/">${YLOGO.img('black')}<span>YANTRIKA</span></a><div class="nl" id="nl">${PAGES.map(x=>`<a class="l ${x[0]===p?'on':''}" href="#/${x[0]==='home'?'':x[0]}">${x[1]}</a>`).join('')}</div><button class="btn" id="th" type="button" aria-label="Toggle theme">◐</button><button class="btn" id="mb" type="button" aria-label="Menu" aria-expanded="false">☰</button>`;
  (function(){const nl=document.getElementById('nl'),mb=document.getElementById('mb');mb.onclick=()=>{const o=nl.classList.toggle('open');mb.setAttribute('aria-expanded',o);mb.textContent=o?'✕':'☰';};nl.querySelectorAll('a').forEach(a=>a.onclick=()=>{nl.classList.remove('open');});})();
  document.getElementById('app').innerHTML=(e&&!V[id])?evPage(e):V[p]();
  document.getElementById('bgal').innerHTML=(p==='home'&&!e)?gal():'';
@@ -791,6 +792,6 @@ onhashchange=()=>YK.load().then(r);YK.load().then(r);
 <a class="join-fab" id="join-fab" href="#/join">Join Us</a>
 <!-- Sitemap helper script that lives next to this file -->
 <script src="sitemap.js"></script>
-<script src="sound-nav.js"></script>  
+<script src="sound-nav.js"></script>
 </body>
 </html>
