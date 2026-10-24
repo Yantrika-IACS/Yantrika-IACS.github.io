@@ -7,7 +7,7 @@
 
    FILES (relative to index.html; on the web always use / not \):
      logo/logo.jpeg             full-colour logo (has a background)
-     logo/logo_transperent.png  white logo, transparent background
+     logo/logo_transparent.png  white logo, transparent background
 
    USE FROM ANY PAGE TEMPLATE / SCRIPT:
      YLOGO.img('black')             the transparent logo turned black   (for light/yellow backgrounds)
@@ -27,7 +27,7 @@
  const YLOGO=window.YLOGO={
   ver:'1',
   color:'logo/logo.png',
-  mono:'logo/logo_transperent.png',
+  mono:'logo/logo_transparent.png',
   src:kind=>(kind==='color'?YLOGO.color:YLOGO.mono)+'?v='+YLOGO.ver,
   img:(kind,cls,alt)=>`<img class="ylogo ylogo-${kind||'black'}${cls?' '+cls:''}" src="${YLOGO.src(kind)}" alt="${alt||''}" decoding="async" onerror="this.remove()">`
  };
