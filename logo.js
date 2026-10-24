@@ -31,7 +31,6 @@
   src:kind=>(kind==='color'?YLOGO.color:YLOGO.mono)+'?v='+YLOGO.ver,
   img:(kind,cls,alt)=>`<img class="ylogo ylogo-${kind||'black'}${cls?' '+cls:''}" src="${YLOGO.src(kind)}" alt="${alt||''}" decoding="async" onerror="this.remove()">`
  };
-
  /* looks: "black" = the white transparent logo turned pure black. Navigation bar: logo next to the name (the name keeps the site's marker font). */
  const css=`
  .ylogo{display:block;flex:0 0 auto;width:auto}
