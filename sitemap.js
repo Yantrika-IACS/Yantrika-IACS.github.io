@@ -43,7 +43,7 @@
    f.innerHTML=`<div class="sm-in">
     <div class="sm-main">
      <div class="sm-brand">
-      <a href="#/" class="sm-logo"><img src="${LOGO}" alt="YANTRIKA" onerror="this.replaceWith(document.createTextNode('YANTRIKA'))"></a>
+      <a href="#/" class="sm-logo">${typeof YLOGO!=='undefined'?YLOGO.img('color','sm-mark'):''}<img src="${LOGO}" alt="YANTRIKA" onerror="this.replaceWith(document.createTextNode('YANTRIKA'))"></a>
       <p class="sm-tag">Learn. Build. Compete. Share.</p>
       ${L.mail?`<p><a href="mailto:${L.mail}">${L.mail}</a></p>`:''}
       <div class="sm-soc">${soc}</div>
@@ -63,7 +63,8 @@
 #sitemap .sm-in{max-width:980px;margin:0 auto}
 #sitemap .sm-main{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:40px}
 #sitemap img{height:64px;width:auto;max-width:100%;display:block}
-#sitemap .sm-logo{display:inline-block;font-size:2rem;font-weight:700;margin-bottom:12px}
+#sitemap .sm-logo{display:inline-flex;align-items:center;gap:14px;font-size:2rem;font-weight:700;margin-bottom:12px}
+#sitemap .sm-mark{flex:0 0 auto;max-width:none;border-radius:10px}
 #sitemap .sm-tag{font-size:1.15rem;margin:8px 0 4px}
 #sitemap p{margin:4px 0}
 #sitemap h3{font-size:1rem;margin:0 0 16px}
@@ -77,7 +78,7 @@
 #sitemap button{background:none;border:0;color:#fff;font:inherit;cursor:pointer;padding:0}
 #sitemap button:hover{text-decoration:underline}
 #sitemap a:focus-visible,#sitemap button:focus-visible{outline:2px solid #fff;outline-offset:3px}
-@media(max-width:700px){#sitemap .sm-main{grid-template-columns:1fr 1fr}#sitemap .sm-brand{grid-column:1/-1}}`;
+@media(max-width:700px){#sitemap .sm-main{grid-template-columns:1fr 1fr}#sitemap .sm-brand{grid-column:1/-1}#sitemap .sm-logo img{height:48px}}`;
    document.head.appendChild(s);
 
    f.querySelector('#sm-th').onclick=()=>{const t=document.getElementById('th');if(t)t.click();};
