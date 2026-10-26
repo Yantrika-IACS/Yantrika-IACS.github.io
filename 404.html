@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found | Yantrika</title>
+<meta name="robots" content="noindex">
+<style>
+  /* Everything is inline and every link is absolute (/), because GitHub Pages
+     serves this file at whatever wrong URL was requested, e.g. /games/old/page */
+  :root {
+    --bg: #16345f;
+    --grid: #2b4d7e;
+    --ink: #eaf2fc;
+    --soft: #a9c1e0;
+    --rover: #f4c542;
+    --btn-text: #16345f;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background-color: var(--bg);
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 32px 32px;
+    color: var(--ink);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.55;
+  }
+  main {
+    width: 100%;
+    max-width: 520px;
+    padding: 32px 28px;
+    background: var(--bg);
+    border: 1px solid var(--soft);
+  }
+  svg { display: block; width: 100%; height: auto; margin-bottom: 20px; }
+  h1 { margin: 0 0 8px; font-size: clamp(1.7rem, 5vw, 2.2rem); line-height: 1.15; font-weight: 700; }
+  p { margin: 0 0 24px; color: var(--soft); max-width: 46ch; }
+  a.home {
+    display: inline-block;
+    padding: 11px 20px;
+    background: var(--rover);
+    color: var(--btn-text);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  a.home:hover { background: #ffd966; }
+  a.home:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+  .route { stroke-dasharray: 260; stroke-dashoffset: 260; animation: drive 2.4s ease-out forwards; }
+  .rover { opacity: 0; animation: arrive 0.3s 2.3s forwards; }
+  @keyframes drive { to { stroke-dashoffset: 0; } }
+  @keyframes arrive { to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    .route { animation: none; stroke-dashoffset: 0; }
+    .rover { animation: none; opacity: 1; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <svg viewBox="0 0 320 150" role="img" aria-label="A rover's mapped route ends at a wall">
+    <!-- mapped path -->
+    <polyline class="route" points="14,120 70,120 70,70 150,70 150,100 230,100"
+              fill="none" stroke="#eaf2fc" stroke-width="3" stroke-dasharray="260" />
+    <!-- wall the rover cannot pass -->
+    <line x1="246" y1="40" x2="246" y2="130" stroke="#f4c542" stroke-width="6" />
+    <!-- rover at the end of the route -->
+    <g class="rover">
+      <rect x="222" y="90" width="20" height="20" fill="#f4c542" />
+      <circle cx="232" cy="100" r="3" fill="#16345f" />
+    </g>
+    <text x="14" y="142" font-size="11" fill="#a9c1e0" font-family="Consolas, Menlo, monospace">route ends: no page at this address</text>
+  </svg>
+
+  <h1>404: this path isn't on the map</h1>
+  <p>The page you asked for doesn't exist or has moved. Head back to the Yantrika home page and pick up from there.</p>
+  <a class="home" href="/">Go to the home page</a>
+</main>
+</body>
+</html>
