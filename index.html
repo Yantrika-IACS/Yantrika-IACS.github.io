@@ -314,7 +314,7 @@ button.tag:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
 const EV=[
 {id:'induction',d:'20 Aug 2026',t:'Induction Session',s:'done',n:6,x:"Introduced students to Yantrika's vision and basic technical concepts. Around 40+ students attended."},
 {id:'workshop-1',d:'28 Sep 2026',t:'Hands-on Robotics Workshop I',s:'done',n:8,x:'Interactive session introducing practical robotics and electronics.'},
-{id:'expert-talks',d:'29 Oct 2026',t:'Expert Talks',s:'done',n:0,x:'Interactions with IIEST professors who shared technical insights.'},
+{id:'expert-talks',d:'29 Oct 2026',t:'Expert Talks',s:'done',p:['images/talk1.jpeg','images/talk2.jpeg','images/talk3.jpeg','images/talk4.jpeg','images/talk5.jpeg'],x:'Interactions with IIEST professors who shared technical insights.'},
 {id:'workshop-2',d:'31 Oct 2026',t:'Hands-on Robotics Workshop II',s:'plan',x:'Follow-up practical workshop building on the initial exposure.'},
 {id:'schools-outreach',d:'Dec 2026',t:'Schools Outreach',s:'plan',x:'A free hands-on workshop for approx. 70 underprivileged students.'},
 {id:'robotics-hackathon',d:'Jan 2027',t:'Robotics Hackathon',s:'prop',x:'A hardware and software challenge for 100+ participants.'},
@@ -586,7 +586,7 @@ const poster=e=>`<div class="poster has" style="background:${PC[ix(e)%6]}"><img 
 
 function evPage(e){
  let b='';
- if(e.s==='done')b=`<h3 class="m">Photos</h3><div class="gal">${Array.from({length:e.n},(_,i)=>`<img src="images/${e.id}-${i+1}.jpg" alt="${esc(e.t)} photo${i+1}" onerror="this.outerHTML='<div class=ph>Image ${i+1} missing</div>'">`).join('')}</div>`;
+ if(e.s==='done'){const pics=e.p||Array.from({length:e.n||0},(_,i)=>`images/${e.id}-${i+1}.jpg`);b=`<h3 class="m">Photos</h3><div class="gal">${pics.map((u,i)=>`<img src="${u}" alt="${esc(e.t)} photo ${i+1}" onerror="this.outerHTML='<div class=ph>Image ${i+1} missing</div>'">`).join('')}</div>`;}
  else b=`<h3 class="m">Event Poster</h3>${poster(e)}`;
  const n=EV[ix(e)+1],p=EV[ix(e)-1];
  return `<p><a class="btn" href="#/events">&larr; All events</a></p><div class="card"><span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><h1 class="m">${esc(e.t)}</h1><p><b>${e.d}</b> | Yantrika, RSA, IACS Kolkata</p><p>${esc(e.x)}</p>${b}${docs(e)}${GM.filter(g=>g.ev.includes(e.id)).length?`<h3 class="m" style="margin-top:28px">Games that prepare you for this</h3>${GM.filter(g=>g.ev.includes(e.id)).map(g=>`<button class="btn cy" type="button" data-g="${g.id}">${g.i} ${esc(g.t)}</button>`).join('')}`:''}</div><p>${p?`<a class="btn" href="#/${p.id}">&larr; ${esc(p.t)}</a>`:''}${n?`<a class="btn" href="#/${n.id}">${esc(n.t)} &rarr;</a>`:''}</p>`;
