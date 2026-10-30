@@ -398,9 +398,9 @@ const PC=['#ec3750','#338eda','#ff8c37','#33d6a6','#ff5a5f','#8e44ad'];
 /* HERO GALLERY: replace these 16 image URLs (relative paths or full https links) */
 const G=[
  'images/intro-1.png','images/workshop-1-1.jpg','images/Intro-4.png','images/induction-1.jpg',
- 'images/workshop-1-2.jpg','images/talk-3.png','images/workshop-1-5.jpg','images/Intro-5.png',
- 'images/induction-2.jpg','images/talk-4.jpg','images/intro-3.png','images/workshop-1-6.jpg',
- 'images/Intro-6.png','images/workshop-1-4.jpg','images/induction-3.jpg','images/workshop-1-7.jpg'
+ 'images/workshop-1-2.jpg','images/talk-3.jpeg','images/workshop-1-5.jpg','images/Intro-5.png',
+ 'images/induction-2.jpg','images/talk-4.jpg','images/intro-3.jpeg','images/workshop-1-6.jpg',
+ 'images/talk-4.jpeg','images/workshop-1-4.jpg','images/induction-3.jpg','images/workshop-1-7.jpg'
 ];
 // gal() = the faded photo grid behind the hero, slides() = the moving photo strip
 const gal=()=>G.map((u,i)=>`<div class="gt" style="background:${PC[i%6]}">${u?`<img src="${u}" alt="Yantrika gallery photo ${i+1}" loading="lazy" onerror="this.remove()">`:''}</div>`).join('');
