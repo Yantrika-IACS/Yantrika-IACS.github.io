@@ -409,7 +409,6 @@ const SLIDER=[
  'images/rover1.jpeg','images/rover2.jpeg','images/induction-1.jpg','images/talk3.jpeg',
  'images/talk4.jpeg','images/workshop-1-1.jpg','images/workshop-1-7.jpg','images/rover3.jpeg'
 ];
-const G=Array.from({length:16},(_,i)=>SLIDER[(i+(i>=SLIDER.length?2:0))%SLIDER.length]);
 const slides=()=>SLIDER.filter(Boolean).map((u,i)=>`<div class="sl" style="background:${PC[i%6]}"><img src="${u}" alt="Yantrika photo ${i+1}" loading="lazy" onerror="this.remove()"></div>`).join('');
 
 // Small helper templates: evCard = event tile, person = team member tile
