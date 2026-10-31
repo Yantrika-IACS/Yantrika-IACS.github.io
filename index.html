@@ -405,8 +405,11 @@ const G=[
 ];
 // gal() = the faded photo grid behind the hero, slides() = the moving photo strip
 const gal=()=>G.map((u,i)=>`<div class="gt" style="background:${PC[i%6]}">${u?`<img src="${u}" alt="Yantrika gallery photo ${i+1}" loading="lazy" onerror="this.remove()">`:''}</div>`).join('');
-
-const slides=()=>G.filter(Boolean).map((u,i)=>`<div class="sl" style="background:${PC[i%6]}"><img src="${u}" alt="Yantrika photo ${i+1}" loading="lazy" onerror="this.remove()"></div>`).join('');
+const SLIDER=[
+ 'images/rover1.jpeg','images/rover2.jpeg','images/induction-1.jpg','images/talk3.jpeg',
+ 'images/talk4.jpeg','images/workshop-1-1.jpg','images/workshop-1-7.jpg','images/rover3.jpeg'
+];
+const slides=()=>SLIDER.filter(Boolean).map((u,i)=>`<div class="sl" style="background:${PC[i%6]}"><img src="${u}" alt="Yantrika photo ${i+1}" loading="lazy" onerror="this.remove()"></div>`).join('');
 
 // Small helper templates: evCard = event tile, person = team member tile
 const evCard=e=>`<a class="box" href="#/${e.id}" style="display:block;text-decoration:none;color:inherit"><span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><h3 class="m" style="margin:8px 0 2px">${esc(e.t)}</h3><b>${e.d}</b><p style="margin:6px 0 0">${esc(e.x)}</p><small><b>${e.s==='done'?'See photos':'See poster'} &rarr;</b></small></a>`;
