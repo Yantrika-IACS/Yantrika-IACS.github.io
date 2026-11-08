@@ -387,7 +387,7 @@ const DON={
 
 // DONORS (thank-you line on the Sponsor or Donate page): ['Name', 'link or empty string']
 const DONORS=[
- ['Research Scholar Association, IACS','https://www.instagram.com/rsaiacs/'],['Rhys Lindmark','https://www.rhyslindmark.com/'],['Priyanshu Kumar','https://www.linkedin.com/in/ramukp/']
+ ['Research Scholar Association (IACS) ','https://www.instagram.com/rsaiacs/'],['Rhys Lindmark','https://www.rhyslindmark.com/'],['Priyanshu Kumar','https://www.linkedin.com/in/ramukp/']
 ];
 const donorLine=()=>DONORS.length?`<p><b>Our work is possible through our generous donors thus far: ${DONORS.map(d=>d[1]?`<a href="${esc(d[1])}" target="_blank" rel="noopener">${esc(d[0])}</a>`:esc(d[0])).join(', ')}. Thank you!</b></p>`:'';
 // Top menu: [ page id, label shown ].  Each id must exist in V = {...} below.
@@ -493,13 +493,13 @@ const PIL=[
 // ================================================================
 const V={
 // ---------- HOME PAGE ----------
-home:()=>`<div class="hero2"><div class="txt"><h1 class="m ytitle"><img src="images/text.png" alt="YANTRIKA" onerror="this.replaceWith(document.createTextNode('YANTRIKA'))"></h1><h2>Robotics &amp; Coding Club</h2><p><b>RSA, Indian Association for the Cultivation of Science (IACS), Kolkata</b></p><p style="margin-top:18px"><a class="btn" href="#/join">Join the club</a><a class="btn cy" href="#/events">See events</a></p></div></div>
+home:()=>`<div class="hero2"><div class="txt"><h1 class="m ytitle"><img src="images/text.png" alt="YANTRIKA" onerror="this.replaceWith(document.createTextNode('YANTRIKA'))"></h1><h2>Robotics &amp; Coding Club</h2><p><b>Indian Association for the Cultivation of Science (IACS), Kolkata</b></p><p style="margin-top:18px"><a class="btn" href="#/join">Join the club</a><a class="btn cy" href="#/events">See events</a></p></div></div>
 ${learnSec()}
 <div class="card"><h2 class="m">Where we are now</h2><div class="tl">${EV.filter(e=>e.s!=='prop').map(e=>`<div class="ti"><b>${e.d} | <a class="ev" href="#/${e.id}">${esc(e.t)}</a></b> <span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><br>${esc(e.x)}</div>`).join('')}</div><a class="btn" href="#/events">All events &rarr;</a></div>
 <h2 class="m">Play our games</h2>${gameSlider()}<p><button class="btn cy" type="button" onclick="document.getElementById('jam').scrollIntoView({behavior:'smooth'})">➕ Add your own game</button></p>${jam()}${pjam()}<h2 class="m">Promo Video</h2><div class="vid"><video id="pv" src="images/intro_vid.mp4" autoplay muted loop playsinline preload="metadata">Your browser does not support video.</video><button class="btn" id="pm" type="button" aria-label="Mute or unmute video">&#128263; Unmute</button></div>
 <div class="cta"><div class="slider"><div class="track">${slides()}${slides()}</div></div><div class="ov"><h2 class="m">COME BUILD WITH US....</h2><p>No experience needed. Curiosity is enough.</p><a class="btn" href="#/join">Join Yantrika &rarr;</a></div></div>`,
 // ---------- ABOUT PAGE ----------
-about:()=>`<div class="card"><h1 class="m">About Yantrika</h1><p>Yantrika is the Robotics &amp; Coding Club of the Research Scholars' Association at IACS, Kolkata. We run workshops, hackathons, talks and outreach so that more students can get hands-on with robotics, electronics and code.</p></div>
+about:()=>`<div class="card"><h1 class="m">About Yantrika</h1><p>Yantrika is a student-initiated Robotics & Coding Club at the Indian Association for the Cultivation of Science (IACS), Kolkata, established with the support of the Research Scholars’ Association (RSA). Through workshops, hackathons, expert talks, and outreach initiatives, we aim to create a collaborative, hands-on learning environment where students can explore, build, and innovate in robotics, electronics, and programming.</p></div>
 <h2 class="m">Our four pillars</h2>
 <div class="grid" style="margin-bottom:24px">${PIL.map(p=>`<button class="pil" type="button" aria-pressed="false" data-k="${p.k}" style="background:${p.c};color:${p.f}"><h3 class="m" style="margin:0 0 6px">${p.t}</h3>${p.d}<small>See games &rarr;</small></button>`).join('')}</div>
 <p><a class="btn cy" href="#/games">Open the full Games Arcade &rarr;</a></p>
@@ -593,7 +593,7 @@ function evPage(e){
  if(e.s==='done'){const pics=e.p||Array.from({length:e.n||0},(_,i)=>`images/${e.id}-${i+1}.jpg`);b=`<h3 class="m">Photos</h3><div class="gal">${pics.map((u,i)=>`<img src="${u}" alt="${esc(e.t)} photo ${i+1}" onerror="this.outerHTML='<div class=ph>Image ${i+1} missing</div>'">`).join('')}</div>`;}
  else b=`<h3 class="m">Event Poster</h3>${poster(e)}`;
  const n=EV[ix(e)+1],p=EV[ix(e)-1];
- return `<p><a class="btn" href="#/events">&larr; All events</a></p><div class="card"><span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><h1 class="m">${esc(e.t)}</h1><p><b>${e.d}</b> | Yantrika, RSA, IACS Kolkata</p><p>${esc(e.x)}</p>${b}${docs(e)}${GM.filter(g=>g.ev.includes(e.id)).length?`<h3 class="m" style="margin-top:28px">Games that prepare you for this</h3>${GM.filter(g=>g.ev.includes(e.id)).map(g=>`<button class="btn cy" type="button" data-g="${g.id}">${g.i} ${esc(g.t)}</button>`).join('')}`:''}</div><p>${p?`<a class="btn" href="#/${p.id}">&larr; ${esc(p.t)}</a>`:''}${n?`<a class="btn" href="#/${n.id}">${esc(n.t)} &rarr;</a>`:''}</p>`;
+ return `<p><a class="btn" href="#/events">&larr; All events</a></p><div class="card"><span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><h1 class="m">${esc(e.t)}</h1><p><b>${e.d}</b> | Yantrika, IACS Kolkata</p><p>${esc(e.x)}</p>${b}${docs(e)}${GM.filter(g=>g.ev.includes(e.id)).length?`<h3 class="m" style="margin-top:28px">Games that prepare you for this</h3>${GM.filter(g=>g.ev.includes(e.id)).map(g=>`<button class="btn cy" type="button" data-g="${g.id}">${g.i} ${esc(g.t)}</button>`).join('')}`:''}</div><p>${p?`<a class="btn" href="#/${p.id}">&larr; ${esc(p.t)}</a>`:''}${n?`<a class="btn" href="#/${n.id}">${esc(n.t)} &rarr;</a>`:''}</p>`;
 }
 
 // Materials page: builds the cards and the live search box
