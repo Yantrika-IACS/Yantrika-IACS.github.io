@@ -387,7 +387,7 @@ const DON={
 
 // DONORS (thank-you line on the Sponsor or Donate page): ['Name', 'link or empty string']
 const DONORS=[
- ['Rhys Lindmark','https://www.rhyslindmark.com/'],['Priyanshu Kumar','https://www.linkedin.com/in/ramukp/']
+ ['Research Scholar Association, IACS','https://www.instagram.com/rsaiacs/'],['Rhys Lindmark','https://www.rhyslindmark.com/'],['Priyanshu Kumar','https://www.linkedin.com/in/ramukp/']
 ];
 const donorLine=()=>DONORS.length?`<p><b>Our work is possible through our generous donors thus far: ${DONORS.map(d=>d[1]?`<a href="${esc(d[1])}" target="_blank" rel="noopener">${esc(d[0])}</a>`:esc(d[0])).join(', ')}. Thank you!</b></p>`:'';
 // Top menu: [ page id, label shown ].  Each id must exist in V = {...} below.
