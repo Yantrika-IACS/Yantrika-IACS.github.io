@@ -176,6 +176,15 @@ button.tag:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
 .dn-row small{display:block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;opacity:.7}
 .dn-row b{display:block;overflow-wrap:anywhere;font-size:.95rem}
 .dn-row .btn{flex:0 0 auto;margin:0;padding:3px 10px;font-size:.8rem;box-shadow:2px 2px 0 var(--dk)}
+.tc-open{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tc-back[hidden]{display:none}
+.tc-back{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:16px}
+.tc-modal{background:var(--card);color:var(--ink);border:4px solid var(--dk);border-radius:12px;box-shadow:8px 8px 0 var(--dk);max-width:600px;width:100%;max-height:85vh;display:flex;flex-direction:column;padding:24px;box-sizing:border-box}
+.tc-modal h2{margin:0 0 10px}
+.tc-body{overflow-y:auto;flex:1;padding-right:6px;margin-bottom:16px;font-size:.95rem}
+.tc-body h4{margin:14px 0 4px}
+.tc-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.tc-actions .btn{margin:0}
 </style>
 <link rel="stylesheet" href="games/games.css">
 <link rel="stylesheet" href="animations.css">
@@ -193,7 +202,7 @@ button.tag:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
 <script src="logo.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  // SUPABASE DATABASE CONNECTION
+// SUPABASE DATABASE CONNECTION
 const supabaseClient = window.supabase.createClient(
     'https://zcszmpxhlflalkgefwff.supabase.co',
     'sb_publishable_by8T2htgYfnz4qOK9jZ4rA_hu8PUIjK'
@@ -219,7 +228,7 @@ const MAT=[
 {t:'Induction Session Deck',k:'Slides',d:'Vision and basics of robotics and electronics.',u:'materials/induction-session.pdf',ev:['induction']},
 {t:'Workshop I Slides',k:'Slides',d:'First practical robotics and electronics workshop.',u:'materials/workshop-1-slides.pdf',ev:['workshop-1']},
 {t:'Workshop I Code Examples',k:'Code',d:'Starter sketches from the workshop.',u:'materials/workshop-1-code.pdf',ev:['workshop-1']},
-  {t:'Workshop II Code Examples',k:'Code',d:'Starter sketches from the workshop.',u:'materials/rover_workshop_codes.pdf',ev:['workshop-2']},
+{t:'Workshop II Code Examples',k:'Code',d:'Starter sketches from the workshop.',u:'materials/rover_workshop_codes.pdf',ev:['workshop-2']},
 {t:'Arduino UNO Datasheet',k:'Docs',d:'Quick pin reference for our kits.',u:'materials/arduino-uno-datasheet.pdf'},
 {t:'Arduino Nano Pinout',k:'Circuits',d:'Quick pin reference for our kits.',u:'materials/arduino-nano-pinout.pdf'},
 {t:'Ultrasonic Sensor Wiring',k:'Circuits',d:'Wiring and example code for obstacle detection.',u:'materials/ultrasonic-sensor-wiring.pdf'},
@@ -240,7 +249,7 @@ const LINKS={web:'https://yantrika-iacs.github.io/',mail:'contact@yantrika.in',i
 const DON={
  upi:'yantrika5100@pnb', name:'Yantrika IACS', qr:'images/upi-qr.png',
  paypalId:'VZPX4MGBXSMPW',
- paypalSdk:'https://www.paypal.com/sdk/js?client-id=BAA4CL9XzCxlaH7JkIedVHNRLL3xMwyJ4HPeuvCJhYHePdmX-qiWAplhOTm5V_CfwR_rf2o0GuMITpXrpU&components=hosted-buttons&disable-funding=venmo¤cy=USD',
+ paypalSdk:'https://www.paypal.com/sdk/js?client-id=BAA4CL9XzCxlaH7JkIedVHNRLL3xMwyJ4HPeuvCJhYHePdmX-qiWAplhOTm5V_CfwR_rf2o0GuMITpXrpU&components=hosted-buttons&disable-funding=venmo&currency=USD',
  campaign:'yantrika',
  bank:[
   ['Account name','',0],
@@ -400,7 +409,8 @@ join:()=>`<div class="card"><h1 class="m">Join & Contact</h1><p>Want to join, vo
 <label>Robotics / coding experience<select name="level"><option value="">Choose one...</option>${JOIN_LEVEL.map(a=>`<option>${esc(a)}</option>`).join('')}</select></label>
 <label>About you / message<textarea name="msg" rows="4" maxlength="600" placeholder="What are you curious about or hoping to build? (optional)"></textarea></label>
 <div class="tc-open">
-<label class="ck"><input name="agree" type="checkbox" required> I have read and agree to the <button class="btn" type="button" id="tc-open" style="padding:2px 10px;margin:0 0 0 4px;font-size:.95rem">Terms &amp; Conditions</button></label>
+<label class="ck"><input name="agree" type="checkbox" required> I have read and agree to the</label>
+<button class="btn" type="button" id="tc-open" style="padding:2px 10px;margin:0;font-size:.95rem">Terms &amp; Conditions</button>
 </div>
 
 <div class="tc-back" id="tc-back" role="dialog" aria-modal="true" aria-labelledby="tc-title" hidden>
@@ -586,6 +596,37 @@ function joinInit() {
     const f = document.getElementById('join-form');
     const st = document.getElementById('join-st');
     if (!f || !st) return;
+
+    const tcBack = document.getElementById('tc-back');
+    const tcOpen = document.getElementById('tc-open');
+    const tcClose = document.getElementById('tc-close');
+    const tcAgree = document.getElementById('tc-agree');
+    const closeTc = () => {
+        if (!tcBack || tcBack.hidden) return;
+        tcBack.hidden = true;
+        document.body.style.overflow = '';
+        if (tcOpen) tcOpen.focus();
+    };
+    if (tcOpen && tcBack) {
+        tcOpen.onclick = () => {
+            tcBack.hidden = false;
+            document.body.style.overflow = 'hidden';
+            const body = tcBack.querySelector('.tc-body');
+            if (body) body.focus();
+        };
+        if (tcClose) tcClose.onclick = closeTc;
+        if (tcAgree) tcAgree.onclick = () => {
+            f.elements['agree'].checked = true;
+            f.elements['agree'].classList.remove('bad');
+            closeTc();
+        };
+        tcBack.onclick = (e) => {
+            if (e.target === tcBack) closeTc();
+        };
+        tcBack.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeTc();
+        });
+    }
 
     const say = (message, success = false) => {
         st.textContent = message;
