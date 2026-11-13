@@ -300,7 +300,14 @@ button.tag:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
 <script src="games/manifest.js"></script>
 <script src="learn-parallax.js"></script>
 <script src="logo.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+  // SUPABASE DATABASE CONNECTION
+
+const supabaseClient = window.supabase.createClient(
+    'https://zcszmpxhlflalkgefwff.supabase.co',
+    'sb_publishable_by8T2htgYfnz4qOK9jZ4rA_hu8PUIjK'
+);
 // ================================================================
 // EVENTS  (shown on Home timeline, Events page and each event page)
 //   id : unique, no spaces. Also the page address (#/id) and poster name (posters/id.png)
@@ -737,32 +744,87 @@ function projInit(){
 }
 
 // Join form: validate, then send to JOIN.endpoint or open an email
-function joinInit(){
- const f=document.getElementById('join-form'),st=document.getElementById('join-st');if(!f)return;
- const say=(m,ok)=>{st.textContent=m;st.style.color=ok?'':'var(--red)';};
- const val=n=>{const x=f.elements[n];return x.type==='checkbox'?(x.checked?'Yes':'No'):x.value.trim();};
- f.onsubmit=async ev=>{
-  ev.preventDefault();
-  if(f.elements.website.value)return;
-  let bad=null;
-  [...f.elements].forEach(x=>{if(x.name&&x.name!=='website'){const v=!x.checkValidity();x.classList.toggle('bad',v);if(v&&!bad)bad=x;}});
-  if(bad){say('Please complete the highlighted field.');bad.focus();return;}
-  const body=JOIN_F.map(a=>a[1]+': '+(val(a[0])||'-')).join('\n');
-  const mail=()=>{
-   location.href='mailto:'+JOIN.mail+'?subject='+encodeURIComponent('Join Yantrika: '+val('name'))+'&body='+encodeURIComponent(body);
-   st.innerHTML='Your email app should open with everything filled in. Just press send. If nothing opened, copy the details and email them to <a href="mailto:'+JOIN.mail+'">'+JOIN.mail+'</a>. ';
-   const b=document.createElement('button');b.className='btn';b.type='button';b.textContent='Copy details';b.onclick=()=>cp(body,b);st.append(b);st.style.color='';
-  };
-  if(JOIN.endpoint){
-   say('Sending...',true);
-   try{
-    const q=new URLSearchParams();q.set('form','join');JOIN_F.forEach(a=>q.set(a[0],val(a[0])));
-    await fetch(JOIN.endpoint,{method:'POST',mode:'no-cors',body:q});
-    f.reset();say('Thank you! We have received your details and will be in touch by email.',true);}
-   catch(e){mail();}
-  }else mail();
- };
+
+// Join form: submit applications directly to Supabase
+function joinInit() {
+    const f = document.getElementById('join-form');
+    const st = document.getElementById('join-st');
+
+    if (!f) return;
+
+    const say = (message, success = false) => {
+        st.textContent = message;
+        st.style.color = success ? 'var(--cy)' : 'var(--red)';
+    };
+
+    f.onsubmit = async (ev) => {
+        ev.preventDefault();
+
+        // Honeypot spam protection
+        if (f.elements['website'].value) return;
+
+        // Validate all required fields
+        let bad = null;
+
+        [...f.elements].forEach(x => {
+            if (x.name && x.name !== 'website') {
+                const invalid = !x.checkValidity();
+                x.classList.toggle('bad', invalid);
+                if (invalid && !bad) bad = x;
+            }
+        });
+
+        if (bad) {
+            say('Please complete the highlighted field.');
+            bad.focus();
+            return;
+        }
+
+        const btn = f.querySelector('button[type="submit"]');
+
+        // Collect the existing form data
+        const application = {
+            full_name: f.elements['name'].value.trim(),
+            email: f.elements['email'].value.trim().toLowerCase(),
+            institution_department: f.elements['inst'].value.trim() || null,
+            applicant_type: f.elements['role'].value,
+            requested_involvement: f.elements['want'].value,
+            experience_level: f.elements['level'].value || null,
+            message: f.elements['msg'].value.trim() || null,
+            contact_consent: f.elements['agree'].checked
+        };
+
+        try {
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+            say('Submitting your application...', true);
+
+            const { error } = await supabaseClient
+                .from('membership_applications')
+                .insert([application]);
+
+            if (error) throw error;
+
+            f.reset();
+            say(
+                'Thank you! Your application has been received. We will contact you by email.',
+                true
+            );
+
+        } catch (error) {
+            console.error('Supabase submission error:', error);
+
+            say(
+                'We could not submit your application. Please try again or contact contact@yantrika.in.'
+            );
+
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Submit';
+        }
+    };
 }
+
 
 // ================================================================
 // ROUTER: runs on every page change (address bar #/...)
