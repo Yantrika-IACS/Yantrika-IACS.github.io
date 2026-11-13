@@ -399,7 +399,22 @@ join:()=>`<div class="card"><h1 class="m">Join & Contact</h1><p>Want to join, vo
 <label>I would like to *<select name="want" required><option value="">Choose one...</option>${JOIN_WANT.map(a=>`<option>${esc(a)}</option>`).join('')}</select></label>
 <label>Robotics / coding experience<select name="level"><option value="">Choose one...</option>${JOIN_LEVEL.map(a=>`<option>${esc(a)}</option>`).join('')}</select></label>
 <label>About you / message<textarea name="msg" rows="4" maxlength="600" placeholder="What are you curious about or hoping to build? (optional)"></textarea></label>
-<label class="ck"><input name="agree" type="checkbox" required> I am happy for Yantrika to contact me about this.</label>
+<div class="terms-wrap">
+<h3 class="m">Terms &amp; Conditions</h3>
+<div class="terms" tabindex="0" role="region" aria-label="Terms and conditions">
+<p>I voluntarily register to participate in workshops, hackathons, and technical activities organized by Yantrika, the Robotics and Coding Club operating under the Indian Association for the Cultivation of Science (IACS). By submitting this registration, I acknowledge and agree to the following terms.</p>
+
+<h4>1. Institutional Compliance</h4>
+<p>As Yantrika operates under the framework of IACS, I agree to strictly abide by all institutional rules, campus regulations, laboratory safety protocols, and codes of conduct of IACS at all times during club activities and while on campus premises. Any violation of institutional guidelines may result in immediate disqualification or removal from the event.</p>
+
+<h4>2. Safety, Equipment &amp; Liability</h4>
+<p>I understand that hands-on work involving electronic components, microcontrollers, batteries, and robotics tools carries inherent risks. I agree to follow all safety instructions provided by the organizers and to handle club-provided hardware responsibly. I release Yantrika, its student organizers, and IACS from any liability or claims arising from accidental minor injury or loss of personal property, except in cases of gross negligence.</p>
+
+<h4>3. Data Privacy &amp; Media Release</h4>
+<p>I consent to Yantrika collecting and processing my registration details strictly for event coordination, attendance verification, and issuing certificates. I also grant permission for photographs and video recordings captured during events to be used for non-commercial educational, archival, and promotional purposes on official club channels and yantrika.in.</p>
+</div>
+</div>
+<label class="ck"><input name="agree" type="checkbox" required> I have read and agree to the Terms &amp; Conditions above.</label>
 <input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
 <button class="btn" type="submit">Submit</button>
 <p id="join-st" aria-live="polite"></p>
