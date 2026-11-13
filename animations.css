@@ -49,6 +49,17 @@ nav a.l:nth-of-type(7){animation-delay:.46s}
 nav a.l:nth-of-type(n+8){animation-delay:.52s}
 nav .btn{animation-delay:.58s}
 
+
+.tc-open{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tc-back[hidden]{display:none}
+.tc-back{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:16px}
+.tc-modal{background:var(--card);color:var(--ink);border:4px solid var(--dk);border-radius:12px;box-shadow:8px 8px 0 var(--dk);max-width:600px;width:100%;max-height:85vh;display:flex;flex-direction:column;padding:24px;box-sizing:border-box}
+.tc-modal h2{margin:0 0 10px}
+.tc-body{overflow-y:auto;flex:1;padding-right:6px;margin-bottom:16px;font-size:.95rem}
+.tc-body h4{margin:14px 0 4px}
+.tc-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.tc-actions .btn{margin:0}
+
 /* ---------- hero: the box and everything inside it ---------- */
 .hero2 .txt{animation:heroIn 1s var(--ease) backwards}
 .hero2 .txt > *:not(.tag){animation:floatIn .9s var(--ease) backwards}
