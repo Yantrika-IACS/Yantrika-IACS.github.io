@@ -745,6 +745,7 @@ function projInit(){
 
 // Join form: validate, then send to JOIN.endpoint or open an email
 
+
 // Join form: submit applications directly to Supabase
 function joinInit() {
     const f = document.getElementById('join-form');
@@ -753,6 +754,7 @@ function joinInit() {
     if (!f) return;
 
     const say = (message, success = false) => {
+        if (!st) return;
         st.textContent = message;
         st.style.color = success ? 'var(--cy)' : 'var(--red)';
     };
@@ -763,7 +765,7 @@ function joinInit() {
         // Honeypot spam protection
         if (f.elements['website'].value) return;
 
-        // Validate all required fields
+        // Validate all fields
         let bad = null;
 
         [...f.elements].forEach(x => {
@@ -780,18 +782,25 @@ function joinInit() {
             return;
         }
 
+        if (!supabaseClient) {
+            say('Connection error. Please try again later.');
+            return;
+        }
+
         const btn = f.querySelector('button[type="submit"]');
 
-        // Collect the existing form data
+        // Collect application data
         const application = {
             full_name: f.elements['name'].value.trim(),
             email: f.elements['email'].value.trim().toLowerCase(),
-            institution_department: f.elements['inst'].value.trim() || null,
-            applicant_type: f.elements['role'].value,
-            requested_involvement: f.elements['want'].value,
-            experience_level: f.elements['level'].value || null,
-            message: f.elements['msg'].value.trim() || null,
-            contact_consent: f.elements['agree'].checked
+            phone: f.elements['phone'].value.trim(),
+            institution: f.elements['institution'].value.trim(),
+            department: f.elements['department'].value.trim(),
+            affiliation: f.elements['affiliation'].value,
+            academic_year: f.elements['academic_year'].value,
+            linkedin_url: f.elements['linkedin_url'].value.trim() || null,
+            legal_consent: f.elements['agree'].checked,
+            legal_consent_at: new Date().toISOString()
         };
 
         try {
@@ -806,6 +815,7 @@ function joinInit() {
             if (error) throw error;
 
             f.reset();
+
             say(
                 'Thank you! Your application has been received. We will contact you by email.',
                 true
