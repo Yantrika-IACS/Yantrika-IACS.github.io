@@ -466,15 +466,37 @@ const INDP_AREAS=['Physics','Mathematics','Chemistry','Biology','Computer Scienc
 const INDP_TYPES=['Repository','Hosted website','Drive media'];
 // [form field name, label used in the email]
 const INDP_F=[['name','Full name'],['inst','Affiliated institution'],['title','Project title'],['area','STEM area'],['desc','Short description'],['link','Project link'],['type','Link type'],['email','Contact email (not shown publicly)'],['declare','Declaration (own work or credited, OK to link)']];
+
 // ---- JOIN FORM (Join page) ----
-// endpoint: paste a Google Apps Script web-app URL here to collect sign-ups in a sheet.
-// Leave '' and the form opens the visitor's email app addressed to JOIN.mail instead.
-const JOIN={endpoint:'https://script.google.com/macros/s/AKfycbwi7HluSWjLJ9mZlF4VW9iy_4zSzf9fXq8zWFlFBJUIsLXwDq5rqimt0LMC_9QTCXrbqg/exec',mail:'contact@yantrika.in'};
-const JOIN_ROLES=['Undergraduate student','Master\'s student','PhD / research scholar','Faculty or staff','Alumni','School student','Working professional','Other'];
-const JOIN_WANT=['Join the club as a member','Volunteer at events','Mentor or give a talk','Sponsor or donate','Collaborate with Yantrika','Something else'];
-const JOIN_LEVEL=['Complete beginner','Some experience','Experienced'];
-// [form field name, label used in the email]
-const JOIN_F=[['name','Full name'],['email','Email'],['inst','Institution / department'],['role','I am a'],['want','I would like to'],['level','Robotics / coding experience'],['msg','About you / message'],['agree','OK to be contacted by Yantrika']];
+// Applications are submitted directly to Supabase.
+
+const JOIN = {
+    mail: 'contact@yantrika.in'
+};
+
+const JOIN_ROLES = [
+    'Undergraduate student',
+    "Master's student",
+    'PhD / research scholar',
+    'Faculty or staff',
+    'Alumni',
+    'School student',
+    'Working professional',
+    'Other'
+];
+
+const JOIN_F = [
+    ['name', 'Full name'],
+    ['email', 'Email'],
+    ['phone', 'Phone number'],
+    ['institution', 'Institution'],
+    ['department', 'Department'],
+    ['affiliation', 'Affiliation'],
+    ['academic_year', 'Academic year'],
+    ['linkedin_url', 'LinkedIn profile'],
+    ['agree', 'Agreement to Yantrika rules and regulations']
+];
+
 const indpCard=p=>`<a class="box" href="${esc(p.u)}" target="_blank" rel="noopener" style="display:block;text-decoration:none;color:inherit"><span class="badge" style="background:var(--yel)">${esc(p.area)}</span> <span class="badge" style="background:var(--cy)">${esc(p.type)}</span><h3 class="m" style="margin:8px 0 2px">${esc(p.t)}</h3><small><b>by ${esc(p.by)}, ${esc(p.inst)}</b></small><p style="margin:6px 0 0">${esc(p.d)}</p><small><b>Open project &rarr;</b></small></a>`;
 // Home page: Independent Projects card (same arcade style as the Game Jam)
 const pjam=()=>`<section class="card jam pj" id="pj" aria-labelledby="pj-h"><div class="jam-top"><span class="jam-blink">▶ PRESS START</span><span class="badge plan">Open to everyone</span></div>
