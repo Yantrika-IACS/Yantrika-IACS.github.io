@@ -3,61 +3,9 @@
 =====================================================================
   YANTRIKA WEBSITE : QUICK EDIT GUIDE
 =====================================================================
-  This is a single-page site. Everything lives in this one file:
-
-    1. <style>  ... </style>   -> all the look & feel (colours, spacing)
-    2. <script> ... </script>  -> all the content + page logic
-         DATA (edit these most often)
-           EV      events list            (add/edit an event)
-           MAT     materials / downloads  (add a PDF, attach it to an event)
-           TEAM    team members
-           LINKS   email, website, Instagram, LinkedIn
-           DON     donation UPI id + QR image
-           G       home-page photo gallery images
-           JAM     Game Jam contest on the home page (status, perks, links)
-           INDP    Independent Projects page (listed projects, form link)
-           WALL    Game Jam "Wall of Fame" (contributors)
-           PIL     the four pillars (Learn / Build / Compete / Share)
-           (the games are NOT in this file any more: see games/ below)
-         PAGE TEMPLATES
-           V = { home, about, games, events, materials, team, join, donate }
-           Each one is the HTML of one page. Edit the text inside.
-         GAMES  (open source, one folder per game)
-           games/<id>/game.js   the game, its theory text, demo and events
-           games/manifest.js    which games are shown, and in what order
-           games/core.js        the small shared toolkit games can use
-           games/README.md      how to add or change a game
-         ROUTER
-           function r() at the very bottom: draws nav + current page.
-  COMMON JOBS
-    * Change an event's text/date ......... EV  (search:  const EV)
-    * Add a new event ..................... copy one line in EV, give it a
-                                            unique id. Status s: 'done' |
-                                            'plan' | 'prop'
-    * Add a file to an event page ......... put the PDF in /materials, add a
-                                            line in MAT with  ev:['event-id']
-    * Add a team member ................... TEAM  (search:  const TEAM)
-    * Change colours ...................... :root{...} at top of <style>
-    * Change the header logo text ......... function r() -> nav innerHTML
-    * Change the donate UPI id ............ DON
-    * Add or fix a game ................... games/README.md  (CONTRIBUTING.md)
-    * Run / close the Game Jam ............ JAM.status, add winners to WALL
-
-  FOLDERS THE PAGE EXPECTS (next to this file)
-    images/      photos, game thumbnails, logos
-    posters/     one poster per upcoming event:  posters/<event-id>.png
-    materials/   the PDF files listed in MAT
-  Also loaded: games/ (core.js, manifest.js, games.css), animations.css, bg-slider.css,
-  games-phone-fix.css, sitemap.js
-
-  TIP: after editing, open the file in a browser and press Ctrl+F5.
-  TIP: in JS strings use \' for an apostrophe, or wrap text in "double quotes".
-=====================================================================
 -->
-
 <html lang="en">
 <head>
-<!-- Page basics: encoding + mobile scaling (leave as is) -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#f1c40f">
@@ -67,8 +15,8 @@
 <link rel="canonical" href="https://yantrika.in/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="YANTRIKA">
-<meta property="og:title" content="YANTRIKA | Robotics &amp; Coding Club, IACS Kolkata">
-<meta property="og:description" content="Workshops, hackathons and open-source STEM games from the student-led Robotics &amp; Coding Club at IACS Kolkata.">
+<meta property="og:title" content="YANTRIKA | Robotics & Coding Club, IACS Kolkata">
+<meta property="og:description" content="Workshops, hackathons and open-source STEM games from the student-led Robotics & Coding Club at IACS Kolkata.">
 <meta property="og:url" content="https://yantrika.in/">
 <meta property="og:image" content="https://yantrika.in/images/og-card.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -81,30 +29,18 @@
            "https://www.instagram.com/yantrika_official/",
            "https://www.linkedin.com/company/yantrika-iacs/"]}
 </script>
-<!-- Browser-tab icon (emoji/SVG, inline) -->
 <link rel="icon" type="image/png" href="logo/logo_big.png">
-<!-- Browser-tab title -->
 <title>YANTRIKA | Robotics & Coding Club, IACS Kolkata</title>
-<!-- Fonts: Space Grotesk (body) + Permanent Marker (headings) -->
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Permanent+Marker&display=swap" rel="stylesheet">
-<!-- ======================= STYLES (CSS) ======================= -->
 <style>
-/* ===================== CSS: THEME (change colours here) =====================
-   --red/--yel/--cy/--bl/--or/--pk are the brand colours,
-   --bg page background, --card card background, --ink text, --dk borders/shadows. */
 :root{--red:#ec3750;--yel:#f1c40f;--cy:#33d6a6;--bl:#338eda;--or:#ff8c37;--pk:#ff5a5f;--dk:#17171d;--bg:#f9f9f9;--card:#fff;--ink:#17171d;--soft:#f1f1f1;box-sizing:border-box;padding-bottom:env(safe-area-inset-bottom,0px)}
-/* Dark mode: automatic (follows the device) */
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101015;--card:#1e1e26;--ink:#f4f4f4;--soft:#2a2a34;--dk:#000}}
-/* Dark mode: when the user presses the theme button */
 :root[data-theme="dark"]{--bg:#101015;--card:#1e1e26;--ink:#f4f4f4;--soft:#2a2a34;--dk:#000}
-/* ===================== CSS: BASE ===================== */
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{background:var(--bg);background-image:radial-gradient(rgba(128,128,128,.45) 1px,transparent 1px);background-size:24px 24px;font-family:'Space Grotesk',system-ui,sans-serif;color:var(--ink);margin:0;line-height:1.6;position:relative;overflow-x:hidden}
 .c{max-width:980px;margin:0 auto;padding:0 20px 40px;position:relative;z-index:1}
 .m{font-family:'Permanent Marker',cursive,sans-serif}
 h1,h2,h3{margin-top:0}a{color:inherit}
-/* background photo gallery (home only) */
-/* ===================== CSS: HOME HERO ===================== */
 .bgal{position:absolute;top:0;left:0;right:0;height:720px;z-index:0;pointer-events:none;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);gap:8px;padding:8px;box-sizing:border-box;-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 40%,transparent 95%);mask-image:linear-gradient(to bottom,#000 0%,#000 40%,transparent 95%)}
 .bgal .gt{border:3px solid var(--dk);border-radius:10px;overflow:hidden;opacity:.8;min-height:0}
 .bgal img{width:100%;height:100%;object-fit:cover;display:block}
@@ -113,7 +49,6 @@ h1,h2,h3{margin-top:0}a{color:inherit}
 .ytitle{font-size:clamp(3.5rem,13vw,8.5rem);line-height:1;color:var(--red);text-shadow:5px 5px 0 var(--dk);margin:0 0 14px}
 .ytitle img{display:block;margin:0 auto;width:min(100%,640px);height:auto}
 .hero2 h2{font-size:clamp(1.5rem,4vw,2.4rem);margin-bottom:6px}
-/* ===================== CSS: TOP NAV BAR ===================== */
 nav{position:sticky;top:0;z-index:9;background:var(--yel);border-bottom:4px solid var(--dk);margin:0 0 36px;padding:calc(8px + env(safe-area-inset-top,0px)) max(16px,calc(50vw - 600px)) 8px;display:flex;flex-wrap:nowrap;gap:12px;align-items:center;box-sizing:border-box}
 nav .logo{font-size:1.85rem;line-height:1.2;color:#17171d;text-decoration:none;margin-right:auto;display:flex;align-items:center;white-space:nowrap;flex:0 0 auto}
 .logo img{display:block;height:44px;width:auto;max-width:100%}
@@ -122,15 +57,12 @@ nav a.l{color:#17171d;font-weight:700;font-size:1.1rem;text-decoration:none;padd
 nav a.l:hover,nav a.l.on{border-color:var(--dk);background:#fff}
 nav #th{flex:0 0 auto;padding:3px 11px;box-shadow:3px 3px 0 var(--dk)}
 nav #mb{display:none;flex:0 0 auto;margin:0;padding:3px 11px;font-size:1.15rem;line-height:1.3;box-shadow:3px 3px 0 var(--dk)}
-/* Narrow screens: links fold into a dropdown so the bar always stays ONE row */
 @media(max-width:1180px){
  nav #mb{display:inline-block}
  nav .nl{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;align-items:stretch;gap:4px;background:var(--yel);border-bottom:4px solid var(--dk);padding:10px max(16px,calc(50vw - 600px)) 14px;box-shadow:0 8px 0 rgba(0,0,0,.18)}
  nav .nl.open{display:flex}
  nav .nl a.l{font-size:1.25rem;padding:8px 12px}
 }
-/* ===================== CSS: CARDS, BUTTONS, BADGES, GRIDS ===================== */
-/* .card big content block | .box small tile | .btn button | .badge status pill | .grid auto columns */
 .card{border:4px solid var(--dk);border-radius:12px;box-shadow:8px 8px 0 var(--dk);padding:28px;margin-bottom:36px;background:var(--card)}
 .tag{display:inline-block;background:var(--yel);color:#17171d;padding:5px 15px;border:2px solid var(--dk);border-radius:20px;font-weight:700;margin:5px}
 .btn{display:inline-block;background:var(--yel);color:#17171d;border:3px solid var(--dk);border-radius:8px;padding:6px 14px;font:inherit;font-weight:700;text-decoration:none;box-shadow:4px 4px 0 var(--dk);cursor:pointer;margin:4px 6px 4px 0}
@@ -140,9 +72,7 @@ nav #mb{display:none;flex:0 0 auto;margin:0;padding:3px 11px;font-size:1.15rem;l
 .box{border:3px solid var(--dk);border-radius:10px;box-shadow:5px 5px 0 var(--dk);padding:18px;background:var(--card);transition:transform .15s ease}
 .box:hover{transform:translate(-3px,-3px)}
 .badge{display:inline-block;border:2px solid var(--dk);border-radius:20px;padding:1px 12px;font-weight:700;font-size:.82rem;color:#17171d}
-/* Status badge colours: Completed / Upcoming / Coming soon */
 .done{background:var(--cy)}.plan{background:var(--yel)}.prop{background:var(--or)}
-/* Timeline on the home page ("Where we are now") */
 .tl{border-left:6px solid var(--dk);padding-left:20px;margin-left:20px}
 .ti{position:relative;padding:10px;margin-bottom:8px;border-radius:8px}
 .ti:hover{background:var(--yel);color:#17171d}
@@ -153,7 +83,6 @@ nav #mb{display:none;flex:0 0 auto;margin:0;padding:3px 11px;font-size:1.15rem;l
 .pill{display:inline-flex;margin:4px;padding:8px 16px;border:3px solid var(--dk);border-radius:20px;background:var(--yel);color:#17171d;font-weight:700}
 #q{width:100%;max-width:420px;border:3px solid var(--dk);border-radius:8px;padding:9px 14px;font:inherit;font-weight:700;background:var(--card);color:var(--ink);box-shadow:4px 4px 0 var(--dk);margin-bottom:16px}
 input,textarea{font:inherit}
-/* Event pages: photo gallery + poster */
 .gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;margin-top:16px}
 .gal img,.ph{width:100%;aspect-ratio:4/3;object-fit:cover;border:3px solid var(--dk);border-radius:8px;box-sizing:border-box}
 .ph{display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;background:var(--soft);border-style:dashed;font-size:.85rem}
@@ -165,11 +94,7 @@ a.ev{text-decoration:none;}
 .join-fab{position:fixed;right:18px;bottom:18px;z-index:50;background:#FFEF02;color:#17171d;border:3px solid #17171d;border-radius:999px;padding:12px 22px;font-weight:700;text-decoration:none;box-shadow:4px 4px 0 #17171d}
 .join-fab:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #17171d}
 .upi{font-size:1.3rem;word-break:break-all;background:var(--soft);border:3px dashed var(--dk);border-radius:8px;padding:10px 14px;margin:10px 0;font-weight:700}
-/* Phone layout tweaks for the basics above */
 @media(max-width:600px){.c{padding-left:14px;padding-right:14px}nav{padding-left:14px;padding-right:14px}.card{padding:20px}nav .logo{font-size:1.6rem}.logo img{height:38px}.bgal{height:560px}.hero2{min-height:420px}.hero2 .txt{padding:30px 10px}}
-
-/*CSS part*/
-/* Home: photo slider + promo video + "come build with us" banner */
 .slider{overflow:hidden;margin:20px -28px;padding:6px 0;-webkit-mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent)}
 .track{display:flex;width:max-content;animation:slide 45s linear infinite}
 .slider:hover .track{animation-play-state:paused}
@@ -189,9 +114,6 @@ a.ev{text-decoration:none;}
 .cta .ov p{font-weight:700;margin:0 0 10px}
 .cta .ov .btn{pointer-events:auto}
 @media(max-width:600px){.cta .slider{margin:0 -14px;width:calc(100% + 28px)}.cta .sl{width:200px}.cta{min-height:260px}}
-/*CSS part end*/
-
-/* Independent Projects submission form */
 .fm form{display:grid;gap:14px;max-width:620px}
 .fm label{display:grid;gap:4px;font-weight:700}
 .fm input:not([type=checkbox]),.fm select,.fm textarea{border:3px solid var(--dk);border-radius:8px;padding:9px 12px;font:inherit;background:var(--card);color:var(--ink);width:100%;box-sizing:border-box}
@@ -201,8 +123,6 @@ a.ev{text-decoration:none;}
 .fm .bad{border-color:var(--red)!important}
 .fm form .btn{justify-self:start}
 #indp-st{margin:0;font-weight:700}
-
-/* Game Jam (home page contest) */
 .jam{background:#17171d;color:#f4f4f4;position:relative;overflow:hidden;background-image:repeating-linear-gradient(to bottom,rgba(255,255,255,.04) 0 2px,transparent 2px 4px)}
 .jam h2{color:var(--yel);text-shadow:3px 3px 0 var(--red);font-size:clamp(1.8rem,5vw,3rem)}
 .jam a:not(.btn){color:var(--cy)}
@@ -216,15 +136,12 @@ a.ev{text-decoration:none;}
 .jam-wall span{border:3px solid var(--yel);border-radius:8px;padding:6px 12px;font-weight:700}
 .jam-wall .jam-empty{border-style:dashed;opacity:.5}
 @media(prefers-reduced-motion:reduce){.jam-blink{animation:none}}
-/* Home: Independent Projects card (extends the Game Jam look) */
 .pj{padding:36px 32px;border-top:14px solid var(--cy)}
 .pj h2{color:var(--cy);text-shadow:3px 3px 0 var(--bl);font-size:clamp(2rem,6vw,3.4rem)}
 .pj .jam-blink{color:var(--cy)}
 .pj .jam-steps div,.pj .jam-wall span{border-color:var(--cy)}
 .pj .jam-steps b{color:var(--cy)}
 @media(max-width:600px){.pj{padding:22px 16px}}
-/* About page: interactive pillars */
-/* Pillars (About page), chips, info boxes, progress bars */
 .pil{display:block;width:100%;text-align:left;font:inherit;cursor:pointer;border:3px solid var(--dk);border-radius:10px;box-shadow:5px 5px 0 var(--dk);padding:18px;transition:transform .15s ease,box-shadow .15s ease}
 .pil:hover{transform:translate(-3px,-3px);box-shadow:8px 8px 0 var(--dk)}
 .pil[aria-pressed="true"]{transform:translate(4px,4px);box-shadow:1px 1px 0 var(--dk)}
@@ -251,8 +168,6 @@ button.tag:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
 .pp{scroll-margin-top:90px}
 @media(prefers-reduced-motion:reduce){button.tag{transition:none}}
 @media(prefers-reduced-motion:reduce){.pp.open{animation:none}.pil,.slot,.bar i{transition:none}}
-
-/* Donate page: payment option cards */
 .dn{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:20px;align-items:start;margin:14px 0 28px}
 .dn>article{border:3px solid var(--dk);border-radius:12px;box-shadow:5px 5px 0 var(--dk);padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0;overflow-wrap:anywhere;background:var(--card)}
 .dn>article h3{margin:0}
@@ -280,7 +195,6 @@ button.tag:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
 .dn-row b{display:block;overflow-wrap:anywhere;font-size:.95rem}
 .dn-row .btn{flex:0 0 auto;margin:0;padding:3px 10px;font-size:.8rem;box-shadow:2px 2px 0 var(--dk)}
 </style>
-<!-- Extra stylesheets that live next to this file -->
 <link rel="stylesheet" href="games/games.css">
 <link rel="stylesheet" href="animations.css">
 <link rel="stylesheet" href="bg-slider.css">
@@ -288,14 +202,9 @@ button.tag:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
 <link rel="stylesheet" href="layout-shift-fix.css">
 <link rel="stylesheet" href="fullbleed.css">
 </head>
-<!-- ======================= PAGE BODY ======================= -->
 <body>
-<!-- Hero photo grid behind the home page (filled by JS from G) -->
 <div class="bgal" id="bgal"></div>
-<!-- nav = top menu (full width), main = the current page. Both are filled by function r() -->
 <nav id="nav"></nav><div class="c"><main id="app"></main></div>
-<!-- ======================= CONTENT + LOGIC (JavaScript) ======================= -->
-<!-- Games toolkit + game list (open source, see games/README.md) -->
 <script src="games/core.js"></script>
 <script src="games/manifest.js"></script>
 <script src="learn-parallax.js"></script>
@@ -303,22 +212,10 @@ button.tag:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   // SUPABASE DATABASE CONNECTION
-
 const supabaseClient = window.supabase.createClient(
     'https://zcszmpxhlflalkgefwff.supabase.co',
     'sb_publishable_by8T2htgYfnz4qOK9jZ4rA_hu8PUIjK'
 );
-// ================================================================
-// EVENTS  (shown on Home timeline, Events page and each event page)
-//   id : unique, no spaces. Also the page address (#/id) and poster name (posters/id.png)
-//   d  : date text shown to visitors
-//   t  : event title
-//   s  : status ->  'done' (completed, shows photos)  |  'plan' (upcoming)  |  'prop' (coming 2026-27)
-//   n  : (completed events only) number of photos: images/<id>-1.jpg ... <id>-n.jpg
-//   x  : short description
-// To add an event: copy one line, change the id, keep the comma at the end.
-// Order matters: the "previous / next" buttons follow this order.
-// ================================================================
 const EV=[
 {id:'induction',d:'20 Aug 2026',t:'Induction Session',s:'done',n:6,x:"Introduced students to Yantrika's vision and basic technical concepts. Around 40+ students attended."},
 {id:'workshop-1',d:'28 Sep 2026',t:'Hands-on Robotics Workshop I',s:'done',n:8,x:'Interactive session introducing practical robotics and electronics.'},
@@ -335,15 +232,7 @@ const EV=[
 {id:'team-challenge',d:'Aug 2027',t:'Team Challenge',s:'prop',x:'A collaborative and competitive robotics event.'},
 {id:'semester-outreach',d:'Sep 2027',t:'Semester Outreach',s:'prop',x:'A community technology workshop for local youth.'}
 ];
-// Labels for the three statuses: [text shown, css class]
 const ST={done:['Completed','done'],plan:['Upcoming','plan'],prop:['Coming 2026-27','prop']};
-// ================================================================
-// MATERIALS  (Materials page + the "Documents" box on event pages)
-//   t  : title          k : category tag (Slides / Code / Docs / Circuits / Posters)
-//   d  : one-line note  u : file path (put the PDF in the materials/ folder)
-//   ev : (optional) list of event ids this file belongs to, e.g. ev:['workshop-2']
-//        -> it then appears on those events' pages automatically.
-// ================================================================
 const MAT=[
 {t:'Induction Session Deck',k:'Slides',d:'Vision and basics of robotics and electronics.',u:'materials/induction-session.pdf',ev:['induction']},
 {t:'Workshop I Slides',k:'Slides',d:'First practical robotics and electronics workshop.',u:'materials/workshop-1-slides.pdf',ev:['workshop-1']},
@@ -359,30 +248,20 @@ const MAT=[
 {t:'Independent Projects Guide',k:'Docs',d:'How to get your own STEM simulation listed on the site.',u:'https://github.com/Yantrika-IACS/Yantrika-IACS.github.io/blob/main/Yantrika_Independent_Projects_Guide.pdf'},
 {t:'Event Posters',k:'Posters',d:'Posters for all Yantrika events.',u:'materials/event_posters.pdf'}
 ];
-// ================================================================
-// TEAM  (Team page)
-//   adv / core / lead rows are:  [ 'Name', 'Role', 'email (or empty)', 'website link (or empty)' ]
-//   back is just a list of names.
-// ================================================================
 const TEAM={
 adv:[['Prof. Rajarshi Ray','Faculty Advisor','','https://scholar.google.com/citations?user=IfVWgecAAAAJ&hl=en'],['Pritam Sarkar','Student Advisor','prikarsartam@gmail.com','https://prikarsartam.github.io/'],['Sk Asif Iqbal','Student Advisor','','https://scholar.google.com/citations?user=io6wYEAAAAAJ&hl=en']],
-
 core:[['Pritam Dutta','President','pritam@yantrika.in','https://dutta-pritam.github.io/'],['Arnab Roy','Secretary','ug24ar3219@iacs.res.in','https://github.com/arOy1011'],['Sudeep Das','Treasurer','ug24sd3240@iacs.res.in',''],['Aniket Dinda','PR and Outreach Head','ug25ad3412@iacs.res.in','https://github.com/001-Long-Fingers']],
 lead:[['Dipchandan Bera','Marketing Lead'],['Rwitinkar Sinha','Media Lead'],['Sampreet Das','Content Lead']],
 back:['Aryan Lohar','Debarpan','Arjun M','Aditya Menon','Bhaskar Das','Arkajyoti Bhattacharya']
 };
-// Contact + social links (used on the Join page and in buttons)
 const LINKS={web:'https://yantrika-iacs.github.io/',mail:'contact@yantrika.in',ig:'https://www.instagram.com/yantrika_official/',li:'https://www.linkedin.com/company/yantrika-iacs/'};
-// (Donation settings, see note below)
-/* DONATE: put your real UPI ID here (and optionally a QR image at images/donate-qr.png) */
 const DON={
  upi:'yantrika5100@pnb', name:'Yantrika IACS', qr:'images/upi-qr.png',
  paypalId:'VZPX4MGBXSMPW',
- paypalSdk:'https://www.paypal.com/sdk/js?client-id=BAA4CL9XzCxlaH7JkIedVHNRLL3xMwyJ4HPeuvCJhYHePdmX-qiWAplhOTm5V_CfwR_rf2o0GuMITpXrpU&components=hosted-buttons&disable-funding=venmo&currency=USD',
+ paypalSdk:'https://www.paypal.com/sdk/js?client-id=BAA4CL9XzCxlaH7JkIedVHNRLL3xMwyJ4HPeuvCJhYHePdmX-qiWAplhOTm5V_CfwR_rf2o0GuMITpXrpU&components=hosted-buttons&disable-funding=venmo¤cy=USD',
  campaign:'yantrika',
- // [label, value, show a Copy button?]
  bank:[
-  ['Account name','',0],   // <-- check spelling against the passbook
+  ['Account name','',0],
   ['Account number','',1],
   ['Account type','',0],
   ['Bank & branch','State Bank of India, Jadavpur University Branch (Code 93), 188 Raja S.C. Mullick Road, Kolkata',0],
@@ -391,26 +270,18 @@ const DON={
   ['Reference','YANTRIKA FUNDING',0]
  ]
 };
-
-// DONORS (thank-you line on the Sponsor or Donate page): ['Name', 'link or empty string']
 const DONORS=[
  ['Research Scholar Association (IACS) ','https://www.instagram.com/rsaiacs/'],['Rhys Lindmark','https://www.rhyslindmark.com/'],['Priyanshu Kumar','https://www.linkedin.com/in/ramukp/']
 ];
 const donorLine=()=>DONORS.length?`<p><b>Our work is possible through our generous donors thus far: ${DONORS.map(d=>d[1]?`<a href="${esc(d[1])}" target="_blank" rel="noopener">${esc(d[0])}</a>`:esc(d[0])).join(', ')}. Thank you!</b></p>`:'';
-// Top menu: [ page id, label shown ].  Each id must exist in V = {...} below.
 const PAGES=[['home','Home'],['about','About'],['games','Games'],['projects','Projects'],['events','Events'],['materials','Materials'],['team','Team'],['join','Join'],['donate','Sponsor or Donate']];
-// Rotating colour palette used for gallery tiles and poster backgrounds
 const PC=['#ec3750','#338eda','#ff8c37','#33d6a6','#ff5a5f','#8e44ad'];
-
-// ---- HOME PAGE PHOTOS ----
-/* HERO GALLERY: replace these 16 image URLs (relative paths or full https links) */
 const G=[
  'images/intro-1.png','images/workshop-1-1.jpg','images/Intro-4.png','images/induction-1.jpg',
  'images/workshop-1-2.jpg','images/talk3.jpeg','images/workshop-1-5.jpg','images/Intro-5.png',
  'images/induction-2.jpg','images/talk4.jpeg','images/talk1.jpeg','images/workshop-1-6.jpg',
  'images/talk5.jpeg','images/workshop-1-4.jpg','images/induction-3.jpg','images/workshop-1-7.jpg'
 ];
-// gal() = the faded photo grid behind the hero, slides() = the moving photo strip
 const gal=()=>G.map((u,i)=>`<div class="gt" style="background:${PC[i%6]}">${u?`<img src="${u}" alt="Yantrika gallery photo ${i+1}" loading="lazy" onerror="this.remove()">`:''}</div>`).join('');
 const SLIDER=[
  'images/rover1.jpeg','images/rover2.jpeg','images/induction-1.jpg','images/talk3.jpeg',
@@ -418,17 +289,8 @@ const SLIDER=[
 ];
 const slides=()=>SLIDER.filter(Boolean).map((u,i)=>`<div class="sl" style="background:${PC[i%6]}"><img src="${u}" alt="Yantrika photo ${i+1}" loading="lazy" onerror="this.remove()"></div>`).join('');
 
-// Small helper templates: evCard = event tile, person = team member tile
-const evCard=e=>`<a class="box" href="#/${e.id}" style="display:block;text-decoration:none;color:inherit"><span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><h3 class="m" style="margin:8px 0 2px">${esc(e.t)}</h3><b>${e.d}</b><p style="margin:6px 0 0">${esc(e.x)}</p><small><b>${e.s==='done'?'See photos':'See poster'} &rarr;</b></small></a>`;
+const evCard=e=>`<a class="box" href="#/${e.id}" style="display:block;text-decoration:none;color:inherit"><span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><h3 class="m" style="margin:8px 0 2px">${esc(e.t)}</h3><b>${e.d}</b><p style="margin:6px 0 0">${esc(e.x)}</p><small><b>${e.s==='done'?'See photos':'See poster'} →</b></small></a>`;
 const person=p=>`<div class="box"><b style="font-size:1.1rem">${esc(p[0])}</b><br>${esc(p[1])}<div style="margin-top:8px;font-size:1.2rem">${p[2]?`<a href="mailto:${p[2]}" title="Email" style="text-decoration:none;margin-right:8px">✉️</a>`:''}${p[3]?`<a href="${p[3]}" target="_blank" rel="noopener" title="Website" style="text-decoration:none">🌐</a>`:''}</div></div>`;
-
-// ================================================================
-// GAME JAM  (contest card on the Home page, below "Play our games")
-//   JAM.status : badge text, e.g. 'Open for entries' or 'Closes 30 Nov 2026'
-//   JAM.perks  : one line telling people what contributors get
-//   JAM.guide  : Contributor Guide PDF    JAM.repo : GitHub repo for pull requests
-//   WALL       : Wall of Fame rows ->  ['Name', 'Game title', 'link or empty']
-// ================================================================
 const JAM={
  guide:'Yantrika_Games_Contributor_Guide.pdf',
  repo:'https://github.com/Yantrika-IACS/Yantrika-IACS.github.io',
@@ -439,23 +301,10 @@ const WALL=[];
 const jam=()=>`<section class="card jam" id="jam" aria-labelledby="jam-h"><div class="jam-top"><span class="jam-blink">▶ INSERT COIN</span><span class="badge plan">${esc(JAM.status)}</span></div>
 <h2 class="m" id="jam-h">🕹️ The Yantrika Game Jam</h2>
 <p><b>Our arcade is open source, so the next game can be yours.</b> Turn an idea from robotics, code or math into something people can play. ${esc(JAM.perks)}</p>
-<div class="jam-steps"><div><b>1</b>Read the Contributor Guide.</div><div><b>2</b>Build your game in its own <code>games/&lt;id&gt;/</code> folder.</div><div><b>3</b>Open a Pull Request and we will play-test it.</div></div>
-<p><a class="btn" href="${JAM.guide}" target="_blank" rel="noopener">📘 Contributor Guide (PDF)</a><a class="btn cy" href="${JAM.repo}" target="_blank" rel="noopener">&lt;/&gt; Add your game on GitHub</a></p>
+<div class="jam-steps"><div><b>1</b>Read the Contributor Guide.</div><div><b>2</b>Build your game in its own <code>games/<id>/</code> folder.</div><div><b>3</b>Open a Pull Request and we will play-test it.</div></div>
+<p><a class="btn" href="${JAM.guide}" target="_blank" rel="noopener">📘 Contributor Guide (PDF)</a><a class="btn cy" href="${JAM.repo}" target="_blank" rel="noopener"></> Add your game on GitHub</a></p>
 <h3 class="m">🏆 Wall of Fame</h3><div class="jam-wall">${WALL.length?WALL.map(w=>`<span>${w[2]?`<a href="${esc(w[2])}" target="_blank" rel="noopener">${esc(w[0])}</a>`:esc(w[0])} · ${esc(w[1])}</span>`).join(''):'<span class="jam-empty">Your name here</span><span class="jam-empty">Your game here</span>'}</div></section>`;
 
-// ================================================================
-// INDEPENDENT PROJECTS  (the #/projects page)
-//   INDP.guide : contributor guide PDF
-//   INDP.endpoint : the Google Apps Script web-app URL that saves each
-//                submission to a Google Sheet (setup: see apps-script/Code.gs).
-//                While it is empty, the on-page form opens an email to
-//                INDP.mail with everything pre-filled instead.
-//   INDP.list  : approved projects, one per line:
-//     {t:'Title', by:'Name', inst:'Institution or Independent contributor',
-//      area:'Physics', type:'Repository'|'Hosted website'|'Drive media',
-//      u:'https://link', d:'Two-sentence description'}
-//   To list a project: paste a line into INDP.list after review.
-// ================================================================
 const INDP={
  guide:'Yantrika_Independent_Projects_Guide.pdf',
  endpoint:'https://script.google.com/macros/s/AKfycbwi7HluSWjLJ9mZlF4VW9iy_4zSzf9fXq8zWFlFBJUIsLXwDq5rqimt0LMC_9QTCXrbqg/exec',
@@ -464,12 +313,9 @@ const INDP={
 };
 const INDP_AREAS=['Physics','Mathematics','Chemistry','Biology','Computer Science','Electronics','Robotics','Statistics','Data Science','Earth & Environmental Science','Engineering','Game Theory','Other'];
 const INDP_TYPES=['Repository','Hosted website','Drive media'];
-// [form field name, label used in the email]
 const INDP_F=[['name','Full name'],['inst','Affiliated institution'],['title','Project title'],['area','STEM area'],['desc','Short description'],['link','Project link'],['type','Link type'],['email','Contact email (not shown publicly)'],['declare','Declaration (own work or credited, OK to link)']];
 
-// ---- JOIN FORM (Join page) ----
-// Applications are submitted directly to Supabase.
-
+// ---- JOIN FORM DATA (CORRECTED) ----
 const JOIN = {
     mail: 'contact@yantrika.in'
 };
@@ -484,19 +330,21 @@ const JOIN_ROLES = [
     'Working professional',
     'Other'
 ];
+
 const JOIN_WANT = [
-  'Learn robotics and coding',
-  'Build core hardware projects',
-  'Participate in hackathons',
-  'Volunteer / Organize events',
-  'Other'
+    'Learn robotics and coding',
+    'Build core hardware projects',
+    'Participate in hackathons',
+    'Volunteer / Organize events',
+    'Other'
 ];
 
 const JOIN_LEVEL = [
-  'Beginner (No prior experience)',
-  'Intermediate (Some experience)',
-  'Advanced (Have built projects)'
+    'Beginner (No prior experience)',
+    'Intermediate (Some experience)',
+    'Advanced (Have built projects)'
 ];
+
 const JOIN_F = [
     ['name', 'Full name'],
     ['email', 'Email'],
@@ -509,8 +357,7 @@ const JOIN_F = [
     ['agree', 'Agreement to Yantrika rules and regulations']
 ];
 
-const indpCard=p=>`<a class="box" href="${esc(p.u)}" target="_blank" rel="noopener" style="display:block;text-decoration:none;color:inherit"><span class="badge" style="background:var(--yel)">${esc(p.area)}</span> <span class="badge" style="background:var(--cy)">${esc(p.type)}</span><h3 class="m" style="margin:8px 0 2px">${esc(p.t)}</h3><small><b>by ${esc(p.by)}, ${esc(p.inst)}</b></small><p style="margin:6px 0 0">${esc(p.d)}</p><small><b>Open project &rarr;</b></small></a>`;
-// Home page: Independent Projects card (same arcade style as the Game Jam)
+const indpCard=p=>`<a class="box" href="${esc(p.u)}" target="_blank" rel="noopener" style="display:block;text-decoration:none;color:inherit"><span class="badge" style="background:var(--yel)">${esc(p.area)}</span> <span class="badge" style="background:var(--cy)">${esc(p.type)}</span><h3 class="m" style="margin:8px 0 2px">${esc(p.t)}</h3><small><b>by ${esc(p.by)}, ${esc(p.inst)}</b></small><p style="margin:6px 0 0">${esc(p.d)}</p><small><b>Open project →</b></small></a>`;
 const pjam=()=>`<section class="card jam pj" id="pj" aria-labelledby="pj-h"><div class="jam-top"><span class="jam-blink">▶ PRESS START</span><span class="badge plan">Open to everyone</span></div>
 <h2 class="m" id="pj-h">🔬 The Yantrika Builder's community</h2>
 <p><b>Your STEM simulation deserves an audience.</b> Share a simulation or interactive model of anything in science, technology, engineering or maths and we will list it on Yantrika with your name and institution. No membership needed.</p>
@@ -518,8 +365,6 @@ const pjam=()=>`<section class="card jam pj" id="pj" aria-labelledby="pj-h"><div
 <div class="jam-steps"><div><b>1</b>Read the Independent Projects Guide.</div><div><b>2</b>Host your project and get a public link: a repo, a website or a Drive folder.</div><div><b>3</b>Submit the form and a volunteer will review it.</div></div>
 <p><a class="btn" href="${INDP.guide}" target="_blank" rel="noopener">📘 Projects Guide (PDF)</a><a class="btn cy" href="#/projects">📨 Submit your project</a><a class="btn" href="mailto:${INDP.mail}">Questions? Email us</a></p>
 <h3 class="m">🌟 Community Showcase</h3><div class="jam-wall">${INDP.list.length?INDP.list.map(p=>`<span><a href="${esc(p.u)}" target="_blank" rel="noopener">${esc(p.t)}</a> · ${esc(p.by)}</span>`).join(''):'<span class="jam-empty">Your project here</span><span class="jam-empty">Your name here</span>'}</div></section>`;
-// ---- PILLARS (the four coloured buttons on Home/About) ----
-/* About page pillars: the four buttons */
 const PIL=[
  {k:'learn',t:'Learn',c:'var(--red)',f:'#fff',d:'Workshops and talks that turn theory into practice.'},
  {k:'build',t:'Build',c:'var(--bl)',f:'#fff',d:'Real hardware, real projects, student-led.'},
@@ -527,27 +372,18 @@ const PIL=[
  {k:'share',t:'Share',c:'var(--cy)',f:'#17171d',d:'Outreach to schools and local youth.'}
 ];
 
-// ================================================================
-// PAGE TEMPLATES
-// V.<pageId> returns the HTML of that page. Edit the wording inside the
-// backticks `...`. ${...} parts are filled in by code, leave those alone.
-// ================================================================
 const V={
-// ---------- HOME PAGE ----------
-home:()=>`<div class="hero2"><div class="txt"><h1 class="m ytitle"><img src="images/text.png" alt="YANTRIKA" onerror="this.replaceWith(document.createTextNode('YANTRIKA'))"></h1><h2>Robotics &amp; Coding Club</h2><p><b>Indian Association for the Cultivation of Science (IACS), Kolkata</b></p><p style="margin-top:18px"><a class="btn" href="#/join">Join the club</a><a class="btn cy" href="#/events">See events</a></p></div></div>
+home:()=>`<div class="hero2"><div class="txt"><h1 class="m ytitle"><img src="images/text.png" alt="YANTRIKA" onerror="this.replaceWith(document.createTextNode('YANTRIKA'))"></h1><h2>Robotics & Coding Club</h2><p><b>Indian Association for the Cultivation of Science (IACS), Kolkata</b></p><p style="margin-top:18px"><a class="btn" href="#/join">Join the club</a><a class="btn cy" href="#/events">See events</a></p></div></div>
 ${learnSec()}
-<div class="card"><h2 class="m">Where we are now</h2><div class="tl">${EV.filter(e=>e.s!=='prop').map(e=>`<div class="ti"><b>${e.d} | <a class="ev" href="#/${e.id}">${esc(e.t)}</a></b> <span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><br>${esc(e.x)}</div>`).join('')}</div><a class="btn" href="#/events">All events &rarr;</a></div>
-<h2 class="m">Play our games</h2>${gameSlider()}<p><button class="btn cy" type="button" onclick="document.getElementById('jam').scrollIntoView({behavior:'smooth'})">➕ Add your own game</button></p>${jam()}${pjam()}<h2 class="m">Promo Video</h2><div class="vid"><video id="pv" src="images/intro_vid.mp4" autoplay muted loop playsinline preload="metadata">Your browser does not support video.</video><button class="btn" id="pm" type="button" aria-label="Mute or unmute video">&#128263; Unmute</button></div>
-<div class="cta"><div class="slider"><div class="track">${slides()}${slides()}</div></div><div class="ov"><h2 class="m">COME BUILD WITH US....</h2><p>No experience needed. Curiosity is enough.</p><a class="btn" href="#/join">Join Yantrika &rarr;</a></div></div>`,
-// ---------- ABOUT PAGE ----------
+<div class="card"><h2 class="m">Where we are now</h2><div class="tl">${EV.filter(e=>e.s!=='prop').map(e=>`<div class="ti"><b>${e.d} | <a class="ev" href="#/${e.id}">${esc(e.t)}</a></b> <span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><br>${esc(e.x)}</div>`).join('')}</div><a class="btn" href="#/events">All events →</a></div>
+<h2 class="m">Play our games</h2>${gameSlider()}<p><button class="btn cy" type="button" onclick="document.getElementById('jam').scrollIntoView({behavior:'smooth'})">➕ Add your own game</button></p>${jam()}${pjam()}<h2 class="m">Promo Video</h2><div class="vid"><video id="pv" src="images/intro_vid.mp4" autoplay muted loop playsinline preload="metadata">Your browser does not support video.</video><button class="btn" id="pm" type="button" aria-label="Mute or unmute video">🔇 Unmute</button></div>
+<div class="cta"><div class="slider"><div class="track">${slides()}${slides()}</div></div><div class="ov"><h2 class="m">COME BUILD WITH US....</h2><p>No experience needed. Curiosity is enough.</p><a class="btn" href="#/join">Join Yantrika →</a></div></div>`,
 about:()=>`<div class="card"><h1 class="m">About Yantrika</h1><p>Yantrika is a student-initiated Robotics & Coding Club at the Indian Association for the Cultivation of Science (IACS), Kolkata, established with the support of the Research Scholars’ Association (RSA). Through workshops, hackathons, expert talks, and outreach initiatives, we aim to create a collaborative, hands-on learning environment where students can explore, build, and innovate in robotics, electronics, and programming.</p></div>
 <h2 class="m">Our four pillars</h2>
-<div class="grid" style="margin-bottom:24px">${PIL.map(p=>`<button class="pil" type="button" aria-pressed="false" data-k="${p.k}" style="background:${p.c};color:${p.f}"><h3 class="m" style="margin:0 0 6px">${p.t}</h3>${p.d}<small>See games &rarr;</small></button>`).join('')}</div>
-<p><a class="btn cy" href="#/games">Open the full Games Arcade &rarr;</a></p>
+<div class="grid" style="margin-bottom:24px">${PIL.map(p=>`<button class="pil" type="button" aria-pressed="false" data-k="${p.k}" style="background:${p.c};color:${p.f}"><h3 class="m" style="margin:0 0 6px">${p.t}</h3>${p.d}<small>See games →</small></button>`).join('')}</div>
+<p><a class="btn cy" href="#/games">Open the full Games Arcade →</a></p>
 <div class="card"><h2 class="m">What we aim for</h2><ul><li>500-800+ student participations across events.</li><li>100+ active hackers in competitive problem-solving.</li><li>2+ outreaches for underprivileged and local youth.</li><li>Reusable equipment that stays with the club for future batches.</li></ul></div>`,
-// ---------- GAMES PAGE (cards are built by gamesPage() further down) ----------
 games:()=>`<div class="card"><h1 class="m">Games Arcade</h1><p>Every game here connects to a Yantrika event. Pick a pillar, play, then jump to the event it prepares you for.</p><div id="gf"></div></div><div class="gl" id="gg"></div>${YK.ossCard()}<div class="card pp" id="gp" hidden aria-live="polite"></div>`,
-// ---------- INDEPENDENT PROJECTS PAGE (data comes from INDP above) ----------
 projects:()=>`<div class="card"><span class="badge plan">Open to everyone</span><h1 class="m">Independent Projects</h1><p>Made a simulation or interactive model of something in science, technology, engineering or maths? Share it with us. After a quick review by a volunteer, it is listed here as a link with your name and institution. Your project stays where you built it, and you keep ownership.</p>
 <div class="grid" style="margin:16px 0"><div class="box"><h3 class="m">Who?</h3>Students, alumni, hobbyists and first-timers. You do not need to be a Yantrika member or belong to an institution.</div><div class="box"><h3 class="m">What?</h3>A simulation or interactive model, shared as a link: a repository, a website you host, or a Drive folder.</div><div class="box"><h3 class="m">What you get</h3>A listing with your name and institution, and a link straight to your work.</div></div>
 <p><button class="btn" type="button" onclick="document.getElementById('indp-form').scrollIntoView({behavior:'smooth'})">📨 Submit your project</button><a class="btn cy" href="${INDP.guide}" target="_blank" rel="noopener">📘 Contributor guide (PDF)</a></p></div>
@@ -574,18 +410,14 @@ projects:()=>`<div class="card"><span class="badge plan">Open to everyone</span>
 <button class="btn" type="submit">Submit</button>
 <p id="indp-st" aria-live="polite"></p>
 </form></div>`,
-// ---------- EVENTS PAGE (groups EV by status) ----------
 events:()=>`<div class="card"><h1 class="m">Events</h1><p>From induction to hackathons. Dates for 2027 are planned and may shift.</p></div>${['done','plan','prop'].map(s=>`<h2 class="m">${ST[s][0]}</h2><div class="grid" style="margin-bottom:36px">${EV.filter(e=>e.s===s).map(evCard).join('')}</div>`).join('')}`,
-// ---------- MATERIALS PAGE (list is built by mats()) ----------
 materials:()=>`<div class="card"><h1 class="m">Club Materials</h1><p>Slides, code, circuit diagrams, datasheets and posters.</p><input id="q" type="search" placeholder="Search materials..." aria-label="Search materials"><div class="grid" id="mg"></div></div>`,
-// ---------- TEAM PAGE (reads TEAM above) ----------
 team:()=>`<div class="card"><h1 class="m">Meet the Team</h1><p>The students and faculty driving Yantrika.</p>
 <h3 class="m" style="color:var(--bl);margin-top:24px">Faculty Advisor</h3><div class="grid">${TEAM.adv.map(person).join('')}</div>
 <h3 class="m" style="color:var(--pk);margin-top:24px">Core Committee</h3><div class="grid">${TEAM.core.map(person).join('')}</div>
-<h3 class="m" style="color:var(--cy);margin-top:24px">Leads &amp; Editors</h3><div class="grid">${TEAM.lead.map(person).join('')}</div>
+<h3 class="m" style="color:var(--cy);margin-top:24px">Leads & Editors</h3><div class="grid">${TEAM.lead.map(person).join('')}</div>
 <h3 class="m" style="color:var(--or);margin-top:24px">Backend Core Members</h3>${TEAM.back.map(n=>`<span class="pill">${esc(n)}</span>`).join('')}</div>`,
-// ---------- JOIN PAGE ----------
-join:()=>`<div class="card"><h1 class="m">Join &amp; Contact</h1><p>Want to join, volunteer, sponsor, or collaborate? Fill in the form below and we will get back to you. No experience needed. Curiosity is enough.</p></div>
+join:()=>`<div class="card"><h1 class="m">Join & Contact</h1><p>Want to join, volunteer, sponsor, or collaborate? Fill in the form below and we will get back to you. No experience needed. Curiosity is enough.</p></div>
 <div class="card fm"><h2 class="m">🤖 Join Yantrika</h2><p>Fill this in and press Submit. Fields marked * are required.</p>
 <form id="join-form" novalidate>
 <label>Full name *<input name="name" required maxlength="80" autocomplete="name"></label>
@@ -601,9 +433,8 @@ join:()=>`<div class="card"><h1 class="m">Join &amp; Contact</h1><p>Want to join
 <p id="join-st" aria-live="polite"></p>
 </form></div>
 <div class="card foot"><h2 class="m">Find us</h2><p><a class="btn" href="mailto:${LINKS.mail}">✉️ Email</a><a class="btn" href="${LINKS.web}" target="_blank" rel="noopener">🌐 Website</a><a class="btn" href="${LINKS.ig}" target="_blank" rel="noopener">📸 Instagram</a><a class="btn" href="${LINKS.li}" target="_blank" rel="noopener">💼 LinkedIn</a></p></div>`,
-// ---------- DONATE PAGE (UPI id comes from DON) ----------
 donate:()=>`<div class="card"><h1 class="m">Sponsor or Donate to Yantrika</h1><p>Yantrika is a student-led club. Every contribution helps us buy kits and components, run free workshops and hackathons, and take robotics to school students who would otherwise never get to touch real hardware.</p>
-<div class="grid" style="margin:20px 0"><div class="box" style="background:var(--red);color:#fff"><h3 class="m">Kits &amp; hardware</h3>Reusable equipment that stays with the club for future batches.</div><div class="box" style="background:var(--bl);color:#fff"><h3 class="m">Workshops</h3>Hands-on sessions and expert talks open to all students.</div><div class="box" style="background:var(--cy);color:#17171d"><h3 class="m">Outreach</h3>Free workshops for underprivileged and local youth.</div></div>
+<div class="grid" style="margin:20px 0"><div class="box" style="background:var(--red);color:#fff"><h3 class="m">Kits & hardware</h3>Reusable equipment that stays with the club for future batches.</div><div class="box" style="background:var(--bl);color:#fff"><h3 class="m">Workshops</h3>Hands-on sessions and expert talks open to all students.</div><div class="box" style="background:var(--cy);color:#17171d"><h3 class="m">Outreach</h3>Free workshops for underprivileged and local youth.</div></div>
 
 <section class="dn-hero" aria-label="Pay via UPI"><span class="badge plan">Quickest way to give in India</span><h2 class="m">📱 Pay via UPI</h2><p>Scan the QR with any UPI app (GPay, PhonePe, Paytm, BHIM), or copy the UPI ID below and paste it into your app’s “Pay to UPI ID” option.</p>
 <div class="dn-qr" id="dn-qr"><img src="${DON.qr}" alt="Yantrika UPI QR code" onerror="this.closest('#dn-qr').hidden=true"><b>Scan to pay</b></div>
@@ -615,16 +446,10 @@ donate:()=>`<div class="card"><h1 class="m">Sponsor or Donate to Yantrika</h1><p
   <button class="btn" type="button" id="dn-all">Copy all bank details</button></article></div>
 
 <p>After paying, email <a href="mailto:${LINKS.mail}">${LINKS.mail}</a> with your name, amount and payment reference so we can acknowledge your support. Companies or institutions who want to sponsor an event, or need a receipt, can write to us directly.</p>
-<a class="btn cy" href="mailto:${LINKS.mail}?subject=${encodeURIComponent('Donation / Sponsorship for Yantrika')}">✉️ Email us about donating</a><a class="btn" href="#/join">Chat with us &rarr;</a>
+<a class="btn cy" href="mailto:${LINKS.mail}?subject=${encodeURIComponent('Donation / Sponsorship for Yantrika')}">✉️ Email us about donating</a><a class="btn" href="#/join">Chat with us →</a>
 ${donorLine()}</div>`
 };
 
-// ================================================================
-// EVENT PAGE  (what you see at #/<event-id>)
-//   docs(e)   -> "Documents" box: every MAT item whose ev includes this event
-//   poster(e) -> poster image, falls back to a coloured card if the file is missing
-//   evPage(e) -> full page: status, date, text, photos/poster, documents, related games
-// ================================================================
 const ix=e=>EV.indexOf(e);
 const docs=e=>{const m=MAT.filter(x=>x.ev&&x.ev.includes(e.id));return m.length?`<h3 class="m" style="margin-top:28px">Documents</h3><div class="grid">${m.map(x=>`<a class="box" href="${x.u}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><span class="badge" style="background:var(--yel)">${x.k}</span><h3 class="m" style="margin:8px 0 2px">${esc(x.t)}</h3>${esc(x.d)}</a>`).join('')}</div>`:''};
 const poster=e=>`<div class="poster has" style="background:${PC[ix(e)%6]}"><img src="posters/${e.id}.png" alt="${esc(e.t)} poster" onerror="this.parentNode.classList.remove('has');this.parentNode.innerHTML='<div class=m>YANTRIKA</div><h2 class=m>${esc(e.t)}</h2><div><b>${e.d}</b><br>RSA, IACS Kolkata</div>'"></div>`;
@@ -634,30 +459,22 @@ function evPage(e){
  if(e.s==='done'){const pics=e.p||Array.from({length:e.n||0},(_,i)=>`images/${e.id}-${i+1}.jpg`);b=`<h3 class="m">Photos</h3><div class="gal">${pics.map((u,i)=>`<img src="${u}" alt="${esc(e.t)} photo ${i+1}" onerror="this.outerHTML='<div class=ph>Image ${i+1} missing</div>'">`).join('')}</div>`;}
  else b=`<h3 class="m">Event Poster</h3>${poster(e)}`;
  const n=EV[ix(e)+1],p=EV[ix(e)-1];
- return `<p><a class="btn" href="#/events">&larr; All events</a></p><div class="card"><span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><h1 class="m">${esc(e.t)}</h1><p><b>${e.d}</b> | Yantrika, IACS Kolkata</p><p>${esc(e.x)}</p>${b}${docs(e)}${GM.filter(g=>g.ev.includes(e.id)).length?`<h3 class="m" style="margin-top:28px">Games that prepare you for this</h3>${GM.filter(g=>g.ev.includes(e.id)).map(g=>`<button class="btn cy" type="button" data-g="${g.id}">${g.i} ${esc(g.t)}</button>`).join('')}`:''}</div><p>${p?`<a class="btn" href="#/${p.id}">&larr; ${esc(p.t)}</a>`:''}${n?`<a class="btn" href="#/${n.id}">${esc(n.t)} &rarr;</a>`:''}</p>`;
+ return `<p><a class="btn" href="#/events">← All events</a></p><div class="card"><span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><h1 class="m">${esc(e.t)}</h1><p><b>${e.d}</b> | Yantrika, IACS Kolkata</p><p>${esc(e.x)}</p>${b}${docs(e)}${GM.filter(g=>g.ev.includes(e.id)).length?`<h3 class="m" style="margin-top:28px">Games that prepare you for this</h3>${GM.filter(g=>g.ev.includes(e.id)).map(g=>`<button class="btn cy" type="button" data-g="${g.id}">${g.i} ${esc(g.t)}</button>`).join('')}`:''}</div><p>${p?`<a class="btn" href="#/${p.id}">← ${esc(p.t)}</a>`:''}${n?`<a class="btn" href="#/${n.id}">${esc(n.t)} →</a>`:''}</p>`;
 }
 
-// Materials page: builds the cards and the live search box
 function mats(){
  const g=document.getElementById('mg'),q=document.getElementById('q');
  const d=()=>{const s=q.value.toLowerCase();g.innerHTML=MAT.filter(m=>(m.t+m.d+m.k).toLowerCase().includes(s)).map(m=>`<a class="box" href="${m.u}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><span class="badge" style="background:var(--yel)">${m.k}</span><h3 class="m" style="margin:8px 0 2px">${esc(m.t)}</h3>${esc(m.d)}</a>`).join('')||'<b>Nothing matches that.</b>';};
  q.oninput=d;d();
 }
 
-/* ---------- Games Arcade: registry (2-3 games per pillar, each tied to events) ---------- */
-// ================================================================
-// GAMES  (each game is one function below that draws into element el)
-// ================================================================
 const PCOL={learn:'var(--red)',build:'var(--bl)',compete:'var(--or)',share:'var(--cy)'};
 const evL=ids=>ids.map(id=>{const e=EV.find(x=>x.id===id);return `<a class="btn" href="#/${id}">${esc(e.t)} (${e.d})</a>`}).join('');
 let pendG=null;
-// The games, thumbnails, theory text and demos are filled in by games/*/game.js (see games/README.md)
 const GM=YK.games,GI=YK.thumbs,TH=YK.theory,TI=YK.demos;
 
 const gameSlider=()=>{const set=GM.map(g=>{const p=PIL.find(x=>x.k===g.p);return `<button class="gsc" type="button" data-g="${g.id}" style="--c:${p.c}"><img src="${GI[g.id]}" alt="${esc(g.t)}" loading="lazy" onerror="this.remove()"><div class="lb"><em style="background:${p.c};color:${p.f}">${p.t}</em><b>${esc(g.t)}</b><small>${esc(g.d)}</small></div></button>`}).join('');return `<div class="gs"><div class="gst">${set}${set}</div></div>`;};
 
-/* Pillar buttons (home + about) open the Games page, pre-filtered to that pillar */
-// Pillar buttons (home + about) open the Games page filtered to that pillar
 let pendF=null;
 function pillars(){
  document.querySelectorAll('[data-k]').forEach(b=>{
@@ -665,10 +482,8 @@ function pillars(){
  });
 }
 
-// ---- Games page: filter chips, game list, full-screen game panel ----
 let closeGame=()=>{};
 addEventListener('keydown',e=>{if(e.key==='Escape')closeGame();});
-// gamesPage(): draws the filter + game cards and opens a game full-screen
 function gamesPage(){
  const gf=document.getElementById('gf'),gg=document.getElementById('gg'),gp=document.getElementById('gp');
  let f=pendF||'all',cur=null;pendF=null;
@@ -683,8 +498,7 @@ function gamesPage(){
   if(f!=='all'&&g.p!==f)f='all';
   cards();
   gp.hidden=false;
-  gp.innerHTML=`<div class="gbar"><a class="logo m" href="#/"><img src="images/old_text.png" alt="YANTRIKA" onerror="this.replaceWith(document.createTextNode('YANTRIKA'))"></a><span class="badge" style="background:${PCOL[g.p]};color:#fff;margin-right:auto">${g.i} ${esc(g.t)}</span><a class="btn" href="${YK.srcUrl(g.id)}" target="_blank" rel="noopener" title="Read this game's source code">&lt;/&gt; Source</a><button class="btn cy" type="button" id="gfs">⛶ Full screen</button><button class="btn" type="button" id="gx">✕ Close</button></div><div id="gb" style="margin-top:8px"></div>${TH[g.id]?`<div class="info th"><h3 class="m">🎓 The theory behind it</h3>${TH[g.id]}<div id="ti"></div></div>`:''}<hr style="border:0;border-top:4px dashed var(--dk);margin:24px 0 16px"><h3 class="m">Events this game prepares you for</h3><p>${evL(g.ev)}</p>${YK.srcStrip(g)}`;
-  // a broken game must not take the page down with it
+  gp.innerHTML=`<div class="gbar"><a class="logo m" href="#/"><img src="images/old_text.png" alt="YANTRIKA" onerror="this.replaceWith(document.createTextNode('YANTRIKA'))"></a><span class="badge" style="background:${PCOL[g.p]};color:#fff;margin-right:auto">${g.i} ${esc(g.t)}</span><a class="btn" href="${YK.srcUrl(g.id)}" target="_blank" rel="noopener" title="Read this game's source code"></> Source</a><button class="btn cy" type="button" id="gfs">⛶ Full screen</button><button class="btn" type="button" id="gx">✕ Close</button></div><div id="gb" style="margin-top:8px"></div>${TH[g.id]?`<div class="info th"><h3 class="m">🎓 The theory behind it</h3>${TH[g.id]}<div id="ti"></div></div>`:''}<hr style="border:0;border-top:4px dashed var(--dk);margin:24px 0 16px"><h3 class="m">Events this game prepares you for</h3><p>${evL(g.ev)}</p>${YK.srcStrip(g)}`;
   try{g.run(gp.querySelector('#gb'));}catch(err){console.error(err);gp.querySelector('#gb').innerHTML='<div class="info"><b>This game hit an error.</b> Please <a href="'+YK.bugUrl(g.id)+'" target="_blank" rel="noopener">report it</a> or try again.</div>';}
   try{if(TI[g.id]&&gp.querySelector('#ti'))TI[g.id](gp.querySelector('#ti'));}catch(err){console.error(err);}
   gp.classList.remove('open');void gp.offsetWidth;gp.classList.add('open');
@@ -703,8 +517,6 @@ function gamesPage(){
  if(pendG){const id=pendG;pendG=null;setTimeout(()=>open(id),60);}
 }
 
-/* Donorbox widget: load the script once; the dbox-widget element upgrades when it appears */
-// Loads the Donorbox donate widget (only on the Donate page)
 function donorbox(){
  if(document.getElementById('dbx-js'))return;
  const s=document.createElement('script');
@@ -712,7 +524,6 @@ function donorbox(){
  document.head.append(s);
 }
 
-// Donate page: copy buttons, PayPal hosted button, Donorbox
 async function cp(v,b){
  const o=b.textContent;
  try{await navigator.clipboard.writeText(v);b.textContent='Copied!';}
@@ -741,15 +552,13 @@ function donateInit(){
  else{s=document.createElement('script');s.id='pp-js';s.src=DON.paypalSdk;s.async=true;s.onload=draw;s.onerror=fail;document.head.append(s);}
 }
 
-// Promo video: autoplay when visible, pause when scrolled away, mute button
 function promo(){
  const v=document.getElementById('pv'),b=document.getElementById('pm');
  if(!v)return;
- b.onclick=()=>{v.muted=!v.muted;b.innerHTML=v.muted?'&#128263; Unmute':'&#128266; Mute';if(v.paused)v.play().catch(()=>{});};
+ b.onclick=()=>{v.muted=!v.muted;b.innerHTML=v.muted?'🔇 Unmute':'🔊 Mute';if(v.paused)v.play().catch(()=>{});};
  new IntersectionObserver(en=>en.forEach(x=>{if(x.isIntersecting){v.play().catch(()=>{})}else{v.pause()}}),{threshold:.25}).observe(v);
 }
 
-// Independent Projects form: validate, then send to INDP.endpoint or open an email
 function projInit(){
  const f=document.getElementById('indp-form'),st=document.getElementById('indp-st');if(!f)return;
  const say=(m,ok)=>{st.textContent=m;st.style.color=ok?'':'var(--red)';};
@@ -769,19 +578,12 @@ function projInit(){
    say('Sending...',true);
    try{
     const q=new URLSearchParams();INDP_F.forEach(a=>{const x=f.elements[a[0]];q.set(a[0],x.type==='checkbox'?(x.checked?'Yes':'No'):x.value.trim());});
-    // no-cors: works with Google Apps Script and similar; the reply cannot be read, so success means it was sent
     await fetch(INDP.endpoint,{method:'POST',mode:'no-cors',body:q});
     f.reset();say('Thank you! Your project has been received. A reviewer will be in touch by email.',true);}
    catch(e){mail();}
   }else mail();
  };
 }
-
-// Join form: validate, then send to JOIN.endpoint or open an email
-
-
-// Join form: submit applications directly to Supabase
-
 
 function joinInit() {
     const f = document.getElementById('join-form');
@@ -802,7 +604,6 @@ function joinInit() {
 
         const btn = f.querySelector('button[type="submit"]');
 
-        // These fields match your CURRENT HTML form.
         const application = {
             full_name: f.elements['name'].value.trim(),
             email: f.elements['email'].value.trim().toLowerCase(),
@@ -832,7 +633,6 @@ function joinInit() {
         } catch (error) {
             console.error('Supabase submission error:', error);
             say('Submission failed. Please try again or email contact@yantrika.in.');
-
         } finally {
             btn.disabled = false;
             btn.textContent = 'Submit';
@@ -840,12 +640,6 @@ function joinInit() {
     };
 }
 
-// ================================================================
-// ROUTER: runs on every page change (address bar #/...)
-//   1. work out which page / event is wanted
-//   2. draw the top nav (header logo text is edited on the nav line below)
-//   3. draw the page, then switch on that page's interactive parts
-// ================================================================
 function r(){
  const id=location.hash.replace('#/','')||'home';
  const e=EV.find(x=>x.id===id);
@@ -870,9 +664,7 @@ function r(){
 onhashchange=()=>YK.load().then(r);YK.load().then(r);
 </script>
 
-<!-- Floating "Join Us" button shown on every page -->
 <a class="join-fab" id="join-fab" href="#/join">Join Us</a>
-<!-- Sitemap helper script that lives next to this file -->
 <script src="sitemap.js"></script>
 <script src="sound-nav.js"></script>
 </body>
