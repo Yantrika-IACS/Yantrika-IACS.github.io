@@ -9,26 +9,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#f1c40f">
-  
 <meta name="description" content="Yantrika is the student-led Robotics & Coding Club at IACS Kolkata: workshops, hackathons, open-source STEM games and simulations.">
-<meta name="robots" content="index,follow,max-image-preview:large">
 <link rel="canonical" href="https://yantrika.in/">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="YANTRIKA">
-<meta property="og:title" content="YANTRIKA | Robotics & Coding Club, IACS Kolkata">
-<meta property="og:description" content="Workshops, hackathons and open-source STEM games from the student-led Robotics & Coding Club at IACS Kolkata.">
-<meta property="og:url" content="https://yantrika.in/">
-<meta property="og:image" content="https://yantrika.in/images/og-card.png">
-<meta name="twitter:card" content="summary_large_image">
-<link rel="sitemap" type="application/xml" href="/sitemap.xml">
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Organization",
- "name":"Yantrika Robotics & Coding Club","url":"https://yantrika.in/",
- "logo":"https://yantrika.in/images/logo.png",
- "sameAs":["https://github.com/Yantrika-IACS",
-           "https://www.instagram.com/yantrika_official/",
-           "https://www.linkedin.com/company/yantrika-iacs/"]}
-</script>
 <link rel="icon" type="image/png" href="logo/logo_big.png">
 <title>YANTRIKA | Robotics & Coding Club, IACS Kolkata</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Permanent+Marker&display=swap" rel="stylesheet">
@@ -315,11 +297,7 @@ const INDP_AREAS=['Physics','Mathematics','Chemistry','Biology','Computer Scienc
 const INDP_TYPES=['Repository','Hosted website','Drive media'];
 const INDP_F=[['name','Full name'],['inst','Affiliated institution'],['title','Project title'],['area','STEM area'],['desc','Short description'],['link','Project link'],['type','Link type'],['email','Contact email (not shown publicly)'],['declare','Declaration (own work or credited, OK to link)']];
 
-// ---- JOIN FORM DATA (CORRECTED) ----
-const JOIN = {
-    mail: 'contact@yantrika.in'
-};
-
+// ---- JOIN FORM DATA ----
 const JOIN_ROLES = [
     'Undergraduate student',
     "Master's student",
@@ -343,18 +321,6 @@ const JOIN_LEVEL = [
     'Beginner (No prior experience)',
     'Intermediate (Some experience)',
     'Advanced (Have built projects)'
-];
-
-const JOIN_F = [
-    ['name', 'Full name'],
-    ['email', 'Email'],
-    ['phone', 'Phone number'],
-    ['institution', 'Institution'],
-    ['department', 'Department'],
-    ['affiliation', 'Affiliation'],
-    ['academic_year', 'Academic year'],
-    ['linkedin_url', 'LinkedIn profile'],
-    ['agree', 'Agreement to Yantrika rules and regulations']
 ];
 
 const indpCard=p=>`<a class="box" href="${esc(p.u)}" target="_blank" rel="noopener" style="display:block;text-decoration:none;color:inherit"><span class="badge" style="background:var(--yel)">${esc(p.area)}</span> <span class="badge" style="background:var(--cy)">${esc(p.type)}</span><h3 class="m" style="margin:8px 0 2px">${esc(p.t)}</h3><small><b>by ${esc(p.by)}, ${esc(p.inst)}</b></small><p style="margin:6px 0 0">${esc(p.d)}</p><small><b>Open project →</b></small></a>`;
@@ -417,13 +383,19 @@ team:()=>`<div class="card"><h1 class="m">Meet the Team</h1><p>The students and 
 <h3 class="m" style="color:var(--pk);margin-top:24px">Core Committee</h3><div class="grid">${TEAM.core.map(person).join('')}</div>
 <h3 class="m" style="color:var(--cy);margin-top:24px">Leads & Editors</h3><div class="grid">${TEAM.lead.map(person).join('')}</div>
 <h3 class="m" style="color:var(--or);margin-top:24px">Backend Core Members</h3>${TEAM.back.map(n=>`<span class="pill">${esc(n)}</span>`).join('')}</div>`,
+
+// ---- CORRECTED JOIN HTML FORM ----
 join:()=>`<div class="card"><h1 class="m">Join & Contact</h1><p>Want to join, volunteer, sponsor, or collaborate? Fill in the form below and we will get back to you. No experience needed. Curiosity is enough.</p></div>
 <div class="card fm"><h2 class="m">🤖 Join Yantrika</h2><p>Fill this in and press Submit. Fields marked * are required.</p>
 <form id="join-form" novalidate>
 <label>Full name *<input name="name" required maxlength="80" autocomplete="name"></label>
 <label>Email *<input name="email" type="email" required autocomplete="email" placeholder="We will reply here"></label>
-<label>Institution / department<input name="inst" maxlength="120" placeholder="e.g. IACS, School of Physical Sciences"></label>
-<label>I am a *<select name="role" required><option value="">Choose one...</option>${JOIN_ROLES.map(a=>`<option>${esc(a)}</option>`).join('')}</select></label>
+<label>Phone number<input name="phone" type="tel" maxlength="20"></label>
+<label>Institution *<input name="institution" required maxlength="120" placeholder="e.g. IACS, School of Physical Sciences"></label>
+<label>Department<input name="department" maxlength="120" placeholder="e.g. School of Physical Sciences"></label>
+<label>Affiliation / Role *<select name="role" required><option value="">Choose one...</option>${JOIN_ROLES.map(a=>`<option>${esc(a)}</option>`).join('')}</select></label>
+<label>Academic Year<input name="academic_year" maxlength="50" placeholder="e.g. 2nd Year, PhD 1st Year"></label>
+<label>LinkedIn Profile<input name="linkedin_url" type="url" placeholder="https://linkedin.com/in/..."></label>
 <label>I would like to *<select name="want" required><option value="">Choose one...</option>${JOIN_WANT.map(a=>`<option>${esc(a)}</option>`).join('')}</select></label>
 <label>Robotics / coding experience<select name="level"><option value="">Choose one...</option>${JOIN_LEVEL.map(a=>`<option>${esc(a)}</option>`).join('')}</select></label>
 <label>About you / message<textarea name="msg" rows="4" maxlength="600" placeholder="What are you curious about or hoping to build? (optional)"></textarea></label>
@@ -585,6 +557,7 @@ function projInit(){
  };
 }
 
+// ---- CORRECTED SUBMISSION LOGIC ----
 function joinInit() {
     const f = document.getElementById('join-form');
     const st = document.getElementById('join-st');
@@ -600,18 +573,36 @@ function joinInit() {
 
         if (f.elements['website'].value) return;
 
-        if (!f.reportValidity()) return;
+        // Visual validation check (highlights missing fields in red)
+        let bad = null;
+        [...f.elements].forEach(x => {
+            if (x.name && x.name !== 'website') {
+                const v = !x.checkValidity();
+                x.classList.toggle('bad', v);
+                if (v && !bad) bad = x;
+            }
+        });
+        if (bad) {
+            say('Please complete the highlighted field(s).');
+            bad.focus();
+            return;
+        }
 
         const btn = f.querySelector('button[type="submit"]');
 
+        // Extracting EXACTLY the fields present in the HTML form
         const application = {
             full_name: f.elements['name'].value.trim(),
             email: f.elements['email'].value.trim().toLowerCase(),
-            institution: f.elements['inst'].value.trim(),
+            phone: f.elements['phone'].value.trim() || null,
+            institution: f.elements['institution'].value.trim(),
+            department: f.elements['department'].value.trim() || null,
             role: f.elements['role'].value,
+            academic_year: f.elements['academic_year'].value.trim() || null,
+            linkedin_url: f.elements['linkedin_url'].value.trim() || null,
             interest: f.elements['want'].value,
-            experience: f.elements['level'].value,
-            message: f.elements['msg'].value.trim(),
+            experience: f.elements['level'].value || null,
+            message: f.elements['msg'].value.trim() || null,
             legal_consent: f.elements['agree'].checked,
             legal_consent_at: new Date().toISOString()
         };
@@ -621,18 +612,22 @@ function joinInit() {
             btn.textContent = 'Submitting...';
             say('Submitting your application...', true);
 
-            const { error } = await supabaseClient
+            const { data, error } = await supabaseClient
                 .from('membership_applications')
                 .insert([application]);
 
-            if (error) throw error;
+            if (error) {
+                console.error('Supabase error details:', error);
+                throw error;
+            }
 
             f.reset();
             say('Thank you! Your application has been received.', true);
 
         } catch (error) {
             console.error('Supabase submission error:', error);
-            say('Submission failed. Please try again or email contact@yantrika.in.');
+            // This will print the actual database error to the screen so you know exactly what is wrong
+            say('Submission failed: ' + (error.message || 'Please try again.'));
         } finally {
             btn.disabled = false;
             btn.textContent = 'Submit';
