@@ -203,10 +203,10 @@ button.tag:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // SUPABASE DATABASE CONNECTION
-const supabaseClient = window.supabase.createClient(
+const supabaseClient = window.supabase ? window.supabase.createClient(
     'https://zcszmpxhlflalkgefwff.supabase.co',
     'sb_publishable_by8T2htgYfnz4qOK9jZ4rA_hu8PUIjK'
-);
+) : null;
 const EV=[
 {id:'induction',d:'20 Aug 2026',t:'Induction Session',s:'done',n:6,x:"Introduced students to Yantrika's vision and basic technical concepts. Around 40+ students attended."},
 {id:'workshop-1',d:'28 Sep 2026',t:'Hands-on Robotics Workshop I',s:'done',n:8,x:'Interactive session introducing practical robotics and electronics.'},
@@ -603,13 +603,13 @@ function joinInit() {
     const tcAgree = document.getElementById('tc-agree');
     const closeTc = () => {
         if (!tcBack || tcBack.hidden) return;
-        tcBack.hidden = true;
+        tcBack.hidden = true; tcBack.setAttribute('hidden', '');
         document.body.style.overflow = '';
         if (tcOpen) tcOpen.focus();
     };
     if (tcOpen && tcBack) {
         tcOpen.onclick = () => {
-            tcBack.hidden = false;
+            tcBack.hidden = false; tcBack.removeAttribute('hidden');
             document.body.style.overflow = 'hidden';
             const body = tcBack.querySelector('.tc-body');
             if (body) body.focus();
