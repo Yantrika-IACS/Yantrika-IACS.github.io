@@ -281,7 +281,7 @@ const SLIDER=[
 const slides=()=>SLIDER.filter(Boolean).map((u,i)=>`<div class="sl" style="background:${PC[i%6]}"><img src="${u}" alt="Yantrika photo ${i+1}" loading="lazy" onerror="this.remove()"></div>`).join('');
 
 const evCard=e=>`<a class="box" href="#/${e.id}" style="display:block;text-decoration:none;color:inherit"><span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><h3 class="m" style="margin:8px 0 2px">${esc(e.t)}</h3><b>${e.d}</b><p style="margin:6px 0 0">${esc(e.x)}</p><small><b>${e.s==='done'?'See photos':'See poster'} →</b></small></a>`;
-const person=p=>`<div class="box"><b style="font-size:1.1rem">${esc(p[0])}</b><br>${esc(p[1])}<div style="margin-top:8px;font-size:1.2rem">${p[2]?`<a href="mailto:${p[2]}" title="Email" style="text-decoration:none;margin-right:8px">✉️</a>`:''}${p[3]?`<a href="${p[3]}" target="_blank" rel="noopener" title="Website" style="text-decoration:none">🌐</a>`:''}</div></div>`;
+const person=p=>`<div class="box"><b style="font-size:1.1rem">${esc(p[0])}</b><br>${esc(p[1])}${p[4]?`<br><small>${esc(p[4])}</small>`:''}<div style="margin-top:8px;font-size:1.2rem">${p[2]?`<a href="mailto:${p[2]}" title="Email" style="text-decoration:none;margin-right:8px">✉️</a>`:''}${p[3]?`<a href="${p[3]}" target="_blank" rel="noopener" title="Website" style="text-decoration:none">🌐</a>`:''}</div></div>`;
 const JAM={
  guide:'Yantrika_Games_Contributor_Guide.pdf',
  repo:'https://github.com/Yantrika-IACS/Yantrika-IACS.github.io',
