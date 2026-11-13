@@ -769,14 +769,14 @@ function projInit(){
 
 
 // Join form: submit applications directly to Supabase
+
+
 function joinInit() {
     const f = document.getElementById('join-form');
     const st = document.getElementById('join-st');
-
-    if (!f) return;
+    if (!f || !st) return;
 
     const say = (message, success = false) => {
-        if (!st) return;
         st.textContent = message;
         st.style.color = success ? 'var(--cy)' : 'var(--red)';
     };
@@ -784,43 +784,21 @@ function joinInit() {
     f.onsubmit = async (ev) => {
         ev.preventDefault();
 
-        // Honeypot spam protection
         if (f.elements['website'].value) return;
 
-        // Validate all fields
-        let bad = null;
-
-        [...f.elements].forEach(x => {
-            if (x.name && x.name !== 'website') {
-                const invalid = !x.checkValidity();
-                x.classList.toggle('bad', invalid);
-                if (invalid && !bad) bad = x;
-            }
-        });
-
-        if (bad) {
-            say('Please complete the highlighted field.');
-            bad.focus();
-            return;
-        }
-
-        if (!supabaseClient) {
-            say('Connection error. Please try again later.');
-            return;
-        }
+        if (!f.reportValidity()) return;
 
         const btn = f.querySelector('button[type="submit"]');
 
-        // Collect application data
+        // These fields match your CURRENT HTML form.
         const application = {
             full_name: f.elements['name'].value.trim(),
             email: f.elements['email'].value.trim().toLowerCase(),
-            phone: f.elements['phone'].value.trim(),
-            institution: f.elements['institution'].value.trim(),
-            department: f.elements['department'].value.trim(),
-            affiliation: f.elements['affiliation'].value,
-            academic_year: f.elements['academic_year'].value,
-            linkedin_url: f.elements['linkedin_url'].value.trim() || null,
+            institution: f.elements['inst'].value.trim(),
+            role: f.elements['role'].value,
+            interest: f.elements['want'].value,
+            experience: f.elements['level'].value,
+            message: f.elements['msg'].value.trim(),
             legal_consent: f.elements['agree'].checked,
             legal_consent_at: new Date().toISOString()
         };
@@ -837,18 +815,11 @@ function joinInit() {
             if (error) throw error;
 
             f.reset();
-
-            say(
-                'Thank you! Your application has been received. We will contact you by email.',
-                true
-            );
+            say('Thank you! Your application has been received.', true);
 
         } catch (error) {
             console.error('Supabase submission error:', error);
-
-            say(
-                'We could not submit your application. Please try again or contact contact@yantrika.in.'
-            );
+            say('Submission failed. Please try again or email contact@yantrika.in.');
 
         } finally {
             btn.disabled = false;
@@ -856,7 +827,6 @@ function joinInit() {
         }
     };
 }
-
 
 // ================================================================
 // ROUTER: runs on every page change (address bar #/...)
