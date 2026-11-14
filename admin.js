@@ -167,7 +167,7 @@
       return 'That name is already in use.';
     }
     if (err.code === '23503') return 'This is still in use (members or positions depend on it).';
-    if (err.code === '23514') return 'End date cannot be before the start date.';
+    if (err.code === '23514') return 'The database rejected a value: ' + m;
     return m || fallback;
   }
 
@@ -204,13 +204,17 @@
     await refresh();
   }
 
+  async function openNewMember() {
+    const res = await sb().rpc('next_member_id');
+    if (res.error) return toast('Could not generate a Member ID: ' + res.error.message, false);
+    openEditMember(null, res.data);
+  }
+
   async function saveMember(member) {
     const m = modalEl();
     const adding = !member;
     const payload = {};
     if (adding) {
-      payload.member_id = val(m, 'member_id');
-      if (!payload.member_id) return modalMsg('Member ID is required.');
       payload.joined_at = val(m, 'joined_at') || todayISO();
     }
     for (const [k, label, req] of MEMBER_FIELDS) {
@@ -225,9 +229,18 @@
     if (payload.phone && !/^[+\d\s()-]{6,20}$/.test(payload.phone)) return modalMsg('Enter a valid phone number.');
     if (payload.linkedin_url && !/^https?:\/\//i.test(payload.linkedin_url)) return modalMsg('LinkedIn URL must start with https://');
     modalMsg(adding ? 'Adding…' : 'Saving…');
-    const res = adding
-      ? await sb().from(MEMBERS).insert(payload).select('id')
-      : await sb().from(MEMBERS).update(payload).eq('id', member.id).select('id');
+    let res;
+    if (adding) {
+      // generate the ID now; if someone else took it a moment ago, try once more
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const idRes = await sb().rpc('next_member_id');
+        if (idRes.error) return modalMsg('Could not generate a Member ID: ' + idRes.error.message);
+        res = await sb().from(MEMBERS).insert(Object.assign({ member_id: idRes.data }, payload)).select('id');
+        if (!res.error || res.error.code !== '23505' || !/member_id/.test(res.error.message)) break;
+      }
+    } else {
+      res = await sb().from(MEMBERS).update(payload).eq('id', member.id).select('id');
+    }
     if (res.error) return modalMsg(dbMessage(res.error, 'Save failed.'));
     if (!res.data || !res.data.length) return modalMsg('Not saved. Check admin permissions.');
     closeModal();
@@ -302,14 +315,14 @@
       '<div class="ya-actions"><button class="ya-btn ghost" data-ya="close">Cancel</button>' +
       '<button class="ya-btn ok" data-ya="approve-submit" data-id="' + esc(r.id) + '">Approve and add member</button></div>');
   }
-  function openEditMember(r) {
+  function openEditMember(r, previewId) {
     const adding = !r;
     const fields = MEMBER_FIELDS.map(([k, label, req]) => {
       const v = adding ? (k === 'status' ? 'Active' : '') : r[k];
       return '<label class="ya-field"><span>' + esc(label) + (req ? ' *' : '') + '</span><input name="' + k + '" value="' + esc(v) + '"></label>';
     }).join('');
     const idField = adding
-      ? '<label class="ya-field"><span>Member ID *</span><input name="member_id" placeholder="As used in your members list"></label>' +
+      ? '<label class="ya-field"><span>Member ID (automatic)</span><input value="' + esc(previewId || '') + '" readonly class="ya-readonly"></label>' +
         '<label class="ya-field"><span>Joined on</span><input name="joined_at" type="date" value="' + todayISO() + '"></label>'
       : '';
     openModal('<h3>' + (adding ? 'Add member' : 'Edit member') + '</h3>' +
@@ -676,7 +689,7 @@
       case 'reject': if (row) await setAppStatus(row, 'rejected'); break;
       case 'restore': if (row) await setAppStatus(row, 'pending'); break;
       case 'edit-member': if (row) openEditMember(row); break;
-      case 'add-member': openEditMember(null); break;
+      case 'add-member': await openNewMember(); break;
       case 'save-member': await saveMember(row || null); break;
       case 'delete': if (row) openDelete(kind, row); break;
       case 'confirm-delete': await removeRow(kind, id); break;
@@ -799,6 +812,7 @@ textarea{resize:vertical}
 .ya-bar span{display:block;height:100%;background:var(--cy,#33d6a6)}
 @media (max-width:820px){.ya-two{grid-template-columns:1fr}}
 .ya-notice{background:#fff4d6;color:#5c4500;border:1px solid #e6c25c;border-radius:10px;padding:12px 14px;margin-bottom:14px}
+.ya-readonly{background:rgba(128,128,128,.12);font-weight:700}
 .ya-msg{font-size:.9rem;min-height:1.2em;margin:0}
 .ya-dl{display:grid;grid-template-columns:150px 1fr;gap:8px 14px;margin:12px 0 0}
 .ya-dl dt{font-weight:700;opacity:.75}
