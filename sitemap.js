@@ -53,7 +53,7 @@
     </div>
     <div class="sm-bot">
      <span>© ${new Date().getFullYear()} Yantrika. Robotics &amp; Coding Club, IACS Kolkata.</span>
-     <button type="button" id="sm-th">◐ Toggle theme</button>
+     <a href="#/admin">Admin login</a><button type="button" id="sm-th">◐ Toggle theme</button>
     </div>
    </div>`;
    document.body.appendChild(f);

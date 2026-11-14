@@ -59,6 +59,7 @@ Press Ctrl+F5 after editing to bypass the cache.
 | `docs/` | `GAME_IDEAS.md` and the Independent Projects contributor guide (PDF). |
 | `images/`, `posters/`, `materials/` | Photos, event posters, downloadable PDFs. |
 | `animations.css`, `mobile.css`, `sitemap.js` ... | Extra styles and the footer. |
+| `admin.js`, `supabase/`, `docs/ADMIN_DASHBOARD.md` | Admin dashboard at `#/admin` (not in the menu). Setup guide: `docs/ADMIN_DASHBOARD.md`. |
 
 ## Checks
 

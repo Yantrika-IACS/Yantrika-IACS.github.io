@@ -11,3 +11,4 @@ bun.lockb
 eslint.config.js
 eslint.config.mjs
 *.md
+supabase/
