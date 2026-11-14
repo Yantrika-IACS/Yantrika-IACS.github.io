@@ -77,6 +77,19 @@
   const root = () => document.getElementById('yadmin-root');
   const val = (m, name) => ((m.querySelector('[name="' + name + '"]') || {}).value || '').trim();
   const todayISO = () => new Date().toISOString().slice(0, 10);
+  const AFFILIATIONS = ['IACS', 'Non-IACS'];
+  // Affiliation is a fixed choice in the database. Show a dropdown that offers the allowed values,
+  // plus the current value if it is something else (so older records can still be opened and fixed).
+  function affiliationSelect(current) {
+    const opts = AFFILIATIONS.slice();
+    if (current && opts.indexOf(current) < 0) opts.push(current);
+    const sel = current || AFFILIATIONS[0];
+    return '<label class="ya-field"><span>Affiliation *</span><select name="affiliation">' +
+      opts.map(o => '<option value="' + esc(o) + '"' + (o === sel ? ' selected' : '') + '>' + esc(o) + '</option>').join('') +
+      '</select></label>';
+  }
+  // Pre-select IACS when the institution mentions IACS, otherwise Non-IACS.
+  const guessAffiliation = inst => /iacs|indian association for the cultivation/i.test(inst || '') ? 'IACS' : 'Non-IACS';
   const cellVal = v => Array.isArray(v) ? v.join(', ') : (v == null || v === '' ? '—' : v);
 
   function toast(msg, ok = true) {
@@ -173,14 +186,18 @@
 
   async function approveSubmit(appId) {
     const m = modalEl();
-    const memberId = val(m, 'member_id');
     const affiliation = val(m, 'affiliation');
-    if (!memberId) return modalMsg('Enter the Member ID.');
-    if (!affiliation) return modalMsg('Enter the affiliation.');
+    if (!affiliation) return modalMsg('Choose an affiliation.');
     modalMsg('Approving…');
-    const res = await sb().rpc('approve_application', {
-      p_application_id: appId, p_member_id: memberId, p_affiliation: affiliation
-    });
+    let res;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const idRes = await sb().rpc('next_member_id');
+      if (idRes.error) return modalMsg('Could not generate a Member ID: ' + idRes.error.message);
+      res = await sb().rpc('approve_application', {
+        p_application_id: appId, p_member_id: idRes.data, p_affiliation: affiliation
+      });
+      if (!res.error || res.error.code !== '23505' || !/member_id/.test(res.error.message)) break;
+    }
     if (res.error) return modalMsg(dbMessage(res.error, 'Approval failed.'));
     closeModal();
     toast('Application approved and member added.');
@@ -305,12 +322,14 @@
       rows.map(([k, v]) => '<dt>' + esc(k) + '</dt><dd>' + (v == null || v === '' ? '<span class="ya-muted">—</span>' : esc(cellVal(v))) + '</dd>').join('') +
       '</dl>' + notes + '<div class="ya-actions">' + buttons + '<button class="ya-btn ghost" data-ya="close">Close</button></div>');
   }
-  function openApprove(r) {
+  async function openApprove(r) {
+    const idRes = await sb().rpc('next_member_id');
+    if (idRes.error) return toast('Could not generate a Member ID: ' + idRes.error.message, false);
     openModal('<h3>Approve application</h3>' +
-      '<p>' + esc(r.full_name) + ' (' + esc(r.email) + ') will be added to <strong>members</strong> and the application marked approved.</p>' +
+      '<p>' + esc(r.full_name) + ' (' + esc(r.email) + ') will be added to <strong>members</strong> with the Member ID below, and the application marked approved.</p>' +
       '<div class="ya-grid2">' +
-      '<label class="ya-field"><span>Member ID *</span><input name="member_id" placeholder="As used in your members list"></label>' +
-      '<label class="ya-field"><span>Affiliation *</span><input name="affiliation" value="' + esc(r.institution || '') + '"></label>' +
+      '<label class="ya-field"><span>Member ID (automatic)</span><input value="' + esc(idRes.data) + '" readonly class="ya-readonly"></label>' +
+      affiliationSelect(guessAffiliation(r.institution)) +
       '</div><p class="ya-msg" id="ya-msg" role="status"></p>' +
       '<div class="ya-actions"><button class="ya-btn ghost" data-ya="close">Cancel</button>' +
       '<button class="ya-btn ok" data-ya="approve-submit" data-id="' + esc(r.id) + '">Approve and add member</button></div>');
@@ -318,6 +337,7 @@
   function openEditMember(r, previewId) {
     const adding = !r;
     const fields = MEMBER_FIELDS.map(([k, label, req]) => {
+      if (k === 'affiliation') return affiliationSelect(adding ? '' : r[k]);
       const v = adding ? (k === 'status' ? 'Active' : '') : r[k];
       return '<label class="ya-field"><span>' + esc(label) + (req ? ' *' : '') + '</span><input name="' + k + '" value="' + esc(v) + '"></label>';
     }).join('');
@@ -684,7 +704,7 @@
       case 'reload': await refresh(); break;
       case 'close': closeModal(); break;
       case 'detail': if (row) openDetail(kind, row); break;
-      case 'approve-open': if (row) openApprove(row); break;
+      case 'approve-open': if (row) await openApprove(row); break;
       case 'approve-submit': await approveSubmit(id); break;
       case 'reject': if (row) await setAppStatus(row, 'rejected'); break;
       case 'restore': if (row) await setAppStatus(row, 'pending'); break;
