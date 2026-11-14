@@ -200,7 +200,7 @@ button.tag:focus-visible{outline:3px solid var(--bl);outline-offset:3px}
 <script src="games/manifest.js"></script>
 <script src="learn-parallax.js"></script>
 <script src="logo.js"></script>
-<script src="admin.js?v=2026-11-14-b"></script>
+<script src="admin.js?v=2026-11-14-c"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // SUPABASE DATABASE CONNECTION
@@ -353,7 +353,7 @@ admin:()=>'<div id="yadmin-root"><div class="card"><p>Loading admin…</p></div>
 home:()=>`<div class="hero2"><div class="txt"><h1 class="m ytitle"><img src="images/text.png" alt="YANTRIKA" onerror="this.replaceWith(document.createTextNode('YANTRIKA'))"></h1><h2>Robotics & Coding Club</h2><p><b>Indian Association for the Cultivation of Science (IACS), Kolkata</b></p><p style="margin-top:18px"><a class="btn" href="#/join">Join the club</a><a class="btn cy" href="#/events">See events</a></p></div></div>
 ${learnSec()}
 <div class="card"><h2 class="m">Where we are now</h2><div class="tl">${EV.filter(e=>e.s!=='prop').map(e=>`<div class="ti"><b>${e.d} | <a class="ev" href="#/${e.id}">${esc(e.t)}</a></b> <span class="badge ${ST[e.s][1]}">${ST[e.s][0]}</span><br>${esc(e.x)}</div>`).join('')}</div><a class="btn" href="#/events">All events →</a></div>
-<h2 class="m">Play our games</h2>${gameSlider()}<p><button class="btn cy" type="button" onclick="document.getElementById('jam').scrollIntoView({behavior:'smooth'})">➕ Add your own game</button></p>${jam()}${pjam()}<h2 class="m">Promo Video</h2><div class="vid"><video id="pv" src="images/intro_vid.mp4" autoplay muted loop playsinline preload="metadata">Your browser does not support video.</video><button class="btn" id="pm" type="button" aria-label="Mute or unmute video">🔇 Unmute</button></div>
+<h2 class="m">Play our games</h2>${gameSlider()}<p><button class="btn cy" type="button" onclick="document.getElementById('jam').scrollIntoView({behavior:'smooth'})">➕ Add your own game</button></p>${jam()}${pjam()}<h2 class="m">Promo Video</h2><div class="vid"><video id="pv" src="images/intro_vid.mp4" poster="images/intro_poster.jpg" autoplay muted loop playsinline preload="metadata">Your browser does not support video.</video><button class="btn" id="pm" type="button" aria-label="Mute or unmute video">🔇 Unmute</button></div>
 <div class="cta"><div class="slider"><div class="track">${slides()}${slides()}</div></div><div class="ov"><h2 class="m">COME BUILD WITH US....</h2><p>No experience needed. Curiosity is enough.</p><a class="btn" href="#/join">Join Yantrika →</a></div></div>`,
 about:()=>`<div class="card"><h1 class="m">About Yantrika</h1><p>Yantrika is a student-initiated Robotics & Coding Club at the Indian Association for the Cultivation of Science (IACS), Kolkata, established with the support of the Research Scholars’ Association (RSA). Through workshops, hackathons, expert talks, and outreach initiatives, we aim to create a collaborative, hands-on learning environment where students can explore, build, and innovate in robotics, electronics, and programming.</p></div>
 <h2 class="m">Our four pillars</h2>
