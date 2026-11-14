@@ -548,10 +548,20 @@
   const EMAIL_FN = 'send-email';
   const CHUNK = 40;
   const CHUNK_PAUSE_MS = 1500;
+  // The Edge Function puts its reason in the response body. Read it so the dashboard can show it.
+  async function errorText(error) {
+    try {
+      if (error && error.context && typeof error.context.json === 'function') {
+        const body = await error.context.json();
+        if (body && body.error) return body.error + (body.detail ? ' ' + body.detail : '');
+      }
+    } catch (e) { /* body was not JSON */ }
+    return (error && error.message) || 'unknown error';
+  }
   async function loadQuota() {
     const res = await sb().functions.invoke(EMAIL_FN, { body: { action: 'quota' } });
     S.quota = res.error ? null : res.data;
-    S.quotaError = res.error ? (res.error.message || 'unknown error') : '';
+    S.quotaError = res.error ? await errorText(res.error) : '';
     return S.quota;
   }
   async function notifyTask(taskId, event) {
@@ -612,7 +622,7 @@
       const res = await sb().functions.invoke(EMAIL_FN, { body: { action: 'announcement', member_ids: chunks[c], subject: a.subject, message: a.message } });
       if (res.error) {
         failed += chunks[c].length;
-        firstError = firstError || (res.error.message || 'The email service did not respond.');
+        firstError = firstError || await errorText(res.error);
         break;
       }
       sent += res.data.sent || 0;
