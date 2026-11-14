@@ -135,3 +135,14 @@ select conname, pg_get_constraintdef(oid)
 from pg_constraint
 where conrelid = 'public.members'::regclass and contype = 'c';
 ```
+
+## Affiliation
+
+The database only accepts certain affiliation values (`members_affiliation_check`).
+The dashboard offers them as a dropdown: **IACS** or **Non-IACS**. To see the exact rule, run:
+
+```sql
+select pg_get_constraintdef(oid)
+from pg_constraint
+where conname = 'members_affiliation_check';
+```
