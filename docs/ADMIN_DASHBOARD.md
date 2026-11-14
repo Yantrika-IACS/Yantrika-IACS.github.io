@@ -118,6 +118,20 @@ any leftover saved login. The public website does not use logins and is not affe
 
 ## Adding a member
 
-In All Members, click **+ Add member**. Enter the Member ID (required), name, and
-affiliation (required). The joined date defaults to today and the status to Active.
-The database refuses a Member ID or email that already exists.
+In All Members, click **+ Add member**. The Member ID is generated automatically
+(see below). Enter the name and affiliation (required). The joined date defaults to
+today and the status to Active. The database refuses an email that already exists.
+
+**Member ID rule:** the next ID follows the most recent ID's prefix and width. For
+example, if the highest ID is `YTK-010`, the next is `YTK-011`. With no members, the
+first is `YTK-001`. If your IDs follow a different pattern, tell the club admin and
+the function can be changed.
+
+**If you see "The database rejected a value":** the message names the database rule
+that blocked the save. To list the rules on the members table, run:
+
+```sql
+select conname, pg_get_constraintdef(oid)
+from pg_constraint
+where conrelid = 'public.members'::regclass and contype = 'c';
+```
