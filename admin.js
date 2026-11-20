@@ -1,8 +1,8 @@
 /*
- * Yantrika Admin Dashboard (UI only).
+ * Yantrika Admin Dashboard (UI + Supabase + Interactive Export, Plans, Projects & Calendar).
  * Loaded on every page; renders only at #/admin.
- * Access control is enforced by Supabase RLS and the approve_application()
- * function (supabase/admin_dashboard.sql). Hiding this page is NOT security.
+ * Access control is enforced by Supabase RLS and database functions
+ * (supabase/admin_dashboard.sql). Hiding this page is NOT security.
  */
 (function () {
   'use strict';
@@ -13,19 +13,49 @@
   const POSITIONS = 'member_positions';
   const ACTIVITY = 'admin_activity';
   const TASKS = 'admin_tasks';
-  const VIEWS = [
-    ['overview', 'Dashboard Overview'],
-    ['members', 'All Members'],
-    ['structure', 'Groups & Positions'],
-    ['tasks', 'Tasks'],
-    ['email', 'Send email'],
-    ['pending', 'Pending Applications'],
-    ['approved', 'Approved Applications'],
-    ['rejected', 'Rejected Applications'],
-    ['activity', 'Activity Log'],
-    ['admins', 'Admin Users'],
-    ['export', 'Export Data']
+  const PLANS_TABLE = 'admin_plans';
+  const PROJECTS_TABLE = 'admin_projects';
+  const LS_PLANS = 'yantrika_admin_plans_v1';
+  const LS_PROJECTS = 'yantrika_admin_projects_v1';
+
+  const NAV_GROUPS = [
+    {
+      label: 'Workspace',
+      items: [
+        ['overview', 'Dashboard Overview', '📊'],
+        ['calendar', 'Plans Calendar', '📅']
+      ]
+    },
+    {
+      label: 'People & Org',
+      items: [
+        ['members', 'All Members', '👥'],
+        ['structure', 'Groups & Positions', '🏛️'],
+        ['pending', 'Pending Applications', '⏳'],
+        ['approved', 'Approved Applications', '✅'],
+        ['rejected', 'Rejected Applications', '❌']
+      ]
+    },
+    {
+      label: 'Planning & Ops',
+      items: [
+        ['plans', 'Club Plans', '🗺️'],
+        ['projects', 'Projects Planned', '🤖'],
+        ['tasks', 'Tasks', '☑️']
+      ]
+    },
+    {
+      label: 'Comms & Tools',
+      items: [
+        ['email', 'Send Email', '✉️'],
+        ['export', 'Export Data', '📤'],
+        ['activity', 'Activity Log', '📜'],
+        ['admins', 'Admin Users', '🔐']
+      ]
+    }
   ];
+  const VIEWS = NAV_GROUPS.reduce((acc, g) => acc.concat(g.items), []);
+
   const MEMBER_FIELDS = [
     ['full_name', 'Full name', true],
     ['email', 'Email'],
@@ -50,15 +80,64 @@
     ['Reviewed on', 'reviewed_at']
   ];
 
-  const S = { apps: [], members: [], groups: [], positions: [], activity: [], admins: [], tasks: [], directory: [], taskFilter: 'all', view: 'overview', q: '', status: 'all', error: '', notice: '', user: null, role: 'viewer', gq: '', quota: null };
+  const PLAN_CATS = ['Workshop', 'Hackathon', 'Outreach', 'Talk', 'Operations', 'Funding', 'Competition', 'Other'];
+  const PLAN_STATUSES = ['draft', 'planned', 'active', 'completed', 'on_hold'];
+  const PROJ_STATUSES = ['idea', 'planned', 'in_progress', 'testing', 'completed', 'on_hold'];
+
+  const EMAIL_TEMPLATES = [
+    {
+      id: 'workshop',
+      name: 'Workshop Reminder',
+      subject: 'Reminder: Yantrika Hands-on Robotics Workshop',
+      body: 'Hello everyone,\n\nThis is a reminder for our upcoming Yantrika Robotics & Coding Club workshop.\n\nDate: [Date]\nTime: [Time]\nVenue: [Venue, IACS Kolkata]\n\nPlease bring your laptop if you have one. Looking forward to seeing you there!\n\nBest regards,\nTeam Yantrika'
+    },
+    {
+      id: 'project',
+      name: 'Project Kickoff',
+      subject: 'Yantrika Project Kickoff & Team Allocation',
+      body: 'Hi team,\n\nWe are kicking off our next robotics/coding project cycle! Please review the planned project timeline and join the kickoff sync.\n\nLet us know if you have any questions or component requests.\n\nBest,\nTeam Yantrika'
+    },
+    {
+      id: 'general',
+      name: 'General Club Update',
+      subject: 'Yantrika Club Update — Upcoming Plans & Events',
+      body: 'Hello Yantrika members,\n\nHere is a quick update on our upcoming plans, workshops, and projects for this month.\n\n[Write your update here]\n\nWarm regards,\nTeam Yantrika\nhttps://yantrika.in'
+    }
+  ];
+
+  const DEFAULT_PLANS = [
+    { id: 'plan-outreach-dec26', title: 'Schools Outreach Workshop', category: 'Outreach', status: 'planned', start_date: '2026-12-12', end_date: '2026-12-12', owner: 'PR & Outreach', budget: '₹8,000', description: 'Free hands-on robotics & electronics workshop for ~70 underprivileged students.' },
+    { id: 'plan-robothon-jan27', title: 'Robotics Hackathon 2027', category: 'Hackathon', status: 'planned', start_date: '2027-01-23', end_date: '2027-01-24', owner: 'Core Committee', budget: '₹25,000', description: 'Hardware and software challenge for 100+ participants.' },
+    { id: 'plan-gametheory-feb27', title: 'Game Theory Hackathon', category: 'Hackathon', status: 'draft', start_date: '2027-02-14', end_date: '2027-02-15', owner: 'Core Committee', budget: '₹12,000', description: 'Strategy, logic, and multi-agent simulation challenges.' },
+    { id: 'plan-ai-mar27', title: 'AI & Robotics Workshop', category: 'Workshop', status: 'draft', start_date: '2027-03-20', end_date: '2027-03-20', owner: 'Technical Team', budget: '₹10,000', description: 'Applied computer vision and embedded AI session.' }
+  ];
+
+  const DEFAULT_PROJECTS = [
+    { id: 'proj-rover', title: 'Autonomous Obstacle-Avoiding Rover', plan_id: 'plan-outreach-dec26', lead: 'Robotics Hardware Team', status: 'in_progress', target_date: '2026-12-10', progress: 65, budget: '₹6,500', repo_url: 'https://github.com/Yantrika-IACS', description: '4WD Arduino/ESP32 rover with ultrasonic array and PID motor control for workshop demos.' },
+    { id: 'proj-sumobot', title: 'Mini SumoBot Kit (Open Hardware)', plan_id: 'plan-robothon-jan27', lead: 'Hardware Lab', status: 'planned', target_date: '2027-01-15', progress: 30, budget: '₹9,000', repo_url: 'https://github.com/Yantrika-IACS', description: 'Standardized low-cost SumoBot chassis and IR edge-detection kit for hackathon teams.' },
+    { id: 'proj-trust-sim', title: 'Open-Source STEM Arcade & Trust Sim', plan_id: 'plan-gametheory-feb27', lead: 'Software & Web Team', status: 'testing', target_date: '2026-11-30', progress: 85, budget: '₹0', repo_url: 'https://github.com/Yantrika-IACS/Yantrika-IACS.github.io', description: 'Interactive browser simulations for Prisoner’s Dilemma, Maze Finder, and circuit labs.' }
+  ];
+
+  const S = {
+    apps: [], members: [], groups: [], positions: [], activity: [], admins: [], tasks: [], directory: [],
+    plans: [], projects: [], plansCloud: false, projectsCloud: false,
+    taskFilter: 'all', planFilter: 'all', projectFilter: 'all',
+    view: 'overview', q: '', status: 'all', error: '', notice: '', user: null, role: 'viewer', gq: '',
+    quota: null, quotaError: '', emailLog: [], emailMode: 'group', emailSelectedIds: {},
+    sort: { col: '', dir: 1 }, selectedRows: {},
+    calYear: new Date().getFullYear(), calMonth: new Date().getMonth(), calSelectedDate: '',
+    calShow: { plans: true, projects: true, tasks: true, events: true }, calMode: 'month',
+    expDataset: 'members', expFilterStatus: 'all', expFilterBody: 'all', expSearch: '', expCols: null
+  };
 
   /* ---------- helpers ---------- */
   const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const cap = s => s ? String(s).charAt(0).toUpperCase() + String(s).slice(1) : '';
+  const cap = s => s ? String(s).replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase()) : '';
   const fmt = d => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
-  // The admin uses its own client that keeps the login in memory only, so it is
-  // never saved in the browser: every visit (and every reload) asks for the password again.
+  const todayISO = () => new Date().toISOString().slice(0, 10);
+  const uid = prefix => prefix + '-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
+
   const SUPABASE_URL = 'https://zcszmpxhlflalkgefwff.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_by8T2htgYfnz4qOK9jZ4rA_hu8PUIjK';
   let adminClient = null;
@@ -70,23 +149,21 @@
     }
     return adminClient;
   }
-  // Remove any login saved by earlier versions of this page.
   function clearSavedLogins() {
     try {
       Object.keys(localStorage)
         .filter(k => /^sb-.*-auth-token/.test(k))
         .forEach(k => localStorage.removeItem(k));
-    } catch (e) { /* storage blocked: nothing to clear */ }
+    } catch (e) { /* storage blocked */ }
   }
   const root = () => document.getElementById('yadmin-root');
   const val = (m, name) => ((m.querySelector('[name="' + name + '"]') || {}).value || '').trim();
-  const todayISO = () => new Date().toISOString().slice(0, 10);
-  // Roles: super_admin (everything), admin (edit, no deletes or admin management), viewer (read only).
-  // The database enforces these rules; the dashboard only hides what a role cannot use.
+
   const ROLE_LABEL = { super_admin: 'Super admin', admin: 'Admin', viewer: 'Viewer' };
-  const EDIT_ACTS = ['send-announcement', 'add-member', 'edit-member', 'member-role', 'save-member', 'approve-open', 'approve-submit',
+  const EDIT_ACTS = ['send-announcement', 'send-test-email', 'add-member', 'edit-member', 'member-role', 'save-member', 'approve-open', 'approve-submit',
     'reject', 'restore', 'save-notes', 'add-group', 'edit-group', 'save-group', 'add-position', 'edit-position',
-    'save-position', 'save-role', 'new-task', 'save-task'];
+    'save-position', 'save-role', 'new-task', 'save-task', 'new-plan', 'edit-plan', 'save-plan', 'delete-plan',
+    'new-project', 'edit-project', 'save-project', 'delete-project'];
   const SUPER_ACTS = ['delete', 'confirm-delete', 'add-admin', 'save-admin', 'remove-admin', 'confirm-remove-admin'];
   const canEdit = () => S.role === 'super_admin' || S.role === 'admin';
   const isSuper = () => S.role === 'super_admin';
@@ -95,7 +172,6 @@
     if (SUPER_ACTS.indexOf(act) >= 0) return isSuper();
     return true;
   }
-  // Remove buttons this role cannot use, and make notes read-only for viewers.
   function applyPermissions(scope) {
     scope.querySelectorAll('[data-ya]').forEach(el => {
       if (!allowedAct(el.getAttribute('data-ya'))) el.remove();
@@ -103,8 +179,6 @@
     if (!canEdit()) scope.querySelectorAll('textarea[name="admin_notes"]').forEach(t => { t.readOnly = true; });
   }
   const AFFILIATIONS = ['IACS', 'Non-IACS'];
-  // Affiliation is a fixed choice in the database. Show a dropdown that offers the allowed values,
-  // plus the current value if it is something else (so older records can still be opened and fixed).
   function affiliationSelect(current) {
     const opts = AFFILIATIONS.slice();
     if (current && opts.indexOf(current) < 0) opts.push(current);
@@ -113,7 +187,6 @@
       opts.map(o => '<option value="' + esc(o) + '"' + (o === sel ? ' selected' : '') + '>' + esc(o) + '</option>').join('') +
       '</select></label>';
   }
-  // Pre-select IACS when the institution mentions IACS, otherwise Non-IACS.
   const guessAffiliation = inst => /iacs|indian association for the cultivation/i.test(inst || '') ? 'IACS' : 'Non-IACS';
   const cellVal = v => Array.isArray(v) ? v.join(', ') : (v == null || v === '' ? '—' : v);
 
@@ -124,7 +197,7 @@
     t.className = 'ya-toast ' + (ok ? 'ok' : 'err');
     t.style.display = 'block';
     clearTimeout(t._h);
-    t._h = setTimeout(() => { t.style.display = 'none'; }, 4200);
+    t._h = setTimeout(() => { t.style.display = 'none'; }, 4800);
   }
   function openModal(html) {
     closeModal();
@@ -145,9 +218,45 @@
   const modalEl = () => document.querySelector('#ya-back .ya-modal');
   const modalMsg = text => { const m = document.getElementById('ya-msg'); if (m) m.textContent = text; };
 
-  /* ---------- data ---------- */
-  // Core data (applications and members) is required. Newer tables are optional:
-  // if one is missing, the rest of the dashboard still works and a notice says what to run.
+  /* ---------- localStorage helpers for Plans & Projects fallback ---------- */
+  function lsRead(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) { /* ignore */ }
+    return fallback.map(x => Object.assign({}, x));
+  }
+  function lsWrite(key, arr) {
+    try { localStorage.setItem(key, JSON.stringify(arr)); } catch (e) { /* ignore */ }
+  }
+
+  /* ---------- data loading ---------- */
+  async function loadPlansAndProjects() {
+    const [plRes, prRes] = await Promise.all([
+      sb().from(PLANS_TABLE).select('*').order('start_date', { ascending: true }),
+      sb().from(PROJECTS_TABLE).select('*').order('target_date', { ascending: true })
+    ]);
+    if (!plRes.error && Array.isArray(plRes.data)) {
+      S.plansCloud = true;
+      S.plans = plRes.data;
+    } else {
+      S.plansCloud = false;
+      S.plans = lsRead(LS_PLANS, DEFAULT_PLANS);
+      lsWrite(LS_PLANS, S.plans);
+    }
+    if (!prRes.error && Array.isArray(prRes.data)) {
+      S.projectsCloud = true;
+      S.projects = prRes.data;
+    } else {
+      S.projectsCloud = false;
+      S.projects = lsRead(LS_PROJECTS, DEFAULT_PROJECTS);
+      lsWrite(LS_PROJECTS, S.projects);
+    }
+  }
+
   async function loadAll() {
     const [a, m, g, p, act] = await Promise.all([
       sb().from(APPS).select('*').order('created_at', { ascending: false }),
@@ -165,22 +274,23 @@
     S.activity = act.data || [];
     const missing = [g, p, act].filter(r => r.error).map(r => r.error.message);
     S.notice = missing.length
-      ? 'Some features are unavailable because part of the database setup is missing. Run the whole supabase/admin_dashboard.sql file in the SQL Editor, then press Refresh. (' + missing[0] + ')'
+      ? 'Some features are unavailable because part of the database setup is missing. Run supabase/admin_dashboard.sql in the SQL Editor, then press Refresh. (' + missing[0] + ')'
       : '';
+    await loadPlansAndProjects();
   }
   async function loadDirectory() {
     const res = await sb().rpc('admin_directory');
     S.directory = res.error ? [] : (res.data || []).map(d => ({ id: d.dir_user_id, name: d.dir_name, role: d.dir_role }));
   }
-  const nameOfAdmin = uid => ((S.directory.find(d => d.id === uid)) || {}).name || '';
+  const nameOfAdmin = uidVal => ((S.directory.find(d => d.id === uidVal)) || {}).name || '';
   async function loadTasks() {
     await loadDirectory();
     const res = await sb().from(TASKS).select('*').order('created_at', { ascending: false });
-    if (res.error) { S.tasks = []; S.error = 'Could not load tasks: ' + res.error.message; return; }
+    if (res.error) { S.tasks = []; return; }
     S.tasks = res.data || [];
   }
   async function refresh() {
-    try { await loadAll(); S.error = ''; }
+    try { await loadAll(); await loadTasks(); S.error = ''; }
     catch (err) { S.error = 'Could not load data: ' + (err.message || 'unknown error'); }
     renderApp();
   }
@@ -189,8 +299,12 @@
 
   function filterRows(list, fields) {
     const q = S.q.trim().toLowerCase();
-    if (!q) return list;
-    return list.filter(r => fields.some(f => String(r[f] || '').toLowerCase().includes(q)));
+    let out = !q ? list.slice() : list.filter(r => fields.some(f => String(r[f] || '').toLowerCase().includes(q)));
+    if (S.sort.col) {
+      const col = S.sort.col, dir = S.sort.dir;
+      out.sort((a, b) => String(a[col] || '').localeCompare(String(b[col] || ''), undefined, { numeric: true }) * dir);
+    }
+    return out;
   }
   function viewList() {
     switch (S.view) {
@@ -201,9 +315,12 @@
       default: return [];
     }
   }
-  const LIST_FOR = { member: () => S.members, app: () => S.apps, group: () => S.groups, position: () => S.positions, task: () => S.tasks };
+  const LIST_FOR = {
+    member: () => S.members, app: () => S.apps, group: () => S.groups,
+    position: () => S.positions, task: () => S.tasks, plan: () => S.plans, project: () => S.projects
+  };
   const MEMBER_SEARCH = ['full_name', 'email', 'member_id', 'affiliation', 'current_body', 'current_designation', 'phone', 'institution'];
-  const TABLE_FOR = { member: MEMBERS, app: APPS, group: GROUPS, position: POSITIONS, task: TASKS };
+  const TABLE_FOR = { member: MEMBERS, app: APPS, group: GROUPS, position: POSITIONS, task: TASKS, plan: PLANS_TABLE, project: PROJECTS_TABLE };
   const findRow = (kind, id) => ((LIST_FOR[kind] || LIST_FOR.app)()).find(x => String(x.id) === String(id));
 
   /* ---------- mutations ---------- */
@@ -269,9 +386,7 @@
     const m = modalEl();
     const adding = !member;
     const payload = {};
-    if (adding) {
-      payload.joined_at = val(m, 'joined_at') || todayISO();
-    }
+    if (adding) payload.joined_at = val(m, 'joined_at') || todayISO();
     for (const [k, label, req] of MEMBER_FIELDS) {
       const v = val(m, k);
       if (req && !v) return modalMsg(label + ' is required.');
@@ -286,7 +401,6 @@
     modalMsg(adding ? 'Adding…' : 'Saving…');
     let res;
     if (adding) {
-      // generate the ID now; if someone else took it a moment ago, try once more
       for (let attempt = 0; attempt < 2; attempt++) {
         const idRes = await sb().rpc('next_member_id');
         if (idRes.error) return modalMsg('Could not generate a Member ID: ' + idRes.error.message);
@@ -309,6 +423,22 @@
       const inUse = kind === 'group' ? membersIn('current_body', item.name) : membersIn('current_designation', item.name);
       if (inUse) return toast('Cannot delete "' + item.name + '": ' + inUse + ' member(s) use it. Change their body or designation first.', false);
     }
+    if (kind === 'plan' && !S.plansCloud) {
+      S.plans = S.plans.filter(p => String(p.id) !== String(id));
+      lsWrite(LS_PLANS, S.plans);
+      closeModal();
+      toast('Plan deleted.');
+      renderApp();
+      return;
+    }
+    if (kind === 'project' && !S.projectsCloud) {
+      S.projects = S.projects.filter(p => String(p.id) !== String(id));
+      lsWrite(LS_PROJECTS, S.projects);
+      closeModal();
+      toast('Project deleted.');
+      renderApp();
+      return;
+    }
     const res = await sb().from(TABLE_FOR[kind] || APPS).delete().eq('id', id).select('id');
     if (res.error) return toast(dbMessage(res.error, 'Delete failed.'), false);
     if (!res.data || !res.data.length) return toast('Nothing was deleted. Check admin permissions.', false);
@@ -318,28 +448,703 @@
     await refresh();
   }
 
-  /* ---------- export ---------- */
+  /* ---------- Interactive Export (CSV, JSON, PDF + Live Preview) ---------- */
+  const EXPORT_DATASETS = {
+    members: {
+      label: 'All Members',
+      cols: ['member_id', 'full_name', 'email', 'phone', 'institution', 'department', 'affiliation', 'academic_year', 'current_body', 'current_designation', 'linkedin_url', 'joined_at', 'status'],
+      rows: () => S.members
+    },
+    pending: {
+      label: 'Pending Applications',
+      cols: ['full_name', 'email', 'phone', 'institution', 'department', 'programme', 'academic_year', 'role', 'interest', 'experience', 'status', 'created_at'],
+      rows: () => appsByStatus('pending')
+    },
+    approved: {
+      label: 'Approved Applications',
+      cols: ['full_name', 'email', 'phone', 'institution', 'department', 'programme', 'academic_year', 'role', 'interest', 'status', 'created_at', 'reviewed_at'],
+      rows: () => appsByStatus('approved')
+    },
+    rejected: {
+      label: 'Rejected Applications',
+      cols: ['full_name', 'email', 'phone', 'institution', 'role', 'status', 'created_at', 'reviewed_at'],
+      rows: () => appsByStatus('rejected')
+    },
+    all_apps: {
+      label: 'All Applications',
+      cols: ['full_name', 'email', 'phone', 'institution', 'department', 'programme', 'academic_year', 'role', 'interest', 'experience', 'message', 'linkedin_url', 'status', 'created_at', 'reviewed_at'],
+      rows: () => S.apps
+    },
+    plans: {
+      label: 'Club Plans',
+      cols: ['title', 'category', 'status', 'start_date', 'end_date', 'owner', 'budget', 'description'],
+      rows: () => S.plans
+    },
+    projects: {
+      label: 'Projects Planned',
+      cols: ['title', 'status', 'progress', 'lead', 'target_date', 'budget', 'repo_url', 'description'],
+      rows: () => S.projects
+    },
+    tasks: {
+      label: 'Admin Tasks',
+      cols: ['title', 'status', 'due_date', 'description'],
+      rows: () => S.tasks.map(t => Object.assign({}, t, { assignee: nameOfAdmin(t.assignee_user_id) || '—' }))
+    },
+    activity: {
+      label: 'Activity Log (Latest 300)',
+      cols: ['created_at', 'actor_email', 'action', 'table_name', 'summary'],
+      rows: () => S.activity
+    }
+  };
+
+  function getExportData() {
+    const ds = EXPORT_DATASETS[S.expDataset] || EXPORT_DATASETS.members;
+    const allCols = ds.cols;
+    if (!S.expCols || !S.expCols.length) S.expCols = allCols.slice();
+    const cols = allCols.filter(c => S.expCols.indexOf(c) >= 0);
+    let rows = ds.rows().slice();
+    if (S.expFilterStatus !== 'all') {
+      rows = rows.filter(r => String(r.status || '').toLowerCase() === S.expFilterStatus.toLowerCase());
+    }
+    if (S.expFilterBody !== 'all' && S.expDataset === 'members') {
+      rows = rows.filter(r => (r.current_body || '') === S.expFilterBody);
+    }
+    const q = S.expSearch.trim().toLowerCase();
+    if (q) {
+      rows = rows.filter(r => allCols.some(c => String(r[c] || '').toLowerCase().includes(q)));
+    }
+    return { ds, allCols, cols: cols.length ? cols : allCols, rows };
+  }
+
   function csvCell(v) {
     let s = Array.isArray(v) ? v.join('; ') : (v == null ? '' : String(v));
     if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
     return '"' + s.replace(/"/g, '""') + '"';
   }
-  function exportCsv(rows, cols, name) {
-    const lines = [cols.join(',')].concat(rows.map(r => cols.map(c => csvCell(r[c])).join(',')));
-    const blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  function triggerDownload(blob, filename) {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = name + '-' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-    toast('Exported ' + rows.length + ' record(s).');
+    setTimeout(() => URL.revokeObjectURL(a.href), 1500);
   }
-  const MEMBER_COLS = ['member_id', 'full_name', 'email', 'phone', 'institution', 'department', 'affiliation',
-    'academic_year', 'current_body', 'current_designation', 'linkedin_url', 'joined_at', 'status'];
-  const APP_COLS = ['full_name', 'email', 'phone', 'institution', 'department', 'programme', 'academic_year',
-    'role', 'interest', 'experience', 'message', 'linkedin_url', 'status', 'created_at', 'reviewed_at'];
+  function exportCsv(rows, cols, name) {
+    const lines = [cols.join(',')].concat(rows.map(r => cols.map(c => csvCell(r[c])).join(',')));
+    const blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    triggerDownload(blob, name + '-' + todayISO() + '.csv');
+    toast('Exported ' + rows.length + ' record(s) as CSV.');
+  }
+  function exportJson(rows, cols, name, label) {
+    const cleanRows = rows.map(r => {
+      const obj = {};
+      cols.forEach(c => { obj[c] = r[c] === undefined ? null : r[c]; });
+      return obj;
+    });
+    const payload = {
+      organization: 'Yantrika Robotics & Coding Club, IACS Kolkata',
+      dataset: label || name,
+      exported_at: new Date().toISOString(),
+      exported_by: (S.user && S.user.email) || 'admin',
+      record_count: cleanRows.length,
+      columns: cols,
+      records: cleanRows
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+    triggerDownload(blob, name + '-' + todayISO() + '.json');
+    toast('Exported ' + cleanRows.length + ' record(s) as JSON.');
+  }
+  function exportFullBackupJson() {
+    const payload = {
+      organization: 'Yantrika Robotics & Coding Club, IACS Kolkata',
+      exported_at: new Date().toISOString(),
+      exported_by: (S.user && S.user.email) || 'admin',
+      counts: {
+        members: S.members.length,
+        applications: S.apps.length,
+        groups: S.groups.length,
+        positions: S.positions.length,
+        plans: S.plans.length,
+        projects: S.projects.length,
+        tasks: S.tasks.length
+      },
+      members: S.members,
+      applications: S.apps,
+      groups: S.groups,
+      positions: S.positions,
+      plans: S.plans,
+      projects: S.projects,
+      tasks: S.tasks
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+    triggerDownload(blob, 'yantrika-full-backup-' + todayISO() + '.json');
+    toast('Full JSON backup downloaded.');
+  }
+  function exportPdfReport(rows, cols, title) {
+    const w = window.open('', '_blank', 'width=1050,height=760');
+    if (!w) return toast('Pop-up blocked. Allow pop-ups to generate the PDF report.', false);
+    const th = cols.map(c => '<th>' + esc(cap(c)) + '</th>').join('');
+    const tb = rows.map(r => '<tr>' + cols.map(c => '<td>' + esc(cellVal(r[c])) + '</td>').join('') + '</tr>').join('');
+    const html = '<!doctype html><html><head><meta charset="utf-8"><title>Yantrika Report — ' + esc(title) + '</title>' +
+      '<style>@page{size:A4 landscape;margin:12mm}body{font-family:system-ui,-apple-system,sans-serif;color:#17171d;margin:0;padding:20px;font-size:11px}' +
+      '.hdr{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #17171d;padding-bottom:10px;margin-bottom:14px}' +
+      '.brand{font-size:20px;font-weight:800;letter-spacing:-.02em}.tag{display:inline-block;background:#f1c40f;border:2px solid #17171d;padding:2px 8px;border-radius:6px;font-weight:700;font-size:10px;margin-left:8px}' +
+      '.meta{text-align:right;font-size:10px;color:#555}' +
+      'table{width:100%;border-collapse:collapse;margin-top:8px}th{background:#17171d;color:#fff;text-align:left;padding:6px 8px;font-size:10px;text-transform:uppercase}' +
+      'td{padding:5px 8px;border-bottom:1px solid #ddd;vertical-align:top;word-break:break-word}tr:nth-child(even) td{background:#f9f9fb}' +
+      '.noprint{margin-bottom:14px;display:flex;gap:8px}@media print{.noprint{display:none}}</style></head><body>' +
+      '<div class="noprint"><button onclick="window.print()" style="padding:8px 16px;background:#f1c40f;border:2px solid #17171d;border-radius:8px;font-weight:700;cursor:pointer">Save as PDF / Print</button>' +
+      '<button onclick="window.close()" style="padding:8px 14px;background:#fff;border:2px solid #17171d;border-radius:8px;cursor:pointer">Close</button></div>' +
+      '<div class="hdr"><div><span class="brand">YANTRIKA</span><span class="tag">' + esc(title) + '</span><div style="margin-top:4px;color:#555">Robotics &amp; Coding Club · IACS Kolkata</div></div>' +
+      '<div class="meta">Generated: ' + esc(new Date().toLocaleString('en-IN')) + '<br>Records: <strong>' + rows.length + '</strong> · By: ' + esc((S.user && S.user.email) || 'Admin') + '</div></div>' +
+      '<table><thead><tr>' + th + '</tr></thead><tbody>' + (tb || '<tr><td colspan="' + cols.length + '">No matching records.</td></tr>') + '</tbody></table>' +
+      '<script>setTimeout(()=>window.print(),350);</script></body></html>';
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+    toast('PDF report opened. Choose "Save as PDF" in the print dialog.');
+  }
+
+  function exportHTML() {
+    const { ds, allCols, cols, rows } = getExportData();
+    const dsOpts = Object.keys(EXPORT_DATASETS).map(k =>
+      '<option value="' + k + '"' + (S.expDataset === k ? ' selected' : '') + '>' + esc(EXPORT_DATASETS[k].label) + '</option>').join('');
+    const statuses = [...new Set(ds.rows().map(r => r.status).filter(Boolean))];
+    const statusOpts = '<option value="all">All statuses</option>' +
+      statuses.map(s => '<option value="' + esc(s) + '"' + (S.expFilterStatus === s ? ' selected' : '') + '>' + esc(cap(s)) + '</option>').join('');
+    const bodyOpts = S.expDataset === 'members'
+      ? '<select id="ya-exp-body" aria-label="Filter by body"><option value="all">All bodies</option>' +
+        S.groups.map(g => '<option value="' + esc(g.name) + '"' + (S.expFilterBody === g.name ? ' selected' : '') + '>' + esc(g.name) + '</option>').join('') + '</select>'
+      : '';
+    const colChecks = allCols.map(c =>
+      '<label class="ya-chip-check"><input type="checkbox" name="exp_col" value="' + esc(c) + '"' + (cols.indexOf(c) >= 0 ? ' checked' : '') + '> <span>' + esc(cap(c)) + '</span></label>').join('');
+    const previewRows = rows.slice(0, 25);
+    const previewTable = previewRows.length
+      ? tableWrap(cols.map(c => cap(c)), previewRows.map(r =>
+          '<tr>' + cols.map(c => '<td data-l="' + esc(cap(c)) + '">' + esc(cellVal(r[c])) + '</td>').join('') + '</tr>').join(''))
+      : '<div class="ya-empty">No records match the current export filters.</div>';
+
+    return '<div class="ya-card"><div class="ya-toolbar" style="justify-content:space-between"><div><h2 class="ya-h2" style="margin:0">Interactive Export &amp; Report Builder</h2>' +
+      '<p class="ya-muted" style="margin:2px 0 0">Filter records, pick columns, preview live, and export as CSV, JSON, or PDF.</p></div>' +
+      '<button class="ya-btn small ghost" data-ya="export-backup">Full Club Backup (JSON)</button></div>' +
+      '<div class="ya-grid3" style="margin-top:14px">' +
+      '<label class="ya-field"><span>Dataset</span><select id="ya-exp-ds">' + dsOpts + '</select></label>' +
+      '<label class="ya-field"><span>Status filter</span><select id="ya-exp-status">' + statusOpts + '</select></label>' +
+      (bodyOpts ? '<label class="ya-field"><span>Body / Group</span>' + bodyOpts + '</label>' : '<label class="ya-field"><span>Search inside dataset</span><input id="ya-exp-q" type="search" placeholder="Filter rows…" value="' + esc(S.expSearch) + '"></label>') +
+      '</div>' +
+      (bodyOpts ? '<div style="margin-top:10px"><input id="ya-exp-q" type="search" placeholder="Search inside dataset…" value="' + esc(S.expSearch) + '"></div>' : '') +
+      '<div style="margin-top:14px"><div class="ya-toolbar" style="margin-bottom:6px"><strong style="font-size:.88rem">Columns (' + cols.length + '/' + allCols.length + ')</strong>' +
+      '<button class="ya-btn small ghost" data-ya="exp-cols-all">All</button>' +
+      '<button class="ya-btn small ghost" data-ya="exp-cols-min">Minimal</button></div>' +
+      '<div class="ya-chip-grid">' + colChecks + '</div></div>' +
+      '<div class="ya-actions start" style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(128,128,128,.2)">' +
+      '<button class="ya-btn ok" data-ya="export-fmt" data-fmt="csv">Download CSV (' + rows.length + ')</button>' +
+      '<button class="ya-btn" data-ya="export-fmt" data-fmt="json">Download JSON (' + rows.length + ')</button>' +
+      '<button class="ya-btn cy" data-ya="export-fmt" data-fmt="pdf">Export PDF Report (' + rows.length + ')</button>' +
+      '<button class="ya-btn ghost" data-ya="export-fmt" data-fmt="copy-json">Copy JSON</button>' +
+      '</div></div>' +
+      '<div class="ya-card" style="margin-top:16px"><div class="ya-toolbar" style="justify-content:space-between;margin-bottom:8px">' +
+      '<h3 style="margin:0;font-size:1rem">Live Interactive Preview</h3>' +
+      '<span class="ya-muted">' + (rows.length > 25 ? 'Showing first 25 of ' + rows.length + ' rows' : rows.length + ' row(s)') + '</span></div>' +
+      previewTable + '</div>';
+  }
+
+  /* ---------- Email (fixed Edge Function auth + diagnostics + templates + fallback) ---------- */
+  const EMAIL_FN = 'send-email';
+  const CHUNK = 40;
+  const CHUNK_PAUSE_MS = 1500;
+
+  async function invokeEmailFn(body) {
+    const client = sb();
+    if (!client) return { data: null, error: { message: 'Supabase client not loaded.' } };
+    const { data: sessData } = await client.auth.getSession();
+    const token = sessData && sessData.session && sessData.session.access_token;
+    const headers = token ? { Authorization: 'Bearer ' + token } : {};
+    return await client.functions.invoke(EMAIL_FN, { headers: headers, body: body });
+  }
+
+  async function errorText(error) {
+    if (!error) return 'unknown error';
+    try {
+      if (error.context) {
+        if (typeof error.context.json === 'function') {
+          const clone = error.context.clone ? error.context.clone() : error.context;
+          const body = await clone.json();
+          if (body && (body.error || body.message)) {
+            return (body.error || body.message) + (body.detail ? ' — ' + body.detail : '');
+          }
+        }
+        if (typeof error.context.text === 'function') {
+          const txt = await error.context.text();
+          if (txt) return txt.slice(0, 240);
+        }
+      }
+    } catch (e) { /* body was not JSON/text */ }
+    return error.message || 'unknown error';
+  }
+
+  async function loadQuota() {
+    const res = await invokeEmailFn({ action: 'quota' });
+    S.quota = res.error ? null : res.data;
+    S.quotaError = res.error ? await errorText(res.error) : '';
+    return S.quota;
+  }
+
+  async function notifyTask(taskId, event) {
+    const res = await invokeEmailFn({ action: 'task', task_id: taskId, event: event });
+    if (res.error) {
+      const detail = await errorText(res.error);
+      toast('Task saved, but email notification failed: ' + detail, false);
+      return false;
+    }
+    toast('Task saved & notification email sent.');
+    return true;
+  }
+
+  function resolveEmailRecipients() {
+    const withEmail = S.members.filter(m => m.email);
+    if (S.emailMode === 'all') return withEmail;
+    if (S.emailMode === 'group') {
+      const grp = (document.querySelector('#yadmin-root select[name="ann_group"]') || {}).value || '';
+      return grp ? withEmail.filter(m => m.current_body === grp) : withEmail;
+    }
+    if (S.emailMode === 'selected') {
+      return withEmail.filter(m => S.emailSelectedIds[m.id]);
+    }
+    if (S.emailMode === 'pending') {
+      return appsByStatus('pending').filter(a => a.email);
+    }
+    if (S.emailMode === 'custom') {
+      const raw = (document.querySelector('#yadmin-root input[name="ann_custom"]') || {}).value || '';
+      return raw.split(/[,;\s]+/).map(e => e.trim()).filter(e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))
+        .map(email => ({ id: null, full_name: email, email: email }));
+    }
+    return [];
+  }
+
+  function emailHTML() {
+    const q = S.quota;
+    const left = q ? Math.max(0, q.daily_limit - q.sent_today) : null;
+    const withEmail = S.members.filter(m => m.email);
+    const groups = S.groups.slice().sort((a, b) => a.sort_order - b.sort_order);
+    const groupOpts = '<option value="">Everyone with an email (' + withEmail.length + ')</option>' +
+      groups.map(g => '<option value="' + esc(g.name) + '">' + esc(g.name) + ' (' + withEmail.filter(m => m.current_body === g.name).length + ')</option>').join('');
+    const modeTabs = [
+      ['group', 'By Group / All'],
+      ['selected', 'Pick Members (' + Object.keys(S.emailSelectedIds).filter(k => S.emailSelectedIds[k]).length + ')'],
+      ['pending', 'Pending Applicants (' + appsByStatus('pending').filter(a => a.email).length + ')'],
+      ['custom', 'Custom Emails']
+    ].map(([m, lbl]) => '<button type="button" class="ya-btn small ' + (S.emailMode === m ? '' : 'ghost') + '" data-ya="email-mode" data-m="' + m + '">' + lbl + '</button>').join('');
+
+    let targetInput = '';
+    if (S.emailMode === 'group') {
+      targetInput = '<label class="ya-field"><span>Group / Body</span><select name="ann_group">' + groupOpts + '</select></label>';
+    } else if (S.emailMode === 'selected') {
+      targetInput = '<div class="ya-field" style="grid-column:1/-1"><span>Select Members</span><div class="ya-chip-grid" style="max-height:170px;overflow:auto">' +
+        withEmail.map(m => '<label class="ya-chip-check"><input type="checkbox" name="email_pick" value="' + esc(m.id) + '"' + (S.emailSelectedIds[m.id] ? ' checked' : '') + '> <span>' + esc(m.full_name) + '</span></label>').join('') +
+        '</div></div>';
+    } else if (S.emailMode === 'pending') {
+      targetInput = '<div class="ya-field"><span>Target</span><input value="All pending applicants with email" readonly class="ya-readonly"></div>';
+    } else {
+      targetInput = '<label class="ya-field" style="grid-column:1/-1"><span>Recipient Email(s) (comma-separated)</span><input name="ann_custom" placeholder="alice@example.com, bob@example.com"></label>';
+    }
+
+    const tplOpts = '<option value="">— Choose a template —</option>' +
+      EMAIL_TEMPLATES.map(t => '<option value="' + t.id + '">' + esc(t.name) + '</option>').join('');
+
+    const quotaBanner = q
+      ? '<div class="ya-quota ok"><strong>Edge Function Connected</strong> · Emails sent today: <strong>' + q.sent_today + '</strong> / <strong>' + q.daily_limit + '</strong> (<strong>' + left + '</strong> left)</div>'
+      : '<div class="ya-quota bad"><strong>Email Edge Function Issue:</strong> ' + esc(S.quotaError || 'Could not reach send-email.') +
+        '<div class="ya-actions start" style="margin-top:8px"><button class="ya-btn small" data-ya="email-test-conn">Retry Connection</button>' +
+        '<button class="ya-btn small ghost" data-ya="email-diag">How to Fix</button></div></div>';
+
+    const logHTML = S.emailLog.length
+      ? '<div class="ya-card" style="margin-top:16px"><h3 style="margin:0 0 8px">Session Sent Log</h3>' +
+        tableWrap(['Time', 'Subject', 'Recipients', 'Status'], S.emailLog.map(l =>
+          '<tr><td>' + esc(l.time) + '</td><td><strong>' + esc(l.subject) + '</strong></td><td>' + esc(l.count) + '</td><td>' + badge(l.ok ? 'approved' : 'rejected') + '</td></tr>').join('')) + '</div>'
+      : '';
+
+    return '<div class="ya-card"><h2 class="ya-h2" style="margin-top:0">Send Email / Announcement</h2>' +
+      quotaBanner +
+      '<div class="ya-toolbar" style="margin-top:14px"><span class="ya-muted" style="font-size:.85rem">Recipients:</span>' + modeTabs + '</div>' +
+      '<div class="ya-grid2" style="margin-top:10px">' + targetInput +
+      '<label class="ya-field"><span>Quick Template</span><select id="ya-email-tpl">' + tplOpts + '</select></label>' +
+      '<label class="ya-field" style="grid-column:1/-1"><span>Subject *</span><input name="ann_subject" placeholder="e.g. Workshop on Saturday"></label>' +
+      '<label class="ya-field" style="grid-column:1/-1"><span>Message *</span><textarea name="ann_body" rows="7" placeholder="Write your message…"></textarea></label>' +
+      '</div>' +
+      '<div class="ya-actions start" style="margin-top:14px">' +
+      '<button class="ya-btn ok" data-ya="send-announcement">Review &amp; Send via Server</button>' +
+      '<button class="ya-btn ghost" data-ya="send-test-email">Send Test to Myself</button>' +
+      '<button class="ya-btn ghost" data-ya="email-mailto">Open in Email App (Fallback)</button>' +
+      '<button class="ya-btn ghost" data-ya="email-copy">Copy Recipient Emails</button>' +
+      '</div></div>' + logHTML;
+  }
+
+  function openEmailDiagnostics() {
+    openModal('<h3>Fixing Supabase <code>send-email</code> Edge Function</h3>' +
+      '<p class="ya-muted">If the dashboard cannot reach <code>send-email</code>, check these 3 items in your Supabase project:</p>' +
+      '<ol style="padding-left:18px;line-height:1.7">' +
+      '<li><strong>Deploy with <code>--no-verify-jwt</code>:</strong> Because this site uses an <code>sb_publishable_...</code> key, deploy the function with <code>supabase functions deploy send-email --no-verify-jwt</code> (the function verifies the admin JWT internally).</li>' +
+      '<li><strong>Set Secrets:</strong> Run <code>supabase secrets set BREVO_API_KEY=... SENDER_EMAIL=noreply@yantrika.in</code>.</li>' +
+      '<li><strong>CORS Headers:</strong> Ensure <code>OPTIONS</code> returns <code>Access-Control-Allow-Headers: authorization, x-client-info, apikey, content-type</code>.</li>' +
+      '</ol><p class="ya-muted">Last error: <code>' + esc(S.quotaError || 'None') + '</code></p>' +
+      '<div class="ya-actions"><button class="ya-btn" data-ya="close">Close</button></div>');
+  }
+
+  async function sendTestEmailToSelf() {
+    const myEmail = S.user && S.user.email;
+    if (!myEmail) return toast('No admin email found.', false);
+    const subj = (document.querySelector('#yadmin-root input[name="ann_subject"]') || {}).value.trim() || 'Yantrika Admin Test Email';
+    const msg = (document.querySelector('#yadmin-root textarea[name="ann_body"]') || {}).value.trim() || 'This is a test email from the Yantrika Admin Dashboard.';
+    toast('Sending test email to ' + myEmail + '…');
+    const res = await invokeEmailFn({ action: 'test', to: myEmail, subject: '[TEST] ' + subj, message: msg });
+    if (res.error) {
+      const detail = await errorText(res.error);
+      toast('Test email failed: ' + detail, false);
+    } else {
+      toast('Test email sent to ' + myEmail + '!');
+      await loadQuota();
+      renderApp();
+    }
+  }
+
+  function openEmailMailtoFallback() {
+    const recips = resolveEmailRecipients();
+    if (!recips.length) return toast('No recipients selected.', false);
+    const subj = encodeURIComponent((document.querySelector('#yadmin-root input[name="ann_subject"]') || {}).value.trim());
+    const body = encodeURIComponent((document.querySelector('#yadmin-root textarea[name="ann_body"]') || {}).value.trim());
+    const bcc = encodeURIComponent(recips.map(r => r.email).join(','));
+    window.location.href = 'mailto:?bcc=' + bcc + '&subject=' + subj + '&body=' + body;
+    toast('Opened your email app with ' + recips.length + ' BCC recipient(s).');
+  }
+
+  async function copyRecipientEmails() {
+    const recips = resolveEmailRecipients();
+    if (!recips.length) return toast('No recipients selected.', false);
+    try {
+      await navigator.clipboard.writeText(recips.map(r => r.email).join(', '));
+      toast('Copied ' + recips.length + ' email address(es) to clipboard.');
+    } catch (e) {
+      toast('Could not copy: ' + recips.map(r => r.email).join(', '), false);
+    }
+  }
+
+  async function openAnnouncementConfirm() {
+    const body = document.querySelector('#yadmin-root textarea[name="ann_body"]');
+    const message = body ? body.value.trim() : '';
+    const subj = (document.querySelector('#yadmin-root input[name="ann_subject"]') || {}).value.trim();
+    if (!subj || !message) return toast('Add a subject and a message first.', false);
+    const recips = resolveEmailRecipients();
+    if (!recips.length) return toast('No recipients with a valid email address found.', false);
+    if (!S.quota) await loadQuota();
+    if (S.quota) {
+      const left = Math.max(0, S.quota.daily_limit - S.quota.sent_today);
+      if (left === 0) return toast('Daily limit (' + S.quota.daily_limit + ') reached. Use "Open in Email App (Fallback)" instead.', false);
+      if (recips.length > left) return toast('Only ' + left + ' email(s) left today. Choose fewer recipients or use Email App fallback.', false);
+    }
+    S.pendingAnn = { subject: subj, message: message, recips: recips };
+    openModal('<h3>Send this email?</h3>' +
+      '<p><strong>' + esc(subj) + '</strong></p><p class="ya-muted">To ' + recips.length + ' recipient(s).</p>' +
+      '<div class="ya-dl" style="white-space:pre-wrap;border:1px solid rgba(128,128,128,.25);border-radius:10px;padding:10px">' + esc(message) + '</div>' +
+      '<p class="ya-msg" id="ya-msg" role="status"></p>' +
+      '<div class="ya-actions"><button class="ya-btn ghost" data-ya="close">Cancel</button>' +
+      '<button class="ya-btn ok" data-ya="confirm-announcement">Send now</button></div>');
+  }
+
+  async function sendAnnouncement() {
+    const a = S.pendingAnn;
+    if (!a) return;
+    let sent = 0, failed = 0, firstError = '';
+    const memberIds = a.recips.filter(r => r.id && S.members.some(m => m.id === r.id)).map(r => r.id);
+    const directEmails = a.recips.filter(r => !r.id || !S.members.some(m => m.id === r.id)).map(r => r.email);
+
+    const batches = [];
+    for (let i = 0; i < memberIds.length; i += CHUNK) batches.push({ member_ids: memberIds.slice(i, i + CHUNK) });
+    for (let i = 0; i < directEmails.length; i += CHUNK) batches.push({ emails: directEmails.slice(i, i + CHUNK) });
+
+    for (let c = 0; c < batches.length; c++) {
+      modalMsg('Sending batch ' + (c + 1) + ' of ' + batches.length + '…');
+      const payload = Object.assign({ action: 'announcement', subject: a.subject, message: a.message }, batches[c]);
+      const res = await invokeEmailFn(payload);
+      if (res.error) {
+        failed += (batches[c].member_ids || batches[c].emails).length;
+        firstError = firstError || await errorText(res.error);
+        break;
+      }
+      sent += (res.data && res.data.sent) || 0;
+      failed += (res.data && res.data.failed) || 0;
+      if (!firstError && res.data && res.data.failures && res.data.failures.length) firstError = res.data.failures[0];
+      if (c < batches.length - 1) await new Promise(r => setTimeout(r, CHUNK_PAUSE_MS));
+    }
+    S.emailLog.unshift({ time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }), subject: a.subject, count: sent + '/' + a.recips.length, ok: failed === 0 && sent > 0 });
+    S.pendingAnn = null;
+    closeModal();
+    toast('Sent ' + sent + '. ' + (failed ? failed + ' not sent. ' + firstError : ''), failed === 0);
+    await loadQuota();
+    renderApp();
+  }
+
+  /* ---------- Plans, Projects Planned & Calendar ---------- */
+  function plansHTML() {
+    const f = S.planFilter;
+    const list = S.plans.filter(p => f === 'all' || p.status === f);
+    const filterSel = '<select id="ya-plan-filter" aria-label="Filter plans"><option value="all">All statuses</option>' +
+      PLAN_STATUSES.map(s => '<option value="' + s + '"' + (f === s ? ' selected' : '') + '>' + esc(cap(s)) + '</option>').join('') + '</select>';
+    const rows = list.map(p => {
+      const linkedProj = S.projects.filter(pr => pr.plan_id === p.id).length;
+      return '<tr><td data-l="Plan"><strong>' + esc(p.title) + '</strong>' +
+        (p.description ? '<div class="ya-muted" style="font-size:.82rem">' + esc(p.description) + '</div>' : '') + '</td>' +
+        '<td data-l="Category"><span class="ya-tag">' + esc(p.category || 'Other') + '</span></td>' +
+        '<td data-l="Dates">' + esc(fmt(p.start_date)) + (p.end_date && p.end_date !== p.start_date ? ' → ' + esc(fmt(p.end_date)) : '') + '</td>' +
+        '<td data-l="Owner">' + esc(p.owner || '—') + '</td>' +
+        '<td data-l="Projects">' + linkedProj + '</td>' +
+        '<td data-l="Status">' + badge(p.status === 'active' || p.status === 'completed' ? 'approved' : p.status === 'planned' ? 'pending' : 'rejected').replace(/>[^<]+</, '>' + esc(cap(p.status)) + '<') + '</td>' +
+        '<td class="ya-acts">' + btn('edit-plan', 'plan', p.id, 'Edit') + btn('delete', 'plan', p.id, 'Delete', 'danger') + '</td></tr>';
+    }).join('');
+    const syncNote = S.plansCloud
+      ? '<span class="ya-muted">Synced with Supabase</span>'
+      : '<span class="ya-muted">Saved locally in browser (run <code>plans_and_projects.sql</code> in Supabase to sync across all admins)</span>';
+    return '<div class="ya-toolbar">' + (canEdit() ? '<button class="ya-btn small ok" data-ya="new-plan">+ New Plan</button>' : '') +
+      filterSel + '<button class="ya-btn small ghost" data-ya="nav" data-v="calendar">View on Calendar 📅</button>' +
+      '<span class="ya-muted">' + list.length + ' plan(s)</span></div>' +
+      '<p class="ya-muted ya-note">' + syncNote + '</p>' +
+      (rows ? tableWrap(['Plan', 'Category', 'Dates', 'Owner', 'Projects', 'Status', ''], rows) : emptyState());
+  }
+
+  function openPlanForm(p, defaultDate) {
+    const catOpts = PLAN_CATS.map(c => '<option value="' + c + '"' + ((p && p.category === c) ? ' selected' : '') + '>' + c + '</option>').join('');
+    const stOpts = PLAN_STATUSES.map(s => '<option value="' + s + '"' + (((p ? p.status : 'planned') === s) ? ' selected' : '') + '>' + esc(cap(s)) + '</option>').join('');
+    openModal('<h3>' + (p ? 'Edit Plan' : 'New Club Plan') + '</h3><div class="ya-grid2">' +
+      '<label class="ya-field" style="grid-column:1/-1"><span>Title *</span><input name="title" value="' + esc(p ? p.title : '') + '" placeholder="e.g. Summer Robotics Bootcamp"></label>' +
+      '<label class="ya-field"><span>Category</span><select name="category">' + catOpts + '</select></label>' +
+      '<label class="ya-field"><span>Status</span><select name="status">' + stOpts + '</select></label>' +
+      '<label class="ya-field"><span>Start Date *</span><input name="start_date" type="date" value="' + esc((p && p.start_date) || defaultDate || todayISO()) + '"></label>' +
+      '<label class="ya-field"><span>End Date</span><input name="end_date" type="date" value="' + esc((p && p.end_date) || defaultDate || todayISO()) + '"></label>' +
+      '<label class="ya-field"><span>Owner / Lead</span><input name="owner" value="' + esc(p ? p.owner || '' : '') + '" placeholder="e.g. Core Committee"></label>' +
+      '<label class="ya-field"><span>Estimated Budget</span><input name="budget" value="' + esc(p ? p.budget || '' : '') + '" placeholder="e.g. ₹15,000"></label>' +
+      '<label class="ya-field" style="grid-column:1/-1"><span>Description &amp; Goals</span><textarea name="description" rows="3">' + esc(p ? p.description || '' : '') + '</textarea></label>' +
+      '</div><p class="ya-msg" id="ya-msg" role="status"></p>' +
+      '<div class="ya-actions"><button class="ya-btn ghost" data-ya="close">Cancel</button>' +
+      '<button class="ya-btn ok" data-ya="save-plan" data-id="' + esc(p ? p.id : '') + '">Save Plan</button></div>');
+  }
+
+  async function savePlan(id) {
+    const m = modalEl();
+    const title = val(m, 'title');
+    const startDate = val(m, 'start_date');
+    if (!title) return modalMsg('Title is required.');
+    if (!startDate) return modalMsg('Start date is required.');
+    const payload = {
+      title: title,
+      category: val(m, 'category') || 'Other',
+      status: val(m, 'status') || 'planned',
+      start_date: startDate,
+      end_date: val(m, 'end_date') || startDate,
+      owner: val(m, 'owner') || null,
+      budget: val(m, 'budget') || null,
+      description: val(m, 'description') || null
+    };
+    if (S.plansCloud) {
+      const res = id
+        ? await sb().from(PLANS_TABLE).update(payload).eq('id', id).select('id')
+        : await sb().from(PLANS_TABLE).insert(payload).select('id');
+      if (res.error) return modalMsg(res.error.message);
+      await loadPlansAndProjects();
+    } else {
+      if (id) {
+        const idx = S.plans.findIndex(x => String(x.id) === String(id));
+        if (idx >= 0) S.plans[idx] = Object.assign({}, S.plans[idx], payload);
+      } else {
+        S.plans.push(Object.assign({ id: uid('plan') }, payload));
+      }
+      lsWrite(LS_PLANS, S.plans);
+    }
+    closeModal();
+    toast(id ? 'Plan updated.' : 'Plan created.');
+    renderApp();
+  }
+
+  function projectsHTML() {
+    const f = S.projectFilter;
+    const list = S.projects.filter(p => f === 'all' || p.status === f);
+    const filterSel = '<select id="ya-proj-filter" aria-label="Filter projects"><option value="all">All statuses</option>' +
+      PROJ_STATUSES.map(s => '<option value="' + s + '"' + (f === s ? ' selected' : '') + '>' + esc(cap(s)) + '</option>').join('') + '</select>';
+    const planTitle = pid => ((S.plans.find(p => String(p.id) === String(pid))) || {}).title || '—';
+    const rows = list.map(pr => {
+      const pct = Math.max(0, Math.min(100, parseInt(pr.progress || 0, 10) || 0));
+      return '<tr><td data-l="Project"><strong>' + esc(pr.title) + '</strong>' +
+        (pr.description ? '<div class="ya-muted" style="font-size:.82rem">' + esc(pr.description) + '</div>' : '') +
+        (pr.repo_url ? '<div><a href="' + esc(pr.repo_url) + '" target="_blank" rel="noopener" style="font-size:.8rem">Repo / Link ↗</a></div>' : '') + '</td>' +
+        '<td data-l="Linked Plan">' + esc(planTitle(pr.plan_id)) + '</td>' +
+        '<td data-l="Lead">' + esc(pr.lead || '—') + '</td>' +
+        '<td data-l="Target Date">' + esc(fmt(pr.target_date)) + '</td>' +
+        '<td data-l="Progress" style="min-width:110px"><div class="ya-bar"><span style="width:' + pct + '%"></span></div><span class="ya-muted" style="font-size:.78rem">' + pct + '%</span></td>' +
+        '<td data-l="Status">' + badge(pr.status === 'completed' ? 'approved' : pr.status === 'in_progress' || pr.status === 'testing' ? 'pending' : 'rejected').replace(/>[^<]+</, '>' + esc(cap(pr.status)) + '<') + '</td>' +
+        '<td class="ya-acts">' + btn('edit-project', 'project', pr.id, 'Edit') + btn('delete', 'project', pr.id, 'Delete', 'danger') + '</td></tr>';
+    }).join('');
+    return '<div class="ya-toolbar">' + (canEdit() ? '<button class="ya-btn small ok" data-ya="new-project">+ New Project</button>' : '') +
+      filterSel + '<button class="ya-btn small ghost" data-ya="nav" data-v="calendar">View on Calendar 📅</button>' +
+      '<span class="ya-muted">' + list.length + ' project(s)</span></div>' +
+      (rows ? tableWrap(['Project', 'Linked Plan', 'Lead', 'Target Date', 'Progress', 'Status', ''], rows) : emptyState());
+  }
+
+  function openProjectForm(pr, defaultDate) {
+    const planOpts = '<option value="">— No linked plan —</option>' +
+      S.plans.map(p => '<option value="' + esc(p.id) + '"' + (pr && String(pr.plan_id) === String(p.id) ? ' selected' : '') + '>' + esc(p.title) + '</option>').join('');
+    const stOpts = PROJ_STATUSES.map(s => '<option value="' + s + '"' + (((pr ? pr.status : 'planned') === s) ? ' selected' : '') + '>' + esc(cap(s)) + '</option>').join('');
+    openModal('<h3>' + (pr ? 'Edit Project' : 'New Planned Project') + '</h3><div class="ya-grid2">' +
+      '<label class="ya-field" style="grid-column:1/-1"><span>Project Name *</span><input name="title" value="' + esc(pr ? pr.title : '') + '" placeholder="e.g. Autonomous Line Follower v2"></label>' +
+      '<label class="ya-field"><span>Linked Plan</span><select name="plan_id">' + planOpts + '</select></label>' +
+      '<label class="ya-field"><span>Status</span><select name="status">' + stOpts + '</select></label>' +
+      '<label class="ya-field"><span>Lead / Team</span><input name="lead" value="' + esc(pr ? pr.lead || '' : '') + '" placeholder="e.g. Robotics Team"></label>' +
+      '<label class="ya-field"><span>Target Date</span><input name="target_date" type="date" value="' + esc((pr && pr.target_date) || defaultDate || todayISO()) + '"></label>' +
+      '<label class="ya-field"><span>Progress (%)</span><input name="progress" type="number" min="0" max="100" value="' + esc(pr ? pr.progress || 0 : 0) + '"></label>' +
+      '<label class="ya-field"><span>Budget / Parts</span><input name="budget" value="' + esc(pr ? pr.budget || '' : '') + '" placeholder="e.g. ₹5,000"></label>' +
+      '<label class="ya-field" style="grid-column:1/-1"><span>GitHub / Doc URL</span><input name="repo_url" value="' + esc(pr ? pr.repo_url || '' : '') + '" placeholder="https://github.com/Yantrika-IACS/..."></label>' +
+      '<label class="ya-field" style="grid-column:1/-1"><span>Description &amp; Milestones</span><textarea name="description" rows="3">' + esc(pr ? pr.description || '' : '') + '</textarea></label>' +
+      '</div><p class="ya-msg" id="ya-msg" role="status"></p>' +
+      '<div class="ya-actions"><button class="ya-btn ghost" data-ya="close">Cancel</button>' +
+      '<button class="ya-btn ok" data-ya="save-project" data-id="' + esc(pr ? pr.id : '') + '">Save Project</button></div>');
+  }
+
+  async function saveProject(id) {
+    const m = modalEl();
+    const title = val(m, 'title');
+    if (!title) return modalMsg('Project name is required.');
+    const payload = {
+      title: title,
+      plan_id: val(m, 'plan_id') || null,
+      status: val(m, 'status') || 'planned',
+      lead: val(m, 'lead') || null,
+      target_date: val(m, 'target_date') || null,
+      progress: Math.max(0, Math.min(100, parseInt(val(m, 'progress') || '0', 10) || 0)),
+      budget: val(m, 'budget') || null,
+      repo_url: val(m, 'repo_url') || null,
+      description: val(m, 'description') || null
+    };
+    if (S.projectsCloud) {
+      const res = id
+        ? await sb().from(PROJECTS_TABLE).update(payload).eq('id', id).select('id')
+        : await sb().from(PROJECTS_TABLE).insert(payload).select('id');
+      if (res.error) return modalMsg(res.error.message);
+      await loadPlansAndProjects();
+    } else {
+      if (id) {
+        const idx = S.projects.findIndex(x => String(x.id) === String(id));
+        if (idx >= 0) S.projects[idx] = Object.assign({}, S.projects[idx], payload);
+      } else {
+        S.projects.push(Object.assign({ id: uid('proj') }, payload));
+      }
+      lsWrite(LS_PROJECTS, S.projects);
+    }
+    closeModal();
+    toast(id ? 'Project updated.' : 'Project added.');
+    renderApp();
+  }
+
+  function gatherCalendarItems() {
+    const items = [];
+    if (S.calShow.plans) {
+      S.plans.forEach(p => {
+        if (!p.start_date) return;
+        items.push({ date: p.start_date.slice(0, 10), end: (p.end_date || p.start_date).slice(0, 10), kind: 'plan', title: p.title, sub: p.category + ' · ' + cap(p.status), id: p.id });
+      });
+    }
+    if (S.calShow.projects) {
+      S.projects.forEach(pr => {
+        if (!pr.target_date) return;
+        items.push({ date: pr.target_date.slice(0, 10), end: pr.target_date.slice(0, 10), kind: 'project', title: pr.title, sub: 'Project · ' + (pr.progress || 0) + '%', id: pr.id });
+      });
+    }
+    if (S.calShow.tasks) {
+      S.tasks.forEach(t => {
+        if (!t.due_date) return;
+        items.push({ date: t.due_date.slice(0, 10), end: t.due_date.slice(0, 10), kind: 'task', title: t.title, sub: 'Task · ' + cap(t.status), id: t.id });
+      });
+    }
+    return items;
+  }
+
+  function calendarHTML() {
+    const y = S.calYear, m = S.calMonth;
+    const monthName = new Date(y, m, 1).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+    const monthPrefix = y + '-' + String(m + 1).padStart(2, '0');
+    const items = gatherCalendarItems();
+    const monthItems = items.filter(it => it.date.startsWith(monthPrefix) || (it.date <= monthPrefix + '-31' && it.end >= monthPrefix + '-01'));
+    const monthPlans = S.plans.filter(p => (p.start_date || '').startsWith(monthPrefix) || ((p.start_date || '') <= monthPrefix + '-31' && (p.end_date || p.start_date || '') >= monthPrefix + '-01'));
+
+    const toggles = [
+      ['plans', 'Plans', 'plan'],
+      ['projects', 'Projects', 'project'],
+      ['tasks', 'Tasks', 'task']
+    ].map(([k, lbl, cls]) =>
+      '<label class="ya-chip-check"><input type="checkbox" name="cal_show" value="' + k + '"' + (S.calShow[k] ? ' checked' : '') + '> <span class="ya-cal-dot ' + cls + '"></span><span>' + lbl + '</span></label>').join('');
+
+    const planStrip = '<div class="ya-card" style="margin-bottom:14px;padding:14px 18px"><div class="ya-toolbar" style="margin-bottom:6px;justify-content:space-between">' +
+      '<strong>Plans Active in ' + esc(monthName) + ' (' + monthPlans.length + ')</strong>' +
+      (canEdit() ? '<button class="ya-btn small ok" data-ya="new-plan">+ Add Plan</button>' : '') + '</div>' +
+      (monthPlans.length
+        ? '<div class="ya-pill-row">' + monthPlans.map(p =>
+            '<button class="ya-plan-pill" data-ya="edit-plan" data-id="' + esc(p.id) + '">' + esc(p.title) + ' <span class="ya-muted">(' + esc(fmt(p.start_date)) + ')</span></button>').join('') + '</div>'
+        : '<div class="ya-muted" style="font-size:.88rem">No plans scheduled for ' + esc(monthName) + ' yet. Click any date below or "+ Add Plan" to schedule one.</div>') +
+      '</div>';
+
+    let calBody = '';
+    if (S.calMode === 'agenda') {
+      const sorted = monthItems.slice().sort((a, b) => a.date.localeCompare(b.date));
+      calBody = sorted.length
+        ? tableWrap(['Date', 'Type', 'Title', 'Details'], sorted.map(it =>
+            '<tr><td>' + esc(fmt(it.date)) + '</td><td><span class="ya-cal-pill ' + it.kind + '">' + esc(cap(it.kind)) + '</span></td>' +
+            '<td><strong>' + esc(it.title) + '</strong></td><td>' + esc(it.sub) + '</td></tr>').join(''))
+        : '<div class="ya-empty">Nothing scheduled in ' + esc(monthName) + '.</div>';
+    } else {
+      const firstDay = new Date(y, m, 1).getDay();
+      const daysInMonth = new Date(y, m + 1, 0).getDate();
+      const today = todayISO();
+      const cells = [];
+      for (let i = 0; i < firstDay; i++) cells.push('<div class="ya-cal-cell empty"></div>');
+      for (let d = 1; d <= daysInMonth; d++) {
+        const iso = monthPrefix + '-' + String(d).padStart(2, '0');
+        const dayItems = items.filter(it => it.date <= iso && it.end >= iso);
+        const pills = dayItems.slice(0, 3).map(it =>
+          '<div class="ya-cal-pill ' + it.kind + '" title="' + esc(it.title + ' — ' + it.sub) + '">' + esc(it.title) + '</div>').join('') +
+          (dayItems.length > 3 ? '<div class="ya-muted" style="font-size:.72rem">+' + (dayItems.length - 3) + ' more</div>' : '');
+        cells.push('<div class="ya-cal-cell' + (iso === today ? ' today' : '') + (iso === S.calSelectedDate ? ' sel' : '') + '" data-ya="cal-day" data-date="' + iso + '">' +
+          '<div class="ya-cal-num">' + d + '</div>' + pills + '</div>');
+      }
+      calBody = '<div class="ya-cal-grid">' +
+        ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(w => '<div class="ya-cal-head">' + w + '</div>').join('') +
+        cells.join('') + '</div>';
+    }
+
+    let dayDetail = '';
+    if (S.calSelectedDate) {
+      const dItems = items.filter(it => it.date <= S.calSelectedDate && it.end >= S.calSelectedDate);
+      dayDetail = '<div class="ya-card" style="margin-top:14px"><div class="ya-toolbar" style="justify-content:space-between;margin-bottom:8px">' +
+        '<h3 style="margin:0">' + esc(fmt(S.calSelectedDate)) + '</h3>' +
+        '<div style="display:flex;gap:6px">' +
+        (canEdit() ? '<button class="ya-btn small ok" data-ya="new-plan-date" data-date="' + esc(S.calSelectedDate) + '">+ Plan on this date</button>' +
+        '<button class="ya-btn small" data-ya="new-proj-date" data-date="' + esc(S.calSelectedDate) + '">+ Project milestone</button>' : '') +
+        '</div></div>' +
+        (dItems.length ? '<ul class="ya-day-list">' + dItems.map(it =>
+          '<li><span class="ya-cal-pill ' + it.kind + '">' + esc(cap(it.kind)) + '</span> <strong>' + esc(it.title) + '</strong> <span class="ya-muted">(' + esc(it.sub) + ')</span></li>').join('') + '</ul>'
+          : '<p class="ya-muted">Nothing scheduled on this date.</p>') +
+        '</div>';
+    }
+
+    return planStrip +
+      '<div class="ya-card"><div class="ya-toolbar" style="justify-content:space-between">' +
+      '<div style="display:flex;gap:6px;align-items:center">' +
+      '<button class="ya-btn small ghost" data-ya="cal-prev">← Prev</button>' +
+      '<strong style="min-width:150px;text-align:center">' + esc(monthName) + '</strong>' +
+      '<button class="ya-btn small ghost" data-ya="cal-next">Next →</button>' +
+      '<button class="ya-btn small ghost" data-ya="cal-today">Today</button></div>' +
+      '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">' + toggles +
+      '<button class="ya-btn small ' + (S.calMode === 'month' ? '' : 'ghost') + '" data-ya="cal-mode" data-m="month">Grid</button>' +
+      '<button class="ya-btn small ' + (S.calMode === 'agenda' ? '' : 'ghost') + '" data-ya="cal-mode" data-m="agenda">Agenda</button>' +
+      '</div></div>' + calBody + '</div>' + dayDetail;
+  }
 
   /* ---------- modals ---------- */
   function openDetail(kind, r) {
@@ -385,7 +1190,7 @@
         '<label class="ya-field"><span>Joined on</span><input name="joined_at" type="date" value="' + todayISO() + '"></label>'
       : '';
     openModal('<h3>' + (adding ? 'Add member' : 'Edit member') + '</h3>' +
-      (adding ? '<p class="ya-muted">Adds a person straight to the members list. Use this for people who did not apply through the website.</p>'
+      (adding ? '<p class="ya-muted">Adds a person straight to the members list.</p>'
               : '<p class="ya-muted">Member ID: <strong>' + esc(r.member_id) + '</strong></p>') +
       '<div class="ya-grid2">' + idField + fields + '</div><p class="ya-msg" id="ya-msg" role="status"></p>' +
       '<div class="ya-actions"><button class="ya-btn ghost" data-ya="close">Cancel</button>' +
@@ -401,6 +1206,12 @@
   function badge(s) { return '<span class="ya-b ' + esc(String(s || 'pending').toLowerCase()) + '">' + esc(cap(s || 'pending')) + '</span>'; }
   const btn = (act, kind, id, label, cls) =>
     '<button class="ya-btn small ' + (cls || 'ghost') + '" data-ya="' + act + '" data-kind="' + kind + '" data-id="' + esc(id) + '">' + label + '</button>';
+
+  function sortTh(label, colKey) {
+    if (!colKey) return '<th>' + esc(label) + '</th>';
+    const arrow = S.sort.col === colKey ? (S.sort.dir === 1 ? ' ▲' : ' ▼') : '';
+    return '<th><button class="ya-sort-btn" data-ya="sort" data-col="' + esc(colKey) + '">' + esc(label) + arrow + '</button></th>';
+  }
 
   function appsTable(rows) {
     if (!rows.length) return emptyState();
@@ -418,7 +1229,10 @@
         '<td data-l="Status">' + badge(r.status) + '</td>' +
         '<td class="ya-acts">' + acts + '</td></tr>';
     }).join('');
-    return tableWrap(['Name', 'Email', 'Institution', 'Role', 'Applied', 'Status', ''], body);
+    return '<div class="ya-tablewrap"><table class="ya-table"><thead><tr>' +
+      sortTh('Name', 'full_name') + sortTh('Email', 'email') + sortTh('Institution', 'institution') +
+      sortTh('Role', 'role') + sortTh('Applied', 'created_at') + sortTh('Status', 'status') + '<th></th>' +
+      '</tr></thead><tbody>' + body + '</tbody></table></div>';
   }
   function membersTable(rows) {
     if (!rows.length) return emptyState();
@@ -433,7 +1247,11 @@
       '<td data-l="Status">' + badge(r.status) + '</td>' +
       '<td class="ya-acts">' + btn('detail', 'member', r.id, 'View') + btn('edit-member', 'member', r.id, 'Edit') +
       btn('member-role', 'member', r.id, 'Body &amp; role') + btn('delete', 'member', r.id, 'Delete', 'danger') + '</td></tr>').join('');
-    return tableWrap(['Member ID', 'Name', 'Email', 'Body', 'Designation', 'Affiliation', 'Status', ''], body);
+    return '<div class="ya-tablewrap"><table class="ya-table"><thead><tr>' +
+      sortTh('Member ID', 'member_id') + sortTh('Name', 'full_name') + sortTh('Email', 'email') +
+      sortTh('Body', 'current_body') + sortTh('Designation', 'current_designation') + sortTh('Affiliation', 'affiliation') +
+      sortTh('Status', 'status') + '<th></th>' +
+      '</tr></thead><tbody>' + body + '</tbody></table></div>';
   }
   function tableWrap(heads, body) {
     return '<div class="ya-tablewrap"><table class="ya-table"><thead><tr>' +
@@ -443,7 +1261,7 @@
     return '<div class="ya-empty">' + (S.q ? 'No records match "' + esc(S.q) + '". Try a shorter word.' : 'Nothing here yet.') + '</div>';
   }
   function listHTML() {
-    const rows = filterRows(viewList(), S.view === 'members' ? MEMBER_SEARCH : ['full_name', 'email']);
+    const rows = filterRows(viewList(), S.view === 'members' ? MEMBER_SEARCH : ['full_name', 'email', 'institution']);
     return S.view === 'members' ? membersTable(rows) : appsTable(rows);
   }
   function breakdown(field, names) {
@@ -464,42 +1282,51 @@
     const email = S.user && S.user.email;
     const linked = name && name !== email;
     const mine = S.tasks.filter(t => t.assignee_user_id === me && t.status !== 'done').length;
-    return '<div class="ya-welcome"><h2>Welcome, ' + esc(linked ? name : (email || '')) + '</h2>' +
-      '<p class="ya-muted">' + esc(ROLE_LABEL[S.role] || 'Viewer') + ' · ' + (mine ? mine + ' open task' + (mine === 1 ? '' : 's') + ' assigned to you' : 'No open tasks assigned to you') + '</p>' +
-      (linked ? '' : '<p class="ya-muted ya-note">Your login is not linked to a member name yet. A super admin can link it in Admin Users.</p>') +
+    const quickBtns = '<div class="ya-quick-actions">' +
+      (canEdit() ? '<button class="ya-btn small ok" data-ya="add-member">+ Member</button>' +
+        '<button class="ya-btn small" data-ya="new-plan">+ Plan</button>' +
+        '<button class="ya-btn small cy" data-ya="new-project">+ Project</button>' +
+        '<button class="ya-btn small ghost" data-ya="nav" data-v="email">✉️ Email</button>' : '') +
+      '<button class="ya-btn small ghost" data-ya="nav" data-v="calendar">📅 Calendar</button>' +
+      '<button class="ya-btn small ghost" data-ya="nav" data-v="export">📤 Export</button>' +
       '</div>';
-  }
-  function setupChecklistHTML() {
-    const linked = S.directory.length > 0 && S.directory.every(d => d.name && d.name.indexOf('@') < 0);
-    const items = [
-      ['Add your members', S.members.length > 0, 'members'],
-      ['Set up the groups (bodies)', S.groups.length > 0, 'structure'],
-      ['Set up positions', S.positions.length > 0, 'structure'],
-      ['Link every admin login to a member name', linked, 'admins']
-    ];
-    if (!items.some(i => !i[1])) return '';
-    return '<div class="ya-card ya-checklist"><h2 class="ya-h2">Getting started</h2>' +
-      '<p class="ya-muted">A few steps to finish setting things up:</p><ul>' +
-      items.map(([label, done, view]) => '<li>' + (done ? '✓ ' : '○ ') + esc(label) +
-        (done ? '' : ' <button class="ya-linkbtn" data-ya="nav" data-v="' + view + '">Go</button>') + '</li>').join('') +
-      '</ul></div>';
+    return '<div class="ya-welcome"><div><h2>Welcome, ' + esc(linked ? name : (email || '')) + '</h2>' +
+      '<p class="ya-muted" style="margin:0">' + esc(ROLE_LABEL[S.role] || 'Viewer') + ' · ' + (mine ? mine + ' open task' + (mine === 1 ? '' : 's') + ' assigned to you' : 'No open tasks assigned to you') + '</p>' +
+      (linked ? '' : '<p class="ya-muted ya-note">Your login is not linked to a member name yet. A super admin can link it in Admin Users.</p>') +
+      '</div>' + quickBtns + '</div>';
   }
   function overviewHTML() {
-    return welcomeHTML() + setupChecklistHTML() + overviewCards();
-  }
-  function overviewCards() {
-    const stat = (label, val, cls) => '<div class="ya-stat ' + cls + '"><span>' + label + '</span><strong>' + val + '</strong></div>';
-    return '<div class="ya-stats">' +
-      stat('Members', S.members.length, 'ok') +
-      stat('Pending Applications', appsByStatus('pending').length, 'warn') +
-      stat('Approved Applications', appsByStatus('approved').length, '') +
-      stat('Rejected Applications', appsByStatus('rejected').length, 'bad') + '</div>' +
-      '<p class="ya-muted ya-note">Members are the people in your members list. Approving a pending application adds that person to it.</p>' +
-      '<div class="ya-two"><div class="ya-card"><h2 class="ya-h2">Members by body</h2>' + breakdown('current_body', S.groups.map(g => g.name)) + '</div>' +
-      '<div class="ya-card"><h2 class="ya-h2">Members by designation</h2>' + breakdown('current_designation', orderedPositions().map(p => p.name)) + '</div></div>' +
+    const openTasks = S.tasks.filter(t => t.status !== 'done').length;
+    const overdue = S.tasks.filter(t => t.status !== 'done' && t.due_date && t.due_date < todayISO()).length;
+    const activePlans = S.plans.filter(p => p.status !== 'completed').length;
+    const activeProj = S.projects.filter(p => p.status !== 'completed').length;
+    const stat = (label, valStr, cls, navView) =>
+      '<button class="ya-stat ' + cls + '" data-ya="nav" data-v="' + navView + '"><span>' + label + '</span><strong>' + valStr + '</strong></button>';
+    const upcoming = gatherCalendarItems().filter(it => it.date >= todayISO()).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 5);
+    const upcomingCard = '<div class="ya-card"><div class="ya-toolbar" style="justify-content:space-between;margin-bottom:8px">' +
+      '<h2 class="ya-h2" style="margin:0">Upcoming Schedule</h2><button class="ya-linkbtn" data-ya="nav" data-v="calendar">Open Calendar →</button></div>' +
+      (upcoming.length
+        ? '<ul class="ya-day-list">' + upcoming.map(it =>
+            '<li><span class="ya-cal-pill ' + it.kind + '">' + esc(fmt(it.date)) + '</span> <strong>' + esc(it.title) + '</strong> <span class="ya-muted">· ' + esc(it.sub) + '</span></li>').join('') + '</ul>'
+        : '<p class="ya-muted">No upcoming plans or tasks scheduled.</p>') + '</div>';
+    const affCard = '<div class="ya-card"><h2 class="ya-h2" style="margin-top:0">Affiliation Split</h2>' +
+      breakdown('affiliation', AFFILIATIONS) + '</div>';
+
+    return welcomeHTML() +
+      '<div class="ya-stats">' +
+      stat('Total Members', S.members.length, 'ok', 'members') +
+      stat('Pending Apps', appsByStatus('pending').length, 'warn', 'pending') +
+      stat('Active Plans', activePlans, 'bl', 'plans') +
+      stat('Planned Projects', activeProj, 'cy', 'projects') +
+      stat('Open Tasks' + (overdue ? ' (' + overdue + ' late)' : ''), openTasks, overdue ? 'bad' : '', 'tasks') +
+      '</div>' +
+      '<div class="ya-two" style="margin-top:16px">' + upcomingCard + affCard + '</div>' +
+      '<div class="ya-two" style="margin-top:16px"><div class="ya-card"><h2 class="ya-h2" style="margin-top:0">Members by body</h2>' + breakdown('current_body', S.groups.map(g => g.name)) + '</div>' +
+      '<div class="ya-card"><h2 class="ya-h2" style="margin-top:0">Members by designation</h2>' + breakdown('current_designation', orderedPositions().map(p => p.name)) + '</div></div>' +
       '<h2 class="ya-h2">Latest pending applications</h2>' + appsTable(appsByStatus('pending').slice(0, 5)) +
       (appsByStatus('pending').length > 5 ? '<p><button class="ya-btn ghost" data-ya="nav" data-v="pending">View all pending →</button></p>' : '');
   }
+
   async function loadAdmins() {
     const res = await sb().rpc('list_admins');
     if (res.error) { S.admins = []; S.error = 'Could not load admin list: ' + res.error.message; return; }
@@ -528,8 +1355,7 @@
         '<button class="ya-btn small danger" data-ya="remove-admin" data-id="' + esc(a.id) + '" data-email="' + esc(a.email) + '">Remove access</button>') + '</td></tr>').join('');
     return '<div class="ya-toolbar"><button class="ya-btn small ok" data-ya="add-admin">+ Add admin</button>' +
       '<span class="ya-muted">' + S.admins.length + ' admin(s)</span></div>' +
-      '<p class="ya-muted ya-note"><strong>Super admin</strong>: everything, including deleting records and managing admins. <strong>Admin</strong>: view and edit, approve, notes, groups and positions, but no deleting and no admin management. <strong>Viewer</strong>: view only.</p>' +
-      '<p class="ya-muted ya-note">The person must already have a login: create it in Supabase under Authentication, then Users, then Add user.</p>' +
+      '<p class="ya-muted ya-note"><strong>Super admin</strong>: everything. <strong>Admin</strong>: view, edit, approve, plans, projects, emails. <strong>Viewer</strong>: read only.</p>' +
       (rows ? tableWrap(['Email', 'Member', 'Role', 'Admin since', ''], rows) : emptyState());
   }
   async function setAdminMember(userId, memberId) {
@@ -544,104 +1370,10 @@
     const overdue = t.status !== 'done' && t.due_date < todayISO();
     return '<span' + (overdue ? ' style="color:#d6395a;font-weight:700"' : '') + '>' + esc(fmt(t.due_date)) + (overdue ? ' (overdue)' : '') + '</span>';
   }
-  // ---- email (sent by the send-email function, which holds the Brevo key)
-  const EMAIL_FN = 'send-email';
-  const CHUNK = 40;
-  const CHUNK_PAUSE_MS = 1500;
-  // The Edge Function puts its reason in the response body. Read it so the dashboard can show it.
-  async function errorText(error) {
-    try {
-      if (error && error.context && typeof error.context.json === 'function') {
-        const body = await error.context.json();
-        if (body && body.error) return body.error + (body.detail ? ' ' + body.detail : '');
-      }
-    } catch (e) { /* body was not JSON */ }
-    return (error && error.message) || 'unknown error';
-  }
-  async function loadQuota() {
-    const res = await sb().functions.invoke(EMAIL_FN, { body: { action: 'quota' } });
-    S.quota = res.error ? null : res.data;
-    S.quotaError = res.error ? await errorText(res.error) : '';
-    return S.quota;
-  }
-  async function notifyTask(taskId, event) {
-    const res = await sb().functions.invoke(EMAIL_FN, { body: { action: 'task', task_id: taskId, event: event } });
-    if (res.error) { toast('Saved, but the email was not sent. ' + (res.error.message || ''), false); return false; }
-    return true;
-  }
-  function emailHTML() {
-    const q = S.quota;
-    const left = q ? Math.max(0, q.daily_limit - q.sent_today) : null;
-    const withEmail = S.members.filter(m => m.email);
-    const groups = S.groups.slice().sort((a, b) => a.sort_order - b.sort_order);
-    const groupOpts = '<option value="">Everyone with an email address</option>' +
-      groups.map(g => '<option value="' + esc(g.name) + '">' + esc(g.name) + '</option>').join('');
-    return '<div class="ya-card"><h2 class="ya-h2">Send an announcement</h2>' +
-      '<p class="ya-muted">Each person gets their own email. Sent in small batches with a short pause.</p>' +
-      '<div class="ya-quota ' + (left === 0 ? 'bad' : '') + '">' +
-      (q ? 'Emails sent today: <strong>' + q.sent_today + '</strong> of <strong>' + q.daily_limit + '</strong> (<strong>' + left + '</strong> left)'
-         : 'Could not read today\'s email count. Check that the email function is set up.') + '</div>' +
-      '<div class="ya-grid2" style="margin-top:12px">' +
-      '<label class="ya-field"><span>Send to</span><select name="ann_group">' + groupOpts + '</select></label>' +
-      '<label class="ya-field"><span>Subject *</span><input name="ann_subject" placeholder="e.g. Workshop on Saturday"></label>' +
-      '<label class="ya-field" style="grid-column:1/-1"><span>Message *</span><textarea name="ann_body" rows="6"></textarea></label>' +
-      '</div><p class="ya-muted ya-note">' + withEmail.length + ' member(s) have an email address. Members without one are skipped.</p>' +
-      '<div class="ya-actions start"><button class="ya-btn ok" data-ya="send-announcement">Review and send</button></div></div>';
-  }
-  async function openAnnouncementConfirm() {
-    const body = document.querySelector('#yadmin-root textarea[name="ann_body"]');
-    const message = body ? body.value.trim() : '';
-    const group = (document.querySelector('#yadmin-root select[name="ann_group"]') || {}).value || '';
-    const subj = (document.querySelector('#yadmin-root input[name="ann_subject"]') || {}).value.trim();
-    if (!subj || !message) return toast('Add a subject and a message first.', false);
-    const recips = S.members.filter(m => m.email && (!group || m.current_body === group));
-    if (!recips.length) return toast('No members with an email address in that group.', false);
-    if (!S.quota) {
-      await loadQuota();
-      if (!S.quota) return toast('Could not reach the email function. Check that send-email is deployed and its secrets are set. (' + (S.quotaError || 'no details') + ')', false);
-    }
-    const left = Math.max(0, S.quota.daily_limit - S.quota.sent_today);
-    if (left === 0) return toast('The daily email limit (' + S.quota.daily_limit + ') has been reached for today.', false);
-    if (recips.length > left) return toast('Only ' + left + ' email(s) left today. Choose a smaller group.', false);
-    S.pendingAnn = { subject: subj, message: message, ids: recips.map(m => m.id), group: group };
-    openModal('<h3>Send this announcement?</h3>' +
-      '<p><strong>' + esc(subj) + '</strong></p><p class="ya-muted">To ' + recips.length + ' member(s)' + (group ? ' in ' + esc(group) : '') + '.</p>' +
-      '<div class="ya-dl" style="white-space:pre-wrap;border:1px solid rgba(128,128,128,.25);border-radius:10px;padding:10px">' + esc(message) + '</div>' +
-      '<p class="ya-msg" id="ya-msg" role="status"></p>' +
-      '<div class="ya-actions"><button class="ya-btn ghost" data-ya="close">Cancel</button>' +
-      '<button class="ya-btn ok" data-ya="confirm-announcement">Send now</button></div>');
-  }
-  async function sendAnnouncement() {
-    const a = S.pendingAnn;
-    if (!a) return;
-    let sent = 0, failed = 0, firstError = '';
-    const chunks = [];
-    for (let i = 0; i < a.ids.length; i += CHUNK) chunks.push(a.ids.slice(i, i + CHUNK));
-    for (let c = 0; c < chunks.length; c++) {
-      modalMsg('Sending batch ' + (c + 1) + ' of ' + chunks.length + '…');
-      const res = await sb().functions.invoke(EMAIL_FN, { body: { action: 'announcement', member_ids: chunks[c], subject: a.subject, message: a.message } });
-      if (res.error) {
-        failed += chunks[c].length;
-        firstError = firstError || await errorText(res.error);
-        break;
-      }
-      sent += res.data.sent || 0;
-      failed += res.data.failed || 0;
-      if (!firstError && res.data.failures && res.data.failures.length) firstError = res.data.failures[0];
-      if (c < chunks.length - 1) await new Promise(r => setTimeout(r, CHUNK_PAUSE_MS));
-    }
-    S.pendingAnn = null;
-    closeModal();
-    toast('Sent ' + sent + '. ' + (failed ? failed + ' not sent. ' + firstError : ''), failed === 0);
-    await loadQuota();
-    renderApp();
-  }
-
   function tasksHTML() {
     const me = S.user && S.user.id;
     const f = S.taskFilter;
-    const list = S.tasks.filter(t =>
-      f === 'all' ? true : f === 'mine' ? t.assignee_user_id === me : t.status === f);
+    const list = S.tasks.filter(t => f === 'all' ? true : f === 'mine' ? t.assignee_user_id === me : t.status === f);
     const statusTxt = { open: 'Open', in_progress: 'In progress', done: 'Done' };
     const rows = list.map(t => {
       const mine = t.assignee_user_id === me;
@@ -663,7 +1395,6 @@
         .map(([v, l]) => '<option value="' + v + '"' + (f === v ? ' selected' : '') + '>' + l + '</option>').join('') + '</select>';
     return '<div class="ya-toolbar">' + (canEdit() ? '<button class="ya-btn small ok" data-ya="new-task">+ New task</button>' : '') +
       filterSel + '<span class="ya-muted">' + list.length + ' task(s)</span></div>' +
-      '<p class="ya-muted ya-note">Assign a task to an admin. The assignee can start it and mark it done.</p>' +
       (rows ? tableWrap(['Task', 'Assigned to', 'Due', 'Status', ''], rows) : emptyState());
   }
   function openTask() {
@@ -712,7 +1443,7 @@
   }
   function openAddAdmin() {
     openModal('<h3>Add admin</h3>' +
-      '<p class="ya-muted">Enter the email of an existing login. Create the login first in Supabase: Authentication, then Users, then Add user.</p>' +
+      '<p class="ya-muted">Enter the email of an existing login in Supabase Authentication.</p>' +
       '<label class="ya-field"><span>Email *</span><input name="admin_email" type="email" placeholder="name@example.com"></label>' +
       '<label class="ya-field"><span>Role *</span><select name="admin_role"><option value="admin" selected>Admin</option><option value="viewer">Viewer</option><option value="super_admin">Super admin</option></select></label>' +
       '<p class="ya-msg" id="ya-msg" role="status"></p>' +
@@ -747,51 +1478,24 @@
   const valueText = v => Array.isArray(v) ? v.join(' ') : (v == null ? '' : String(v));
   function searchResultsHTML() {
     const q = S.gq.trim().toLowerCase();
-    if (!q) return '<div class="ya-empty">Type a name, email, Member ID, group, position, or task above, then press Search.</div>';
-    const hit = obj => Object.keys(obj).some(k =>
-      !/(^id$|_id$|_at$|_by$)/.test(k) && valueText(obj[k]).toLowerCase().indexOf(q) >= 0);
+    if (!q) return '<div class="ya-empty">Type a name, email, Member ID, plan, project, or task above, then press Search.</div>';
+    const hit = obj => Object.keys(obj).some(k => !/(^id$|_id$|_at$|_by$)/.test(k) && valueText(obj[k]).toLowerCase().indexOf(q) >= 0);
     const mem = S.members.filter(hit);
     const app = S.apps.filter(hit);
-    const grp = S.groups.filter(hit);
-    const pos = S.positions.filter(hit);
+    const pln = S.plans.filter(hit);
+    const prj = S.projects.filter(hit);
     const tsk = S.tasks.filter(hit);
-    const adm = isSuper() ? S.admins.filter(a => hit({ email: a.email, name: a.memberName || '' })) : [];
-    const act = S.activity.filter(hit).slice(0, 50);
-    const total = mem.length + app.length + grp.length + pos.length + tsk.length + adm.length + act.length;
+    const total = mem.length + app.length + pln.length + prj.length + tsk.length;
     const section = (title, count, body) => count ? '<h2 class="ya-h2">' + esc(title) + ' (' + count + ')</h2>' + body : '';
-    const memBody = tableWrap(['Name', 'Member ID', 'Body', 'Designation', ''], mem.map(m =>
-      '<tr><td data-l="Name"><strong>' + esc(m.full_name) + '</strong></td><td data-l="Member ID">' + esc(m.member_id) + '</td>' +
-      '<td data-l="Body">' + esc(m.current_body || '—') + '</td><td data-l="Designation">' + esc(m.current_designation || '—') + '</td>' +
-      '<td class="ya-acts">' + btn('detail', 'member', m.id, 'View') + '</td></tr>').join(''));
-    const appBody = tableWrap(['Name', 'Email', 'Status', ''], app.map(a =>
-      '<tr><td data-l="Name"><strong>' + esc(a.full_name) + '</strong></td><td data-l="Email">' + esc(a.email) + '</td>' +
-      '<td data-l="Status">' + badge(a.status) + '</td><td class="ya-acts">' + btn('detail', 'app', a.id, 'View') + '</td></tr>').join(''));
-    const grpBody = tableWrap(['Group', 'Members', ''], grp.map(g =>
-      '<tr><td data-l="Group"><strong>' + esc(g.name) + '</strong></td><td data-l="Members">' + membersIn('current_body', g.name) + '</td>' +
-      '<td class="ya-acts">' + btn('group-members', 'group', g.id, 'Show people') + '</td></tr>').join(''));
-    const posBody = tableWrap(['Position', 'Group', 'Members', ''], pos.map(p =>
-      '<tr><td data-l="Position"><strong>' + esc(p.name) + '</strong></td><td data-l="Group">' + esc(groupNameOf(p.group_id)) + '</td>' +
-      '<td data-l="Members">' + membersIn('current_designation', p.name) + '</td>' +
-      '<td class="ya-acts">' + btn('position-members', 'position', p.id, 'Show people') + '</td></tr>').join(''));
-    const tskBody = tableWrap(['Task', 'Assigned to', 'Status'], tsk.map(t =>
-      '<tr><td data-l="Task"><strong>' + esc(t.title) + '</strong></td><td data-l="Assigned to">' + esc(nameOfAdmin(t.assignee_user_id) || '—') + '</td>' +
-      '<td data-l="Status">' + esc(t.status) + '</td></tr>').join(''));
-    const admBody = tableWrap(['Email', 'Role', ''], adm.map(a =>
-      '<tr><td data-l="Email">' + esc(a.email) + '</td><td data-l="Role">' + esc(ROLE_LABEL[a.role] || a.role) + '</td>' +
-      '<td class="ya-acts"><button class="ya-btn small ghost" data-ya="nav" data-v="admins">Open Admin Users</button></td></tr>').join(''));
-    const actBody = tableWrap(['When', 'Who', 'Action', 'Name'], act.map(a =>
-      '<tr><td data-l="When">' + esc(new Date(a.created_at).toLocaleDateString('en-IN')) + '</td><td data-l="Who">' + esc(a.actor_email || 'Website') + '</td>' +
-      '<td data-l="Action">' + esc(cap(a.action)) + '</td><td data-l="Name">' + esc(a.summary || '—') + '</td></tr>').join(''));
-    return '<p class="ya-muted">' + total + ' result' + (total === 1 ? '' : 's') + ' for "' + esc(S.gq) + '"</p>' +
-      (total ? '' : '<div class="ya-empty">Nothing matches "' + esc(S.gq) + '". Try a shorter word, or check the spelling.</div>') +
-      section('Members', mem.length, memBody) +
-      section('Applications', app.length, appBody) +
-      section('Groups', grp.length, grpBody) +
-      section('Positions', pos.length, posBody) +
-      section('Tasks', tsk.length, tskBody) +
-      section('Admin accounts', adm.length, admBody) +
-      section('Activity log', act.length, actBody);
+    return '<p class="ya-muted">' + total + ' result(s) for "' + esc(S.gq) + '"</p>' +
+      (total ? '' : '<div class="ya-empty">Nothing matches "' + esc(S.gq) + '".</div>') +
+      section('Members', mem.length, membersTable(mem)) +
+      section('Applications', app.length, appsTable(app)) +
+      section('Club Plans', pln.length, tableWrap(['Plan', 'Category', 'Start Date', 'Status'], pln.map(p => '<tr><td><strong>' + esc(p.title) + '</strong></td><td>' + esc(p.category) + '</td><td>' + esc(fmt(p.start_date)) + '</td><td>' + esc(cap(p.status)) + '</td></tr>').join(''))) +
+      section('Projects Planned', prj.length, tableWrap(['Project', 'Lead', 'Target Date', 'Status'], prj.map(p => '<tr><td><strong>' + esc(p.title) + '</strong></td><td>' + esc(p.lead || '—') + '</td><td>' + esc(fmt(p.target_date)) + '</td><td>' + esc(cap(p.status)) + '</td></tr>').join(''))) +
+      section('Tasks', tsk.length, tableWrap(['Task', 'Assigned to', 'Status'], tsk.map(t => '<tr><td><strong>' + esc(t.title) + '</strong></td><td>' + esc(nameOfAdmin(t.assignee_user_id) || '—') + '</td><td>' + esc(t.status) + '</td></tr>').join('')));
   }
+
   function activityHTML() {
     if (!S.activity.length) return emptyState();
     const label = { members: 'Member', membership_applications: 'Application', member_groups: 'Group', member_positions: 'Position' };
@@ -801,21 +1505,15 @@
       '<td data-l="Action">' + esc(cap(a.action)) + '</td>' +
       '<td data-l="Record">' + esc(label[a.table_name] || a.table_name) + '</td>' +
       '<td data-l="Name"><strong>' + esc(a.summary || '—') + '</strong></td></tr>').join('');
-    return '<p class="ya-muted ya-note">The most recent 300 changes. Entries are written by the database, so they cannot be skipped.</p>' +
+    return '<p class="ya-muted ya-note">The most recent 300 changes recorded by database triggers.</p>' +
       tableWrap(['When', 'Who', 'Action', 'Record', 'Name'], body);
   }
-  function exportHTML() {
-    const b = (f, label) => '<button class="ya-btn" data-ya="export" data-f="' + f + '">' + label + '</button>';
-    return '<div class="ya-card"><h2 class="ya-h2">Download CSV</h2>' +
-      '<p class="ya-muted">These files contain personal details. Store and share them carefully.</p>' +
-      '<div class="ya-actions start">' + b('members', 'Members (' + S.members.length + ')') +
-      b('pending', 'Pending applications (' + appsByStatus('pending').length + ')') +
-      b('approved', 'Approved applications (' + appsByStatus('approved').length + ')') +
-      b('rejected', 'Rejected applications (' + appsByStatus('rejected').length + ')') +
-      b('all', 'All applications (' + S.apps.length + ')') + '</div></div>';
-  }
+
   function viewBody() {
     if (S.view === 'overview') return overviewHTML();
+    if (S.view === 'calendar') return calendarHTML();
+    if (S.view === 'plans') return plansHTML();
+    if (S.view === 'projects') return projectsHTML();
     if (S.view === 'structure') return structureHTML();
     if (S.view === 'activity') return activityHTML();
     if (S.view === 'admins') return adminsHTML();
@@ -829,24 +1527,40 @@
           '<option value="' + esc(s) + '"' + (S.status === s ? ' selected' : '') + '>' + (s === 'all' ? 'All statuses' : esc(s)) + '</option>').join('') +
         '</select>' : '';
     const addBtn = S.view === 'members' ? '<button class="ya-btn small ok" data-ya="add-member">+ Add member</button>' : '';
-    return '<div class="ya-toolbar">' + addBtn + '<input id="ya-q" type="search" placeholder="Search by name, email or member ID" value="' + esc(S.q) + '">' +
+    return '<div class="ya-toolbar">' + addBtn + '<input id="ya-q" type="search" placeholder="Search by name, email, institution or member ID" value="' + esc(S.q) + '">' +
       statusSel + '<span class="ya-muted" id="ya-count"></span></div><div id="ya-list">' + listHTML() + '</div>';
   }
+
+  function navBadge(k) {
+    if (k === 'pending' && appsByStatus('pending').length) return ' <span class="ya-nav-badge warn">' + appsByStatus('pending').length + '</span>';
+    if (k === 'tasks') {
+      const n = S.tasks.filter(t => t.status !== 'done').length;
+      if (n) return ' <span class="ya-nav-badge">' + n + '</span>';
+    }
+    if (k === 'plans' && S.plans.length) return ' <span class="ya-nav-badge">' + S.plans.length + '</span>';
+    if (k === 'projects' && S.projects.length) return ' <span class="ya-nav-badge">' + S.projects.length + '</span>';
+    return '';
+  }
+
   function shell(content) {
-    const nav = VIEWS.filter(([k]) => (k !== 'admins' || isSuper()) && (k !== 'email' || canEdit())).map(([k, l]) =>
-      '<button class="ya-nav-btn' + (S.view === k ? ' on' : '') + '" data-ya="nav" data-v="' + k + '">' + esc(l) + '</button>').join('');
-    return '<div class="ya-wrap"><aside class="ya-side"><div class="ya-brand">Yantrika Admin</div>' +
-      '<nav class="ya-nav">' + nav + '</nav><div class="ya-side-foot"><div class="ya-user"><strong>' + esc(nameOfAdmin(S.user && S.user.id) || (S.user && S.user.email)) + '</strong><br><span class="ya-muted">' + esc(ROLE_LABEL[S.role] || 'Viewer') + '</span></div>' +
+    const navHtml = NAV_GROUPS.map(g => {
+      const btns = g.items.filter(([k]) => (k !== 'admins' || isSuper()) && (k !== 'email' || canEdit()))
+        .map(([k, l, ico]) => '<button class="ya-nav-btn' + (S.view === k ? ' on' : '') + '" data-ya="nav" data-v="' + k + '"><span>' + ico + ' ' + esc(l) + '</span>' + navBadge(k) + '</button>').join('');
+      return btns ? '<div class="ya-nav-grp"><div class="ya-nav-lbl">' + esc(g.label) + '</div>' + btns + '</div>' : '';
+    }).join('');
+    return '<div class="ya-wrap"><aside class="ya-side"><div class="ya-brand">⚡ Yantrika Admin</div>' +
+      '<nav class="ya-nav">' + navHtml + '</nav><div class="ya-side-foot"><div class="ya-user"><strong>' + esc(nameOfAdmin(S.user && S.user.id) || (S.user && S.user.email)) + '</strong><br><span class="ya-muted">' + esc(ROLE_LABEL[S.role] || 'Viewer') + '</span></div>' +
       '<button class="ya-btn ghost small" data-ya="logout">Logout</button></div></aside><main class="ya-main">' + content + '</main></div>';
   }
+
   function renderApp() {
     const r = root();
     if (!r) return;
     const title = S.view === 'search' ? 'Search results' : ((VIEWS.find(v => v[0] === S.view) || VIEWS[0])[1]);
     r.innerHTML = shell('<header class="ya-top"><h1>' + esc(title) + '</h1>' +
-      '<div class="ya-searchbar"><input id="ya-global" type="search" placeholder="Search everything: name, email, Member ID, group, task…" value="' + esc(S.gq) + '" aria-label="Search everything">' +
+      '<div class="ya-searchbar"><input id="ya-global" type="search" placeholder="Search everything: members, plans, projects, tasks…" value="' + esc(S.gq) + '" aria-label="Search everything">' +
       '<button class="ya-btn small" data-ya="search-run">Search</button></div>' +
-      '<button class="ya-btn ghost small" data-ya="reload">Refresh</button></header>' +
+      '<button class="ya-btn ghost small" data-ya="reload">↻ Refresh</button></header>' +
       (S.error ? '<div class="ya-error">' + esc(S.error) + ' <button class="ya-btn small" data-ya="reload">Retry</button></div>' : '') +
       (S.notice ? '<div class="ya-notice">' + esc(S.notice) + '</div>' : '') +
       '<div id="ya-body">' + viewBody() + '</div>');
@@ -855,7 +1569,7 @@
   }
   function updateCount() {
     const c = document.getElementById('ya-count');
-    if (c && S.view !== 'overview') c.textContent = filterRows(viewList(), S.view === 'members' ? MEMBER_SEARCH : ['full_name', 'email']).length + ' shown';
+    if (c && S.view !== 'overview') c.textContent = filterRows(viewList(), S.view === 'members' ? MEMBER_SEARCH : ['full_name', 'email', 'institution']).length + ' shown';
   }
   function showLogin(msg) {
     root().innerHTML = '<div class="ya-login"><div class="ya-card"><h1>Admin sign-in</h1><p class="ya-muted">Yantrika administrators only.</p>' +
@@ -866,7 +1580,7 @@
   }
   function showDenied() {
     root().innerHTML = '<div class="ya-login"><div class="ya-card"><h1>Access denied</h1>' +
-      '<p>This account is not an administrator. If you should have access, ask the club admin to add it.</p>' +
+      '<p>This account is not an administrator.</p>' +
       '<button class="ya-btn" data-ya="logout">Sign out</button></div></div>';
   }
   function injectStyles() {
@@ -879,13 +1593,11 @@
 
   /* ---------- mount / auth ---------- */
   async function mount() {
-    try {
-      await mountUnsafe();
-    } catch (err) {
+    try { await mountUnsafe(); }
+    catch (err) {
       console.error('Admin dashboard failed to start:', err);
       const r = root();
-      if (r) r.innerHTML = '<div class="ya-error"><strong>The admin page could not start.</strong><br>' +
-        esc((err && err.message) || String(err)) + '<br><span class="ya-muted">Open the browser console (F12) for details.</span></div>';
+      if (r) r.innerHTML = '<div class="ya-error"><strong>The admin page could not start.</strong><br>' + esc((err && err.message) || String(err)) + '</div>';
     }
   }
   async function mountUnsafe() {
@@ -916,7 +1628,7 @@
     renderApp();
   }
 
-  /* ---------- groups and positions (stored as members.current_body / current_designation) ---------- */
+  /* ---------- groups and positions ---------- */
   const byName = (a, b) => String(a.name).localeCompare(String(b.name));
   const posById = id => S.positions.find(p => p.id === id);
   const groupById = id => S.groups.find(g => g.id === id);
@@ -959,20 +1671,17 @@
       '<td class="ya-acts">' + btn('edit-position', 'position', p.id, 'Edit') + btn('delete', 'position', p.id, 'Delete', 'danger') + '</td></tr>').join('');
     const head = (title, act, label) => '<div class="ya-toolbar"><h2 class="ya-h2" style="margin:0 auto 0 0">' + title +
       '</h2><button class="ya-btn small ok" data-ya="' + act + '">' + label + '</button></div>';
-    return '<p class="ya-muted ya-note">Groups are the bodies (stored in each member\'s "current body"). Positions sit inside a group, and "Reports to" builds the hierarchy (stored in each member\'s "current designation"). Set a member\'s body and position from All Members, using the Body &amp; role button.</p>' +
-      '<div class="ya-card" style="margin-top:12px">' + head('Groups', 'add-group', '+ Add group') +
+    return '<div class="ya-card">' + head('Groups', 'add-group', '+ Add group') +
       (groupRows ? tableWrap(['Order', 'Group', 'Description', 'Members', ''], groupRows) : emptyState()) + '</div>' +
       '<div class="ya-card" style="margin-top:16px">' + head('Positions and hierarchy', 'add-position', '+ Add position') +
       (posRows ? tableWrap(['Position', 'Group', 'Reports to', 'Members', ''], posRows) : emptyState()) + '</div>';
   }
-
   function openGroupForm(g) {
     openModal('<h3>' + (g ? 'Edit group' : 'Add group') + '</h3><div class="ya-grid2">' +
       '<label class="ya-field"><span>Name *</span><input name="name" value="' + esc(g ? g.name : '') + '"></label>' +
       '<label class="ya-field"><span>Order</span><input name="sort_order" type="number" value="' + esc(g ? g.sort_order : S.groups.length + 1) + '"></label>' +
       '<label class="ya-field" style="grid-column:1/-1"><span>Description</span><textarea name="description" rows="3">' + esc(g ? g.description || '' : '') + '</textarea></label>' +
-      '</div><p class="ya-muted ya-note">Renaming a group also updates every member who is in it.</p>' +
-      '<p class="ya-msg" id="ya-msg" role="status"></p>' +
+      '</div><p class="ya-msg" id="ya-msg" role="status"></p>' +
       '<div class="ya-actions"><button class="ya-btn ghost" data-ya="close">Cancel</button>' +
       '<button class="ya-btn" data-ya="save-group" data-id="' + esc(g ? g.id : '') + '">Save</button></div>');
   }
@@ -988,8 +1697,7 @@
       '<label class="ya-field"><span>Group *</span><select name="group_id">' + groupOpts + '</select></label>' +
       '<label class="ya-field"><span>Reports to</span><select name="parent_id">' + parentOpts + '</select></label>' +
       '<label class="ya-field"><span>Order</span><input name="sort_order" type="number" value="' + esc(p ? p.sort_order : 0) + '"></label>' +
-      '</div><p class="ya-muted ya-note">Renaming a position also updates every member who holds it.</p>' +
-      '<p class="ya-msg" id="ya-msg" role="status"></p>' +
+      '</div><p class="ya-msg" id="ya-msg" role="status"></p>' +
       '<div class="ya-actions"><button class="ya-btn ghost" data-ya="close">Cancel</button>' +
       '<button class="ya-btn" data-ya="save-position" data-id="' + esc(p ? p.id : '') + '">Save</button></div>');
   }
@@ -1002,9 +1710,8 @@
       '<td data-l="Email">' + esc(m.email || '—') + '</td>' +
       '<td class="ya-acts">' + btn('detail', 'member', m.id, 'View') + '</td></tr>').join('');
     openModal('<h3>' + esc(label) + ': ' + esc(name) + '</h3>' +
-      '<p class="ya-muted">' + list.length + ' member' + (list.length === 1 ? '' : 's') + '. ' + esc(title || '') + '</p>' +
-      (rows ? tableWrap(['Name', 'Member ID', 'Designation', 'Email', ''], rows)
-            : '<div class="ya-empty">No one is in this yet. Add people from All Members, using the Body &amp; role button.</div>') +
+      '<p class="ya-muted">' + list.length + ' member(s). ' + esc(title || '') + '</p>' +
+      (rows ? tableWrap(['Name', 'Member ID', 'Designation', 'Email', ''], rows) : '<div class="ya-empty">No one is in this yet.</div>') +
       '<div class="ya-actions"><button class="ya-btn ghost" data-ya="close">Close</button>' +
       '<button class="ya-btn" data-ya="open-members-filter" data-q="' + esc(name) + '">Open in All Members</button></div>');
   }
@@ -1016,12 +1723,10 @@
     openModal('<h3>Body &amp; role for ' + esc(m.full_name) + '</h3>' +
       '<div class="ya-grid2"><label class="ya-field"><span>Current body (group)</span><select name="current_body">' + bodyOpts + '</select></label>' +
       '<label class="ya-field"><span>Current designation (position)</span><select name="current_designation">' + posOpts + '</select></label></div>' +
-      '<p class="ya-muted ya-note">Choose from the lists you set up under Groups &amp; Positions.</p>' +
       '<p class="ya-msg" id="ya-msg" role="status"></p>' +
       '<div class="ya-actions"><button class="ya-btn ghost" data-ya="close">Cancel</button>' +
       '<button class="ya-btn" data-ya="save-role" data-id="' + esc(m.id) + '">Save</button></div>');
   }
-
   async function saveGroup(id) {
     const m = modalEl();
     const name = val(m, 'name');
@@ -1088,13 +1793,21 @@
     const row = id != null ? findRow(kind, id) : null;
     switch (act) {
       case 'nav':
-        S.view = el.getAttribute('data-v'); S.q = '';
+        S.view = el.getAttribute('data-v'); S.q = ''; S.sort = { col: '', dir: 1 };
         if (S.view === 'admins' && !isSuper()) S.view = 'overview';
         if (S.view === 'admins') await loadAdmins();
         if (S.view === 'tasks') await loadTasks();
         if (S.view === 'email') await loadQuota();
         renderApp();
         break;
+      case 'sort': {
+        const col = el.getAttribute('data-col');
+        S.sort.dir = S.sort.col === col ? -S.sort.dir : 1;
+        S.sort.col = col;
+        const l = document.getElementById('ya-list');
+        if (l) l.innerHTML = listHTML();
+        break;
+      }
       case 'add-admin': openAddAdmin(); break;
       case 'save-admin': await addAdmin(); break;
       case 'remove-admin': openRemoveAdmin(el.getAttribute('data-id'), el.getAttribute('data-email')); break;
@@ -1121,24 +1834,61 @@
       case 'member-role': if (row) openRole(row); break;
       case 'save-notes': await saveNotes(id); break;
       case 'search-run': runSearch(); break;
-      case 'group-members': { const g = findRow('group', id); if (g) openMembersIn('current_body', g.name, 'Group', 'Everyone whose current body is this group.'); break; }
-      case 'position-members': { const p = findRow('position', id); if (p) openMembersIn('current_designation', p.name, 'Position', 'Everyone currently holding this position.'); break; }
+      case 'group-members': { const g = findRow('group', id); if (g) openMembersIn('current_body', g.name, 'Group', 'Members in this group.'); break; }
+      case 'position-members': { const p = findRow('position', id); if (p) openMembersIn('current_designation', p.name, 'Position', 'Members holding this position.'); break; }
       case 'open-members-filter': closeModal(); S.view = 'members'; S.q = el.getAttribute('data-q') || ''; renderApp(); break;
       case 'new-task': openTask(); break;
-      case 'send-announcement': await openAnnouncementConfirm(); break;
-      case 'confirm-announcement': await sendAnnouncement(); break;
       case 'save-task': await saveTask(); break;
       case 'task-status': await setTaskStatus(id, el.getAttribute('data-status')); break;
       case 'save-role': await saveRole(id); break;
-      case 'export': {
-        const f = el.getAttribute('data-f');
-        if (f === 'members') exportCsv(S.members, MEMBER_COLS, 'yantrika-members');
-        else if (f === 'all') exportCsv(S.apps, APP_COLS, 'yantrika-applications');
-        else exportCsv(appsByStatus(f), APP_COLS, 'yantrika-applications-' + f);
+
+      /* Email actions */
+      case 'email-mode': S.emailMode = el.getAttribute('data-m'); renderApp(); break;
+      case 'email-test-conn': await loadQuota(); renderApp(); toast(S.quota ? 'Email function connected!' : 'Still unreachable: ' + S.quotaError, !!S.quota); break;
+      case 'email-diag': openEmailDiagnostics(); break;
+      case 'send-announcement': await openAnnouncementConfirm(); break;
+      case 'confirm-announcement': await sendAnnouncement(); break;
+      case 'send-test-email': await sendTestEmailToSelf(); break;
+      case 'email-mailto': openEmailMailtoFallback(); break;
+      case 'email-copy': await copyRecipientEmails(); break;
+
+      /* Plans & Projects */
+      case 'new-plan': openPlanForm(null); break;
+      case 'new-plan-date': openPlanForm(null, el.getAttribute('data-date')); break;
+      case 'edit-plan': { const p = findRow('plan', id); if (p) openPlanForm(p); break; }
+      case 'save-plan': await savePlan(id); break;
+      case 'new-project': openProjectForm(null); break;
+      case 'new-proj-date': openProjectForm(null, el.getAttribute('data-date')); break;
+      case 'edit-project': { const pr = findRow('project', id); if (pr) openProjectForm(pr); break; }
+      case 'save-project': await saveProject(id); break;
+
+      /* Calendar */
+      case 'cal-prev': S.calMonth--; if (S.calMonth < 0) { S.calMonth = 11; S.calYear--; } renderApp(); break;
+      case 'cal-next': S.calMonth++; if (S.calMonth > 11) { S.calMonth = 0; S.calYear++; } renderApp(); break;
+      case 'cal-today': { const now = new Date(); S.calYear = now.getFullYear(); S.calMonth = now.getMonth(); S.calSelectedDate = todayISO(); renderApp(); break; }
+      case 'cal-mode': S.calMode = el.getAttribute('data-m'); renderApp(); break;
+      case 'cal-day': S.calSelectedDate = el.getAttribute('data-date'); renderApp(); break;
+
+      /* Interactive Export */
+      case 'exp-cols-all': S.expCols = (EXPORT_DATASETS[S.expDataset] || EXPORT_DATASETS.members).cols.slice(); renderApp(); break;
+      case 'exp-cols-min': S.expCols = (EXPORT_DATASETS[S.expDataset] || EXPORT_DATASETS.members).cols.slice(0, 4); renderApp(); break;
+      case 'export-backup': exportFullBackupJson(); break;
+      case 'export-fmt': {
+        const fmtType = el.getAttribute('data-fmt');
+        const { ds, cols, rows: expRows } = getExportData();
+        const slug = 'yantrika-' + S.expDataset;
+        if (fmtType === 'csv') exportCsv(expRows, cols, slug);
+        else if (fmtType === 'json') exportJson(expRows, cols, slug, ds.label);
+        else if (fmtType === 'pdf') exportPdfReport(expRows, cols, ds.label);
+        else if (fmtType === 'copy-json') {
+          const txt = JSON.stringify(expRows.map(r => { const o = {}; cols.forEach(c => { o[c] = r[c]; }); return o; }), null, 2);
+          navigator.clipboard.writeText(txt).then(() => toast('Copied ' + expRows.length + ' JSON record(s)!')).catch(() => toast('Clipboard blocked.', false));
+        }
         break;
       }
     }
   }
+
   function runSearch() {
     const el = document.getElementById('ya-global');
     S.gq = el ? el.value : S.gq;
@@ -1146,19 +1896,44 @@
     renderApp();
   }
   function onInput(e) {
-    if (e.target.id !== 'ya-q') return;
-    S.q = e.target.value;
-    const l = document.getElementById('ya-list');
-    if (l) l.innerHTML = listHTML();
-    updateCount();
+    if (e.target.id === 'ya-q') {
+      S.q = e.target.value;
+      const l = document.getElementById('ya-list');
+      if (l) l.innerHTML = listHTML();
+      updateCount();
+    } else if (e.target.id === 'ya-exp-q') {
+      S.expSearch = e.target.value;
+      renderApp();
+    }
   }
   function onChange(e) {
-    if (e.target.name === 'admin_role') { setRole(e.target.getAttribute('data-id'), e.target.value); return; }
-    if (e.target.name === 'admin_member') { setAdminMember(e.target.getAttribute('data-id'), e.target.value); return; }
-    if (e.target.id === 'ya-task-filter') { S.taskFilter = e.target.value; renderApp(); return; }
-    if (e.target.id !== 'ya-status') return;
-    S.status = e.target.value;
-    renderApp();
+    const t = e.target;
+    if (t.name === 'admin_role') { setRole(t.getAttribute('data-id'), t.value); return; }
+    if (t.name === 'admin_member') { setAdminMember(t.getAttribute('data-id'), t.value); return; }
+    if (t.id === 'ya-task-filter') { S.taskFilter = t.value; renderApp(); return; }
+    if (t.id === 'ya-plan-filter') { S.planFilter = t.value; renderApp(); return; }
+    if (t.id === 'ya-proj-filter') { S.projectFilter = t.value; renderApp(); return; }
+    if (t.id === 'ya-status') { S.status = t.value; renderApp(); return; }
+    if (t.id === 'ya-exp-ds') { S.expDataset = t.value; S.expCols = null; S.expFilterStatus = 'all'; S.expFilterBody = 'all'; S.expSearch = ''; renderApp(); return; }
+    if (t.id === 'ya-exp-status') { S.expFilterStatus = t.value; renderApp(); return; }
+    if (t.id === 'ya-exp-body') { S.expFilterBody = t.value; renderApp(); return; }
+    if (t.name === 'exp_col') {
+      const checked = [...document.querySelectorAll('#yadmin-root input[name="exp_col"]:checked')].map(x => x.value);
+      S.expCols = checked;
+      renderApp();
+      return;
+    }
+    if (t.name === 'cal_show') { S.calShow[t.value] = t.checked; renderApp(); return; }
+    if (t.name === 'email_pick') { S.emailSelectedIds[t.value] = t.checked; return; }
+    if (t.id === 'ya-email-tpl') {
+      const tpl = EMAIL_TEMPLATES.find(x => x.id === t.value);
+      if (tpl) {
+        const sIn = document.querySelector('#yadmin-root input[name="ann_subject"]');
+        const bIn = document.querySelector('#yadmin-root textarea[name="ann_body"]');
+        if (sIn) sIn.value = tpl.subject;
+        if (bIn) bIn.value = tpl.body;
+      }
+    }
   }
   async function onSubmit(e) {
     if (e.target.id !== 'ya-login') return;
@@ -1187,99 +1962,129 @@
   const CSS = `
 #yadmin-root{width:100%;text-align:left;color:var(--ink,#17171d);font-size:15px;line-height:1.5}
 #yadmin-root *,#ya-back *{box-sizing:border-box}
-.ya-wrap{display:grid;grid-template-columns:230px minmax(0,1fr);gap:24px;align-items:start}
-.ya-side{position:sticky;top:84px;background:var(--card,#fff);border:1px solid rgba(128,128,128,.25);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;flex-direction:column;gap:12px}
-.ya-brand{font-weight:700;font-size:1.05rem;padding:4px 8px}
-.ya-nav{display:flex;flex-direction:column;gap:4px}
-.ya-nav-btn{background:none;border:0;text-align:left;cursor:pointer;padding:9px 12px;border-radius:8px;font:inherit;color:inherit}
+.ya-wrap{display:grid;grid-template-columns:250px minmax(0,1fr);gap:24px;align-items:start}
+.ya-side{position:sticky;top:84px;background:var(--card,#fff);border:3px solid var(--dk,#17171d);border-radius:14px;padding:14px;box-shadow:5px 5px 0 var(--dk,#17171d);display:flex;flex-direction:column;gap:10px}
+.ya-brand{font-weight:700;font-size:1.1rem;padding:4px 8px}
+.ya-nav{display:flex;flex-direction:column;gap:8px}
+.ya-nav-grp{display:flex;flex-direction:column;gap:2px}
+.ya-nav-lbl{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6;font-weight:700;padding:4px 10px 2px}
+.ya-nav-btn{display:flex;justify-content:space-between;align-items:center;background:none;border:0;text-align:left;cursor:pointer;padding:8px 10px;border-radius:8px;font:inherit;font-size:.92rem;color:inherit}
 .ya-nav-btn:hover{background:rgba(128,128,128,.12)}
-.ya-nav-btn.on{background:var(--yel,#f1c40f);color:#17171d;font-weight:700}
-.ya-side-foot{border-top:1px solid rgba(128,128,128,.25);padding-top:12px;display:flex;flex-direction:column;gap:8px}
-.ya-user{font-size:.8rem;opacity:.7;word-break:break-all}
+.ya-nav-btn.on{background:var(--yel,#f1c40f);color:#17171d;font-weight:700;border:2px solid var(--dk,#17171d)}
+.ya-nav-badge{font-size:.72rem;font-weight:700;padding:1px 7px;border-radius:99px;background:rgba(128,128,128,.2)}
+.ya-nav-badge.warn{background:#ff8c37;color:#17171d}
+.ya-side-foot{border-top:1px solid rgba(128,128,128,.25);padding-top:10px;display:flex;flex-direction:column;gap:8px}
+.ya-user{font-size:.8rem;opacity:.75;word-break:break-all}
 .ya-main{min-width:0}
 .ya-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
-.ya-top h1{margin:0;font-size:1.5rem}
-.ya-h2{font-size:1.1rem;margin:24px 0 10px}
+.ya-top h1{margin:0;font-size:1.55rem}
+.ya-h2{font-size:1.1rem;margin:20px 0 10px}
 .ya-note{font-size:.85rem;margin:8px 0 0}
-.ya-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
-.ya-stat{background:var(--card,#fff);border:1px solid rgba(128,128,128,.25);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-top:4px solid #999}
-.ya-stat span{display:block;font-size:.85rem;opacity:.75}
-.ya-stat strong{font-size:2rem;line-height:1.2}
-.ya-stat.warn{border-top-color:#e0a800}.ya-stat.ok{border-top-color:#1aa37a}.ya-stat.bad{border-top-color:#d6395a}
-.ya-card{background:var(--card,#fff);border:1px solid rgba(128,128,128,.25);border-radius:14px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.ya-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.ya-stat{text-align:left;cursor:pointer;font:inherit;color:inherit;background:var(--card,#fff);border:2px solid var(--dk,#17171d);border-radius:12px;padding:14px;box-shadow:4px 4px 0 var(--dk,#17171d);border-top:5px solid #999;transition:transform .1s}
+.ya-stat:hover{transform:translate(-1px,-1px)}
+.ya-stat span{display:block;font-size:.82rem;opacity:.75}
+.ya-stat strong{font-size:1.75rem;line-height:1.2}
+.ya-stat.warn{border-top-color:#e0a800}.ya-stat.ok{border-top-color:#1aa37a}.ya-stat.bad{border-top-color:#ec3750}.ya-stat.bl{border-top-color:#338eda}.ya-stat.cy{border-top-color:#33d6a6}
+.ya-card{background:var(--card,#fff);border:2px solid var(--dk,#17171d);border-radius:14px;padding:18px;box-shadow:4px 4px 0 var(--dk,#17171d)}
 .ya-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
 .ya-toolbar input[type=search]{flex:1 1 220px;min-width:0}
 input,select,textarea{font:inherit;padding:9px 11px;border:1px solid rgba(128,128,128,.4);border-radius:8px;background:var(--bg,#fff);color:var(--ink,#17171d);width:100%}
 textarea{resize:vertical}
 .ya-field{display:flex;flex-direction:column;gap:4px;font-size:.9rem}
 .ya-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ya-grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .ya-grid2 .ya-field:has(textarea){grid-column:1/-1}
-.ya-btn{display:inline-block;cursor:pointer;font:inherit;font-weight:700;padding:9px 16px;border-radius:10px;border:1px solid #17171d;background:var(--yel,#f1c40f);color:#17171d;text-decoration:none;transition:transform .1s}
+.ya-btn{display:inline-block;cursor:pointer;font:inherit;font-weight:700;padding:8px 15px;border-radius:10px;border:2px solid var(--dk,#17171d);background:var(--yel,#f1c40f);color:#17171d;text-decoration:none;transition:transform .1s}
 .ya-btn:hover{transform:translateY(-1px)}
 .ya-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
 .ya-btn.ghost{background:transparent;color:var(--ink,#17171d)}
-.ya-btn.ok{background:#1aa37a;color:#fff;border-color:#1aa37a}
-.ya-btn.warn{background:#ffd966;border-color:#b58b00}
-.ya-btn.danger{background:#d6395a;color:#fff;border-color:#d6395a}
+.ya-btn.ok{background:#1aa37a;color:#fff;border-color:#17171d}
+.ya-btn.cy{background:#33d6a6;color:#17171d}
+.ya-btn.warn{background:#ffd966;color:#17171d}
+.ya-btn.danger{background:#ec3750;color:#fff;border-color:#17171d}
 .ya-btn.small{padding:5px 10px;font-size:.82rem;border-radius:8px}
 .ya-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:18px}
 .ya-actions.start{justify-content:flex-start}
 .ya-acts{white-space:nowrap}
 .ya-acts .ya-btn{margin:2px 3px 2px 0}
-.ya-tablewrap{overflow-x:auto;background:var(--card,#fff);border:1px solid rgba(128,128,128,.25);border-radius:12px}
-.ya-table{width:100%;border-collapse:collapse;font-size:.9rem}
-.ya-table th{text-align:left;padding:10px 12px;font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;opacity:.7;border-bottom:1px solid rgba(128,128,128,.25)}
-.ya-table td{padding:10px 12px;border-bottom:1px solid rgba(128,128,128,.15);vertical-align:middle}
+.ya-tablewrap{overflow-x:auto;background:var(--card,#fff);border:2px solid var(--dk,#17171d);border-radius:12px}
+.ya-table{width:100%;border-collapse:collapse;font-size:.88rem}
+.ya-table th{text-align:left;padding:10px 12px;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;opacity:.75;border-bottom:2px solid rgba(128,128,128,.25)}
+.ya-table td{padding:9px 12px;border-bottom:1px solid rgba(128,128,128,.15);vertical-align:middle}
 .ya-table tr:last-child td{border-bottom:0}
-.ya-b{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.78rem;font-weight:700;border:1px solid}
+.ya-sort-btn{background:none;border:0;padding:0;font:inherit;color:inherit;text-transform:inherit;letter-spacing:inherit;cursor:pointer;font-weight:700}
+.ya-b{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.76rem;font-weight:700;border:1px solid}
 .ya-b.pending{background:#fff4d6;color:#7a5a00;border-color:#e6c25c}
 .ya-b.approved{background:#dcf7ee;color:#0b6b4f;border-color:#7fd1b2}
 .ya-b.rejected{background:#fde2e4;color:#8a1c2b;border-color:#f0a3ad}
+.ya-tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.76rem;font-weight:700;background:rgba(128,128,128,.15)}
 .ya-empty{padding:28px;text-align:center;border:1px dashed rgba(128,128,128,.4);border-radius:12px;opacity:.8}
-.ya-error{background:#fde2e4;color:#8a1c2b;border:1px solid #f0a3ad;border-radius:10px;padding:12px 14px;margin-bottom:14px}
-.ya-muted{opacity:.7}
+.ya-error{background:#fde2e4;color:#8a1c2b;border:2px solid #f0a3ad;border-radius:10px;padding:12px 14px;margin-bottom:14px}
+.ya-quota{padding:10px 14px;border-radius:10px;border:1px solid rgba(128,128,128,.3);font-size:.9rem}
+.ya-quota.ok{background:#dcf7ee;color:#0b6b4f;border-color:#7fd1b2}
+.ya-quota.bad{background:#fde2e4;color:#8a1c2b;border-color:#f0a3ad}
+.ya-muted{opacity:.72}
 .ya-center{padding:40px;text-align:center;opacity:.8}
 .ya-login{display:flex;justify-content:center;padding:30px 0}
 .ya-login .ya-card{width:min(420px,100%)}
 .ya-login-form{display:flex;flex-direction:column;gap:12px;margin-top:12px}
 .ya-login-form label{display:flex;flex-direction:column;gap:4px;font-size:.9rem}
-.ya-checks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-.ya-check{display:flex;gap:8px;align-items:center;font-size:.95rem}
-.ya-check input{width:auto}
-.ya-two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:6px}
+.ya-two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .ya-num{text-align:right;font-weight:700}
 .ya-bar{height:8px;background:rgba(128,128,128,.2);border-radius:99px;overflow:hidden}
 .ya-bar span{display:block;height:100%;background:var(--cy,#33d6a6)}
-@media (max-width:820px){.ya-two{grid-template-columns:1fr}}
 .ya-notice{background:#fff4d6;color:#5c4500;border:1px solid #e6c25c;border-radius:10px;padding:12px 14px;margin-bottom:14px}
 .ya-readonly{background:rgba(128,128,128,.12);font-weight:700}
-.ya-searchbar{display:flex;gap:8px;flex:1 1 360px;max-width:560px}
+.ya-searchbar{display:flex;gap:8px;flex:1 1 320px;max-width:520px}
 .ya-searchbar input{flex:1;min-width:0}
 .ya-linkbtn{background:none;border:0;padding:0;font:inherit;font-weight:700;cursor:pointer;text-decoration:underline;color:inherit;text-align:left}
-.ya-checklist ul{list-style:none;padding:0;margin:8px 0 0;display:flex;flex-direction:column;gap:6px}
-.ya-checklist li{display:flex;gap:8px;align-items:center}
-.ya-welcome h2{margin:0 0 4px;font-size:1.4rem}
+.ya-welcome{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+.ya-welcome h2{margin:0 0 2px;font-size:1.35rem}
+.ya-quick-actions{display:flex;gap:6px;flex-wrap:wrap}
+.ya-chip-grid{display:flex;flex-wrap:wrap;gap:8px}
+.ya-chip-check{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid rgba(128,128,128,.35);border-radius:999px;font-size:.82rem;cursor:pointer}
+.ya-chip-check input{width:auto;margin:0}
+.ya-pill-row{display:flex;flex-wrap:wrap;gap:8px}
+.ya-plan-pill{background:var(--yel,#f1c40f);color:#17171d;border:2px solid var(--dk,#17171d);border-radius:8px;padding:4px 10px;font:inherit;font-size:.84rem;font-weight:700;cursor:pointer}
+.ya-cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.ya-cal-head{text-align:center;font-weight:700;font-size:.78rem;text-transform:uppercase;opacity:.65;padding:4px 0}
+.ya-cal-cell{min-height:86px;border:1px solid rgba(128,128,128,.25);border-radius:8px;padding:5px;cursor:pointer;display:flex;flex-direction:column;gap:3px;background:var(--bg,#fff)}
+.ya-cal-cell.empty{background:transparent;border-color:transparent;cursor:default}
+.ya-cal-cell.today{border:2px solid #338eda}
+.ya-cal-cell.sel{border:2px solid var(--dk,#17171d);box-shadow:3px 3px 0 var(--yel,#f1c40f)}
+.ya-cal-num{font-weight:700;font-size:.8rem}
+.ya-cal-pill{display:inline-block;padding:1px 6px;border-radius:4px;font-size:.72rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.ya-cal-pill.plan{background:#f1c40f;color:#17171d}
+.ya-cal-pill.project{background:#33d6a6;color:#17171d}
+.ya-cal-pill.task{background:#338eda;color:#fff}
+.ya-cal-dot{display:inline-block;width:9px;height:9px;border-radius:50%}
+.ya-cal-dot.plan{background:#f1c40f}.ya-cal-dot.project{background:#33d6a6}.ya-cal-dot.task{background:#338eda}
+.ya-day-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
 .ya-msg{font-size:.9rem;min-height:1.2em;margin:0}
 .ya-dl{display:grid;grid-template-columns:150px 1fr;gap:8px 14px;margin:12px 0 0}
 .ya-dl dt{font-weight:700;opacity:.75}
 .ya-dl dd{margin:0;word-break:break-word;white-space:pre-wrap}
 .ya-back{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
-.ya-modal{background:var(--card,#fff);color:var(--ink,#17171d);border:3px solid #17171d;border-radius:14px;padding:22px;width:min(640px,100%);max-height:90vh;overflow:auto;box-shadow:6px 6px 0 #17171d}
+.ya-modal{background:var(--card,#fff);color:var(--ink,#17171d);border:3px solid var(--dk,#17171d);border-radius:14px;padding:22px;width:min(680px,100%);max-height:90vh;overflow:auto;box-shadow:6px 6px 0 var(--dk,#17171d)}
 .ya-modal h3{margin:0 0 6px;font-size:1.3rem}
 #ya-toast{position:fixed;right:18px;bottom:90px;z-index:300;padding:12px 16px;border-radius:10px;font-weight:700;border:2px solid #17171d;box-shadow:4px 4px 0 #17171d;display:none;max-width:min(380px,90vw)}
 #ya-toast.ok{background:#dcf7ee;color:#0b6b4f}
 #ya-toast.err{background:#fde2e4;color:#8a1c2b}
-@media (max-width:820px){
+@media (max-width:900px){
   .ya-wrap{grid-template-columns:1fr;gap:14px}
   .ya-side{position:static;padding:12px}
-  .ya-nav{flex-direction:row;overflow-x:auto;padding-bottom:4px}
+  .ya-nav{flex-direction:row;overflow-x:auto;padding-bottom:4px;gap:12px}
+  .ya-nav-grp{flex-direction:row;align-items:center;gap:4px}
+  .ya-nav-lbl{display:none}
   .ya-nav-btn{white-space:nowrap}
   .ya-stats{grid-template-columns:1fr 1fr}
-  .ya-grid2{grid-template-columns:1fr}
+  .ya-two,.ya-grid2,.ya-grid3{grid-template-columns:1fr}
+  .ya-cal-cell{min-height:60px}
   .ya-tablewrap{overflow:visible;border:0;background:none}
   .ya-table thead{display:none}
   .ya-table,.ya-table tbody,.ya-table tr,.ya-table td{display:block;width:100%}
-  .ya-table tr{background:var(--card,#fff);border:1px solid rgba(128,128,128,.25);border-radius:12px;padding:8px 12px;margin-bottom:10px}
+  .ya-table tr{background:var(--card,#fff);border:2px solid var(--dk,#17171d);border-radius:12px;padding:8px 12px;margin-bottom:10px}
   .ya-table td{display:flex;justify-content:space-between;gap:12px;border:0;padding:4px 0;text-align:right}
   .ya-table td::before{content:attr(data-l);font-weight:700;opacity:.65;text-align:left}
   .ya-table td.ya-acts{justify-content:flex-end;flex-wrap:wrap}
