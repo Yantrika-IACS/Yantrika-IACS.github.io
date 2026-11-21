@@ -134,8 +134,58 @@
   const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const cap = s => s ? String(s).replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase()) : '';
-  const fmt = d => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
-  const todayISO = () => new Date().toISOString().slice(0, 10);
+  const pad2 = n => String(n).padStart(2, '0');
+  const isoLocal = d => d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  const todayISO = () => isoLocal(new Date());
+  /* date-only strings (YYYY-MM-DD) are read as LOCAL dates so they never shift a day */
+  const parseD = d => {
+    if (!d) return null;
+    const s = String(d);
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
+    return m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(s);
+  };
+  const fmt = d => {
+    if (!d) return '—';
+    const dt = parseD(d);
+    return !dt || isNaN(dt) ? '—' : dt.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  };
+  const svg = (p, s) => '<svg class="ya-ico" width="' + (s || 18) + '" height="' + (s || 18) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + '</svg>';
+  const ICON = {
+    overview: '<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>',
+    calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+    members: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+    structure: '<rect x="9" y="2" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="16" y="16" width="6" height="6" rx="1"/><path d="M12 8v4M5 16v-2a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v2"/>',
+    pending: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+    approved: '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+    rejected: '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/>',
+    plans: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/>',
+    projects: '<rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/>',
+    tasks: '<path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+    email: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>',
+    export: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>',
+    activity: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/>',
+    admins: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+    bolt: '<path d="M13 2 3 14h9l-1 8 10-12h-9z"/>',
+    refresh: '<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',
+    search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>'
+  };
+  const VIEW_DESC = {
+    overview: 'Club snapshot: members, applications, plans and what is coming up.',
+    calendar: 'Every plan, project milestone and task due date in one place.',
+    members: 'Search, edit and manage the full member directory.',
+    structure: 'Bodies, groups and the positions inside them.',
+    pending: 'New applications waiting for a decision.',
+    approved: 'Applications that have been accepted.',
+    rejected: 'Applications that were declined. Restore any of them if needed.',
+    plans: 'Club-level plans such as workshops, hackathons and outreach.',
+    projects: 'Projects being planned or built, linked to the plan they serve.',
+    tasks: 'Work assigned to admins, with due dates.',
+    email: 'Send announcements to members from the club address.',
+    export: 'Download clean CSV, JSON or PDF reports of your data.',
+    activity: 'An audit trail of recent changes.',
+    admins: 'Who can sign in to this dashboard, and what they can do.'
+  };
   const uid = prefix => prefix + '-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
 
   const SUPABASE_URL = 'https://zcszmpxhlflalkgefwff.supabase.co';
@@ -899,14 +949,14 @@
         '<td data-l="Dates">' + esc(fmt(p.start_date)) + (p.end_date && p.end_date !== p.start_date ? ' → ' + esc(fmt(p.end_date)) : '') + '</td>' +
         '<td data-l="Owner">' + esc(p.owner || '—') + '</td>' +
         '<td data-l="Projects">' + linkedProj + '</td>' +
-        '<td data-l="Status">' + badge(p.status === 'active' || p.status === 'completed' ? 'approved' : p.status === 'planned' ? 'pending' : 'rejected').replace(/>[^<]+</, '>' + esc(cap(p.status)) + '<') + '</td>' +
+        '<td data-l="Status">' + stBadge(p.status) + '</td>' +
         '<td class="ya-acts">' + btn('edit-plan', 'plan', p.id, 'Edit') + btn('delete', 'plan', p.id, 'Delete', 'danger') + '</td></tr>';
     }).join('');
     const syncNote = S.plansCloud
       ? '<span class="ya-muted">Synced with Supabase</span>'
       : '<span class="ya-muted">Saved locally in browser (run <code>plans_and_projects.sql</code> in Supabase to sync across all admins)</span>';
     return '<div class="ya-toolbar">' + (canEdit() ? '<button class="ya-btn small ok" data-ya="new-plan">+ New Plan</button>' : '') +
-      filterSel + '<button class="ya-btn small ghost" data-ya="nav" data-v="calendar">View on Calendar 📅</button>' +
+      filterSel + '<button class="ya-btn small ghost" data-ya="nav" data-v="calendar">View on calendar</button>' +
       '<span class="ya-muted">' + list.length + ' plan(s)</span></div>' +
       '<p class="ya-muted ya-note">' + syncNote + '</p>' +
       (rows ? tableWrap(['Plan', 'Category', 'Dates', 'Owner', 'Projects', 'Status', ''], rows) : emptyState());
@@ -935,6 +985,7 @@
     const startDate = val(m, 'start_date');
     if (!title) return modalMsg('Title is required.');
     if (!startDate) return modalMsg('Start date is required.');
+    if (val(m, 'end_date') && val(m, 'end_date') < startDate) return modalMsg('End date cannot be before the start date.');
     const payload = {
       title: title,
       category: val(m, 'category') || 'Other',
@@ -950,6 +1001,7 @@
         ? await sb().from(PLANS_TABLE).update(payload).eq('id', id).select('id')
         : await sb().from(PLANS_TABLE).insert(payload).select('id');
       if (res.error) return modalMsg(res.error.message);
+      if (!res.data || !res.data.length) return modalMsg('Not saved. Check admin permissions.');
       await loadPlansAndProjects();
     } else {
       if (id) {
@@ -961,6 +1013,7 @@
       lsWrite(LS_PLANS, S.plans);
     }
     closeModal();
+    focusCalendar(startDate);
     toast(id ? 'Plan updated.' : 'Plan created.');
     renderApp();
   }
@@ -980,11 +1033,11 @@
         '<td data-l="Lead">' + esc(pr.lead || '—') + '</td>' +
         '<td data-l="Target Date">' + esc(fmt(pr.target_date)) + '</td>' +
         '<td data-l="Progress" style="min-width:110px"><div class="ya-bar"><span style="width:' + pct + '%"></span></div><span class="ya-muted" style="font-size:.78rem">' + pct + '%</span></td>' +
-        '<td data-l="Status">' + badge(pr.status === 'completed' ? 'approved' : pr.status === 'in_progress' || pr.status === 'testing' ? 'pending' : 'rejected').replace(/>[^<]+</, '>' + esc(cap(pr.status)) + '<') + '</td>' +
+        '<td data-l="Status">' + stBadge(pr.status) + '</td>' +
         '<td class="ya-acts">' + btn('edit-project', 'project', pr.id, 'Edit') + btn('delete', 'project', pr.id, 'Delete', 'danger') + '</td></tr>';
     }).join('');
     return '<div class="ya-toolbar">' + (canEdit() ? '<button class="ya-btn small ok" data-ya="new-project">+ New Project</button>' : '') +
-      filterSel + '<button class="ya-btn small ghost" data-ya="nav" data-v="calendar">View on Calendar 📅</button>' +
+      filterSel + '<button class="ya-btn small ghost" data-ya="nav" data-v="calendar">View on calendar</button>' +
       '<span class="ya-muted">' + list.length + ' project(s)</span></div>' +
       (rows ? tableWrap(['Project', 'Linked Plan', 'Lead', 'Target Date', 'Progress', 'Status', ''], rows) : emptyState());
   }
@@ -1028,6 +1081,7 @@
         ? await sb().from(PROJECTS_TABLE).update(payload).eq('id', id).select('id')
         : await sb().from(PROJECTS_TABLE).insert(payload).select('id');
       if (res.error) return modalMsg(res.error.message);
+      if (!res.data || !res.data.length) return modalMsg('Not saved. Check admin permissions.');
       await loadPlansAndProjects();
     } else {
       if (id) {
@@ -1039,111 +1093,155 @@
       lsWrite(LS_PROJECTS, S.projects);
     }
     closeModal();
+    if (payload.target_date) focusCalendar(payload.target_date);
     toast(id ? 'Project updated.' : 'Project added.');
     renderApp();
   }
 
-  function gatherCalendarItems() {
+  /* A status badge for plans / projects with sensible colours */
+  function stBadge(s) {
+    const cls = s === 'completed' ? 'approved'
+      : (s === 'active' || s === 'in_progress' || s === 'testing') ? 'info'
+      : s === 'planned' ? 'pending'
+      : s === 'on_hold' ? 'rejected' : 'neutral';
+    return '<span class="ya-b ' + cls + '">' + esc(cap(s || 'draft')) + '</span>';
+  }
+
+  /* Jump the calendar to a date (used after saving a plan or project so the change is visible at once) */
+  function focusCalendar(iso) {
+    const d = parseD(iso);
+    if (!d || isNaN(d)) return;
+    S.calYear = d.getFullYear();
+    S.calMonth = d.getMonth();
+    S.calSelectedDate = isoLocal(d);
+  }
+
+  /* Re-read plans, projects and tasks from the database so the schedule is never stale */
+  async function syncSchedule() {
+    const v = S.view;
+    try { await loadPlansAndProjects(); await loadTasks(); } catch (e) { /* keep what we have */ }
+    if (S.view === v && !document.getElementById('ya-back')) renderApp();
+  }
+
+  /* all = ignore the calendar's own show/hide toggles (used on the overview) */
+  function gatherCalendarItems(all) {
     const items = [];
-    if (S.calShow.plans) {
+    const planTitle = pid => ((S.plans.find(p => String(p.id) === String(pid))) || {}).title || '';
+    if (all || S.calShow.plans) {
       S.plans.forEach(p => {
         if (!p.start_date) return;
-        items.push({ date: p.start_date.slice(0, 10), end: (p.end_date || p.start_date).slice(0, 10), kind: 'plan', title: p.title, sub: p.category + ' · ' + cap(p.status), id: p.id });
+        const s = String(p.start_date).slice(0, 10);
+        let e = String(p.end_date || p.start_date).slice(0, 10);
+        if (e < s) e = s;
+        items.push({ date: s, end: e, kind: 'plan', title: p.title, sub: (p.category || 'Other') + ' · ' + cap(p.status), id: p.id, done: p.status === 'completed' });
       });
     }
-    if (S.calShow.projects) {
+    if (all || S.calShow.projects) {
       S.projects.forEach(pr => {
         if (!pr.target_date) return;
-        items.push({ date: pr.target_date.slice(0, 10), end: pr.target_date.slice(0, 10), kind: 'project', title: pr.title, sub: 'Project · ' + (pr.progress || 0) + '%', id: pr.id });
+        const d = String(pr.target_date).slice(0, 10);
+        const lp = planTitle(pr.plan_id);
+        items.push({ date: d, end: d, kind: 'project', title: pr.title, sub: 'Project · ' + (parseInt(pr.progress, 10) || 0) + '%' + (lp ? ' · Plan: ' + lp : ''), id: pr.id, done: pr.status === 'completed' });
       });
     }
-    if (S.calShow.tasks) {
+    if (all || S.calShow.tasks) {
       S.tasks.forEach(t => {
         if (!t.due_date) return;
-        items.push({ date: t.due_date.slice(0, 10), end: t.due_date.slice(0, 10), kind: 'task', title: t.title, sub: 'Task · ' + cap(t.status), id: t.id });
+        const d = String(t.due_date).slice(0, 10);
+        const who = nameOfAdmin(t.assignee_user_id);
+        items.push({ date: d, end: d, kind: 'task', title: t.title, sub: 'Task · ' + cap(t.status) + (who ? ' · ' + who : ''), id: t.id, done: t.status === 'done' });
       });
     }
     return items;
   }
 
+  function calItemRow(it) {
+    const canOpen = it.kind === 'task' || canEdit();
+    const range = it.end !== it.date ? ' · ' + fmt(it.date) + ' → ' + fmt(it.end) : '';
+    return '<li class="ya-item' + (it.done ? ' done' : '') + '"><span class="ya-cal-pill ' + it.kind + '">' + esc(cap(it.kind)) + '</span>' +
+      '<div class="ya-item-t"><strong>' + esc(it.title) + '</strong><div class="ya-muted ya-item-s">' + esc(it.sub + range) + '</div></div>' +
+      (canOpen ? '<button class="ya-btn small ghost" data-ya="cal-open" data-k="' + it.kind + '" data-id="' + esc(it.id) + '" data-date="' + esc(it.date) + '">' + (it.kind === 'task' ? 'Open' : 'Edit') + '</button>' : '') + '</li>';
+  }
+
   function calendarHTML() {
     const y = S.calYear, m = S.calMonth;
     const monthName = new Date(y, m, 1).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
-    const monthPrefix = y + '-' + String(m + 1).padStart(2, '0');
+    const monthStart = y + '-' + pad2(m + 1) + '-01';
+    const daysInMonth = new Date(y, m + 1, 0).getDate();
+    const monthEnd = y + '-' + pad2(m + 1) + '-' + pad2(daysInMonth);
+    const today = todayISO();
+    if (!S.calSelectedDate) S.calSelectedDate = today;
     const items = gatherCalendarItems();
-    const monthItems = items.filter(it => it.date.startsWith(monthPrefix) || (it.date <= monthPrefix + '-31' && it.end >= monthPrefix + '-01'));
-    const monthPlans = S.plans.filter(p => (p.start_date || '').startsWith(monthPrefix) || ((p.start_date || '') <= monthPrefix + '-31' && (p.end_date || p.start_date || '') >= monthPrefix + '-01'));
+    const monthItems = items.filter(it => it.date <= monthEnd && it.end >= monthStart)
+      .sort((a, b) => a.date.localeCompare(b.date) || a.kind.localeCompare(b.kind));
+    const monthPlans = S.plans.filter(p => p.start_date && String(p.start_date).slice(0, 10) <= monthEnd &&
+      String(p.end_date || p.start_date).slice(0, 10) >= monthStart);
+    const count = k => monthItems.filter(it => it.kind === k).length;
 
-    const toggles = [
-      ['plans', 'Plans', 'plan'],
-      ['projects', 'Projects', 'project'],
-      ['tasks', 'Tasks', 'task']
-    ].map(([k, lbl, cls]) =>
-      '<label class="ya-chip-check"><input type="checkbox" name="cal_show" value="' + k + '"' + (S.calShow[k] ? ' checked' : '') + '> <span class="ya-cal-dot ' + cls + '"></span><span>' + lbl + '</span></label>').join('');
+    const toggles = [['plans', 'Plans', 'plan'], ['projects', 'Projects', 'project'], ['tasks', 'Tasks', 'task']].map(([k, lbl, cls]) =>
+      '<label class="ya-chip-check"><input type="checkbox" name="cal_show" value="' + k + '"' + (S.calShow[k] ? ' checked' : '') + '>' +
+      '<span class="ya-cal-dot ' + cls + '"></span><span>' + lbl + '</span></label>').join('');
 
-    const planStrip = '<div class="ya-card" style="margin-bottom:14px;padding:14px 18px"><div class="ya-toolbar" style="margin-bottom:6px;justify-content:space-between">' +
-      '<strong>Plans Active in ' + esc(monthName) + ' (' + monthPlans.length + ')</strong>' +
-      (canEdit() ? '<button class="ya-btn small ok" data-ya="new-plan">+ Add Plan</button>' : '') + '</div>' +
-      (monthPlans.length
-        ? '<div class="ya-pill-row">' + monthPlans.map(p =>
-            '<button class="ya-plan-pill" data-ya="edit-plan" data-id="' + esc(p.id) + '">' + esc(p.title) + ' <span class="ya-muted">(' + esc(fmt(p.start_date)) + ')</span></button>').join('') + '</div>'
-        : '<div class="ya-muted" style="font-size:.88rem">No plans scheduled for ' + esc(monthName) + ' yet. Click any date below or "+ Add Plan" to schedule one.</div>') +
-      '</div>';
-
-    let calBody = '';
+    let calBody;
     if (S.calMode === 'agenda') {
-      const sorted = monthItems.slice().sort((a, b) => a.date.localeCompare(b.date));
-      calBody = sorted.length
-        ? tableWrap(['Date', 'Type', 'Title', 'Details'], sorted.map(it =>
-            '<tr><td>' + esc(fmt(it.date)) + '</td><td><span class="ya-cal-pill ' + it.kind + '">' + esc(cap(it.kind)) + '</span></td>' +
-            '<td><strong>' + esc(it.title) + '</strong></td><td>' + esc(it.sub) + '</td></tr>').join(''))
+      calBody = monthItems.length
+        ? tableWrap(['Date', 'Type', 'Title', 'Details', ''], monthItems.map(it =>
+            '<tr><td data-l="Date">' + esc(fmt(it.date)) + (it.end !== it.date ? '<div class="ya-muted ya-item-s">to ' + esc(fmt(it.end)) + '</div>' : '') + '</td>' +
+            '<td data-l="Type"><span class="ya-cal-pill ' + it.kind + '">' + esc(cap(it.kind)) + '</span></td>' +
+            '<td data-l="Title"><strong>' + esc(it.title) + '</strong></td><td data-l="Details">' + esc(it.sub) + '</td>' +
+            '<td class="ya-acts">' + ((it.kind === 'task' || canEdit()) ? '<button class="ya-btn small ghost" data-ya="cal-open" data-k="' + it.kind + '" data-id="' + esc(it.id) + '" data-date="' + esc(it.date) + '">' + (it.kind === 'task' ? 'Open' : 'Edit') + '</button>' : '') + '</td></tr>').join(''))
         : '<div class="ya-empty">Nothing scheduled in ' + esc(monthName) + '.</div>';
     } else {
       const firstDay = new Date(y, m, 1).getDay();
-      const daysInMonth = new Date(y, m + 1, 0).getDate();
-      const today = todayISO();
       const cells = [];
-      for (let i = 0; i < firstDay; i++) cells.push('<div class="ya-cal-cell empty"></div>');
+      for (let i = 0; i < firstDay; i++) cells.push('<div class="ya-cal-cell empty" aria-hidden="true"></div>');
       for (let d = 1; d <= daysInMonth; d++) {
-        const iso = monthPrefix + '-' + String(d).padStart(2, '0');
+        const iso = y + '-' + pad2(m + 1) + '-' + pad2(d);
         const dayItems = items.filter(it => it.date <= iso && it.end >= iso);
         const pills = dayItems.slice(0, 3).map(it =>
-          '<div class="ya-cal-pill ' + it.kind + '" title="' + esc(it.title + ' — ' + it.sub) + '">' + esc(it.title) + '</div>').join('') +
-          (dayItems.length > 3 ? '<div class="ya-muted" style="font-size:.72rem">+' + (dayItems.length - 3) + ' more</div>' : '');
-        cells.push('<div class="ya-cal-cell' + (iso === today ? ' today' : '') + (iso === S.calSelectedDate ? ' sel' : '') + '" data-ya="cal-day" data-date="' + iso + '">' +
+          '<button type="button" class="ya-cal-pill ' + it.kind + (it.date !== iso ? ' cont' : '') + (it.done ? ' done' : '') + '" data-ya="cal-open" data-k="' + it.kind + '" data-id="' + esc(it.id) + '" data-date="' + iso + '" title="' + esc(it.title + ' — ' + it.sub) + '">' + esc(it.title) + '</button>').join('') +
+          (dayItems.length > 3 ? '<span class="ya-more">+' + (dayItems.length - 3) + ' more</span>' : '');
+        const dow = new Date(y, m, d).getDay();
+        cells.push('<div class="ya-cal-cell' + (iso === today ? ' today' : '') + (iso === S.calSelectedDate ? ' sel' : '') + ((dow === 0 || dow === 6) ? ' wkend' : '') + '" data-ya="cal-day" data-date="' + iso + '" role="button" tabindex="0" aria-label="' + esc(fmt(iso) + (dayItems.length ? ', ' + dayItems.length + ' item(s)' : '')) + '">' +
           '<div class="ya-cal-num">' + d + '</div>' + pills + '</div>');
       }
+      while (cells.length % 7) cells.push('<div class="ya-cal-cell empty" aria-hidden="true"></div>');
       calBody = '<div class="ya-cal-grid">' +
         ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(w => '<div class="ya-cal-head">' + w + '</div>').join('') +
         cells.join('') + '</div>';
     }
 
-    let dayDetail = '';
-    if (S.calSelectedDate) {
-      const dItems = items.filter(it => it.date <= S.calSelectedDate && it.end >= S.calSelectedDate);
-      dayDetail = '<div class="ya-card" style="margin-top:14px"><div class="ya-toolbar" style="justify-content:space-between;margin-bottom:8px">' +
-        '<h3 style="margin:0">' + esc(fmt(S.calSelectedDate)) + '</h3>' +
-        '<div style="display:flex;gap:6px">' +
-        (canEdit() ? '<button class="ya-btn small ok" data-ya="new-plan-date" data-date="' + esc(S.calSelectedDate) + '">+ Plan on this date</button>' +
-        '<button class="ya-btn small" data-ya="new-proj-date" data-date="' + esc(S.calSelectedDate) + '">+ Project milestone</button>' : '') +
-        '</div></div>' +
-        (dItems.length ? '<ul class="ya-day-list">' + dItems.map(it =>
-          '<li><span class="ya-cal-pill ' + it.kind + '">' + esc(cap(it.kind)) + '</span> <strong>' + esc(it.title) + '</strong> <span class="ya-muted">(' + esc(it.sub) + ')</span></li>').join('') + '</ul>'
-          : '<p class="ya-muted">Nothing scheduled on this date.</p>') +
-        '</div>';
-    }
+    const sel = S.calSelectedDate;
+    const selD = parseD(sel);
+    const dItems = items.filter(it => it.date <= sel && it.end >= sel);
+    const dayPanel = '<div class="ya-card ya-day">' +
+      '<div class="ya-day-dow">' + esc(selD.toLocaleDateString('en-IN', { weekday: 'long' })) + (sel === today ? ' · Today' : '') + '</div>' +
+      '<h3 class="ya-day-title">' + esc(fmt(sel)) + '</h3>' +
+      (dItems.length ? '<ul class="ya-day-list">' + dItems.map(calItemRow).join('') + '</ul>' : '<p class="ya-muted ya-day-empty">Nothing scheduled on this date.</p>') +
+      (canEdit() ? '<div class="ya-actions start">' +
+        '<button class="ya-btn small ok" data-ya="new-plan-date" data-date="' + esc(sel) + '">+ Plan</button>' +
+        '<button class="ya-btn small" data-ya="new-proj-date" data-date="' + esc(sel) + '">+ Project milestone</button></div>' : '') +
+      '</div>';
 
-    return planStrip +
-      '<div class="ya-card"><div class="ya-toolbar" style="justify-content:space-between">' +
-      '<div style="display:flex;gap:6px;align-items:center">' +
-      '<button class="ya-btn small ghost" data-ya="cal-prev">← Prev</button>' +
-      '<strong style="min-width:150px;text-align:center">' + esc(monthName) + '</strong>' +
-      '<button class="ya-btn small ghost" data-ya="cal-next">Next →</button>' +
+    const planCard = '<div class="ya-card"><div class="ya-side-card-h"><strong>Plans in ' + esc(monthName) + '</strong><span class="ya-count-pill">' + monthPlans.length + '</span></div>' +
+      (monthPlans.length
+        ? '<div class="ya-pill-row">' + monthPlans.map(p =>
+            '<button class="ya-plan-pill" data-ya="edit-plan" data-id="' + esc(p.id) + '">' + esc(p.title) + ' <span>' + esc(fmt(p.start_date)) + '</span></button>').join('') + '</div>'
+        : '<p class="ya-muted ya-day-empty">No plans this month. Pick a date and add one.</p>') + '</div>';
+
+    const head = '<div class="ya-cal-bar">' +
+      '<div class="ya-cal-nav">' +
+      '<button class="ya-btn small ghost ya-sq" data-ya="cal-prev" aria-label="Previous month">‹</button>' +
+      '<h2 class="ya-cal-title">' + esc(monthName) + '</h2>' +
+      '<button class="ya-btn small ghost ya-sq" data-ya="cal-next" aria-label="Next month">›</button>' +
       '<button class="ya-btn small ghost" data-ya="cal-today">Today</button></div>' +
-      '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">' + toggles +
-      '<button class="ya-btn small ' + (S.calMode === 'month' ? '' : 'ghost') + '" data-ya="cal-mode" data-m="month">Grid</button>' +
-      '<button class="ya-btn small ' + (S.calMode === 'agenda' ? '' : 'ghost') + '" data-ya="cal-mode" data-m="agenda">Agenda</button>' +
-      '</div></div>' + calBody + '</div>' + dayDetail;
+      '<div class="ya-cal-ctrl">' + toggles +
+      '<div class="ya-seg"><button class="' + (S.calMode === 'month' ? 'on' : '') + '" data-ya="cal-mode" data-m="month">Grid</button>' +
+      '<button class="' + (S.calMode === 'agenda' ? 'on' : '') + '" data-ya="cal-mode" data-m="agenda">Agenda</button></div></div></div>' +
+      '<p class="ya-cal-sum">' + count('plan') + ' plan(s) · ' + count('project') + ' project milestone(s) · ' + count('task') + ' task(s) in ' + esc(monthName) + '</p>';
+
+    return '<div class="ya-cal-layout"><div class="ya-card ya-cal-main">' + head + calBody + '</div>' +
+      '<aside class="ya-cal-side">' + dayPanel + planCard + '</aside></div>';
   }
 
   /* ---------- modals ---------- */
@@ -1286,9 +1384,9 @@
       (canEdit() ? '<button class="ya-btn small ok" data-ya="add-member">+ Member</button>' +
         '<button class="ya-btn small" data-ya="new-plan">+ Plan</button>' +
         '<button class="ya-btn small cy" data-ya="new-project">+ Project</button>' +
-        '<button class="ya-btn small ghost" data-ya="nav" data-v="email">✉️ Email</button>' : '') +
-      '<button class="ya-btn small ghost" data-ya="nav" data-v="calendar">📅 Calendar</button>' +
-      '<button class="ya-btn small ghost" data-ya="nav" data-v="export">📤 Export</button>' +
+        '<button class="ya-btn small ghost" data-ya="nav" data-v="email">Email</button>' : '') +
+      '<button class="ya-btn small ghost" data-ya="nav" data-v="calendar">Calendar</button>' +
+      '<button class="ya-btn small ghost" data-ya="nav" data-v="export">Export</button>' +
       '</div>';
     return '<div class="ya-welcome"><div><h2>Welcome, ' + esc(linked ? name : (email || '')) + '</h2>' +
       '<p class="ya-muted" style="margin:0">' + esc(ROLE_LABEL[S.role] || 'Viewer') + ' · ' + (mine ? mine + ' open task' + (mine === 1 ? '' : 's') + ' assigned to you' : 'No open tasks assigned to you') + '</p>' +
@@ -1302,12 +1400,12 @@
     const activeProj = S.projects.filter(p => p.status !== 'completed').length;
     const stat = (label, valStr, cls, navView) =>
       '<button class="ya-stat ' + cls + '" data-ya="nav" data-v="' + navView + '"><span>' + label + '</span><strong>' + valStr + '</strong></button>';
-    const upcoming = gatherCalendarItems().filter(it => it.date >= todayISO()).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 5);
+    const upcoming = gatherCalendarItems(true).filter(it => it.end >= todayISO() && !it.done).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 6);
     const upcomingCard = '<div class="ya-card"><div class="ya-toolbar" style="justify-content:space-between;margin-bottom:8px">' +
-      '<h2 class="ya-h2" style="margin:0">Upcoming Schedule</h2><button class="ya-linkbtn" data-ya="nav" data-v="calendar">Open Calendar →</button></div>' +
+      '<h2 class="ya-h2" style="margin:0">Upcoming schedule</h2><button class="ya-linkbtn" data-ya="nav" data-v="calendar">Open calendar →</button></div>' +
       (upcoming.length
         ? '<ul class="ya-day-list">' + upcoming.map(it =>
-            '<li><span class="ya-cal-pill ' + it.kind + '">' + esc(fmt(it.date)) + '</span> <strong>' + esc(it.title) + '</strong> <span class="ya-muted">· ' + esc(it.sub) + '</span></li>').join('') + '</ul>'
+            '<li class="ya-item"><span class="ya-cal-pill ' + it.kind + '">' + esc(fmt(it.date < todayISO() ? todayISO() : it.date)) + '</span><div class="ya-item-t"><strong>' + esc(it.title) + '</strong><div class="ya-muted ya-item-s">' + esc(it.sub) + '</div></div></li>').join('') + '</ul>'
         : '<p class="ya-muted">No upcoming plans or tasks scheduled.</p>') + '</div>';
     const affCard = '<div class="ya-card"><h2 class="ya-h2" style="margin-top:0">Affiliation Split</h2>' +
       breakdown('affiliation', AFFILIATIONS) + '</div>';
@@ -1545,38 +1643,51 @@
   function shell(content) {
     const navHtml = NAV_GROUPS.map(g => {
       const btns = g.items.filter(([k]) => (k !== 'admins' || isSuper()) && (k !== 'email' || canEdit()))
-        .map(([k, l, ico]) => '<button class="ya-nav-btn' + (S.view === k ? ' on' : '') + '" data-ya="nav" data-v="' + k + '"><span>' + ico + ' ' + esc(l) + '</span>' + navBadge(k) + '</button>').join('');
+        .map(([k, l]) => '<button class="ya-nav-btn' + (S.view === k ? ' on' : '') + '" data-ya="nav" data-v="' + k + '"' + (S.view === k ? ' aria-current="page"' : '') + '><span class="ya-nav-l">' + svg(ICON[k] || ICON.overview, 18) + '<span>' + esc(l) + '</span></span>' + navBadge(k) + '</button>').join('');
       return btns ? '<div class="ya-nav-grp"><div class="ya-nav-lbl">' + esc(g.label) + '</div>' + btns + '</div>' : '';
     }).join('');
-    return '<div class="ya-wrap"><aside class="ya-side"><div class="ya-brand">⚡ Yantrika Admin</div>' +
-      '<nav class="ya-nav">' + navHtml + '</nav><div class="ya-side-foot"><div class="ya-user"><strong>' + esc(nameOfAdmin(S.user && S.user.id) || (S.user && S.user.email)) + '</strong><br><span class="ya-muted">' + esc(ROLE_LABEL[S.role] || 'Viewer') + '</span></div>' +
-      '<button class="ya-btn ghost small" data-ya="logout">Logout</button></div></aside><main class="ya-main">' + content + '</main></div>';
+    const who = nameOfAdmin(S.user && S.user.id) || (S.user && S.user.email) || '';
+    const initial = (who.trim().charAt(0) || 'A').toUpperCase();
+    return '<div class="ya-wrap"><aside class="ya-side">' +
+      '<div class="ya-brand"><span class="ya-logo">' + svg(ICON.bolt, 18) + '</span><span class="ya-brand-t"><b>Yantrika</b><small>Admin Console</small></span></div>' +
+      '<div class="ya-nav" role="navigation" aria-label="Admin sections">' + navHtml + '</div>' +
+      '<div class="ya-side-foot"><div class="ya-user"><span class="ya-avatar">' + esc(initial) + '</span>' +
+      '<span class="ya-user-t"><strong>' + esc(who) + '</strong><span class="ya-role">' + esc(ROLE_LABEL[S.role] || 'Viewer') + '</span></span></div>' +
+      '<button class="ya-btn ghost small" data-ya="logout">Sign out</button></div></aside>' +
+      '<main class="ya-main">' + content + '</main></div>';
   }
 
+  let lastView = null;
   function renderApp() {
     const r = root();
     if (!r) return;
+    const keepY = lastView === S.view ? window.scrollY : 0;
     const title = S.view === 'search' ? 'Search results' : ((VIEWS.find(v => v[0] === S.view) || VIEWS[0])[1]);
-    r.innerHTML = shell('<header class="ya-top"><h1>' + esc(title) + '</h1>' +
-      '<div class="ya-searchbar"><input id="ya-global" type="search" placeholder="Search everything: members, plans, projects, tasks…" value="' + esc(S.gq) + '" aria-label="Search everything">' +
+    const desc = VIEW_DESC[S.view] || '';
+    r.innerHTML = shell('<header class="ya-top"><div class="ya-top-l"><h1>' + esc(title) + '</h1>' +
+      (desc ? '<p class="ya-sub">' + esc(desc) + '</p>' : '') + '</div>' +
+      '<div class="ya-top-r"><div class="ya-searchbar"><span class="ya-search-ico">' + svg(ICON.search, 16) + '</span>' +
+      '<input id="ya-global" type="search" placeholder="Search everything…" value="' + esc(S.gq) + '" aria-label="Search everything">' +
       '<button class="ya-btn small" data-ya="search-run">Search</button></div>' +
-      '<button class="ya-btn ghost small" data-ya="reload">↻ Refresh</button></header>' +
+      '<button class="ya-btn ghost small" data-ya="reload">' + svg(ICON.refresh, 14) + ' Refresh</button></div></header>' +
       (S.error ? '<div class="ya-error">' + esc(S.error) + ' <button class="ya-btn small" data-ya="reload">Retry</button></div>' : '') +
       (S.notice ? '<div class="ya-notice">' + esc(S.notice) + '</div>' : '') +
       '<div id="ya-body">' + viewBody() + '</div>');
     applyPermissions(r);
     updateCount();
+    lastView = S.view;
+    if (keepY) window.scrollTo(0, keepY);
   }
   function updateCount() {
     const c = document.getElementById('ya-count');
     if (c && S.view !== 'overview') c.textContent = filterRows(viewList(), S.view === 'members' ? MEMBER_SEARCH : ['full_name', 'email', 'institution']).length + ' shown';
   }
   function showLogin(msg) {
-    root().innerHTML = '<div class="ya-login"><div class="ya-card"><h1>Admin sign-in</h1><p class="ya-muted">Yantrika administrators only.</p>' +
+    root().innerHTML = '<div class="ya-login"><div class="ya-card"><div class="ya-brand" style="border:0;padding:0 0 10px"><span class="ya-logo">' + svg(ICON.bolt, 18) + '</span><span class="ya-brand-t"><b>Yantrika</b><small>Admin Console</small></span></div><h1>Sign in</h1><p class="ya-muted">Yantrika administrators only.</p>' +
       '<form id="ya-login" class="ya-login-form">' +
       '<label>Email<input name="email" type="email" required autocomplete="username"></label>' +
       '<label>Password<input name="password" type="password" required autocomplete="current-password"></label>' +
-      '<button class="ya-btn" type="submit">Sign in</button><p id="ya-login-msg" class="ya-msg" role="status">' + esc(msg || '') + '</p></form></div></div>';
+      '<button class="ya-btn" type="submit" style="width:100%">Sign in</button><p id="ya-login-msg" class="ya-msg" role="status">' + esc(msg || '') + '</p></form></div></div>';
   }
   function showDenied() {
     root().innerHTML = '<div class="ya-login"><div class="ya-card"><h1>Access denied</h1>' +
@@ -1799,6 +1910,7 @@
         if (S.view === 'tasks') await loadTasks();
         if (S.view === 'email') await loadQuota();
         renderApp();
+        if (['calendar', 'plans', 'projects', 'overview'].indexOf(S.view) >= 0) syncSchedule();
         break;
       case 'sort': {
         const col = el.getAttribute('data-col');
@@ -1867,7 +1979,21 @@
       case 'cal-next': S.calMonth++; if (S.calMonth > 11) { S.calMonth = 0; S.calYear++; } renderApp(); break;
       case 'cal-today': { const now = new Date(); S.calYear = now.getFullYear(); S.calMonth = now.getMonth(); S.calSelectedDate = todayISO(); renderApp(); break; }
       case 'cal-mode': S.calMode = el.getAttribute('data-m'); renderApp(); break;
-      case 'cal-day': S.calSelectedDate = el.getAttribute('data-date'); renderApp(); break;
+      case 'cal-day': {
+        S.calSelectedDate = el.getAttribute('data-date'); renderApp();
+        const dp = document.querySelector('.ya-day');
+        if (dp) { const r = dp.getBoundingClientRect(); if (r.bottom > window.innerHeight || r.top < 0) dp.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+        break;
+      }
+      case 'cal-open': {
+        const k = el.getAttribute('data-k');
+        const dt = el.getAttribute('data-date');
+        if (k === 'task') { S.view = 'tasks'; await loadTasks(); renderApp(); break; }
+        const rec = findRow(k, id);
+        if (rec && canEdit()) { if (k === 'plan') openPlanForm(rec); else openProjectForm(rec); }
+        else if (dt) { S.calSelectedDate = dt; renderApp(); }
+        break;
+      }
 
       /* Interactive Export */
       case 'exp-cols-all': S.expCols = (EXPORT_DATASETS[S.expDataset] || EXPORT_DATASETS.members).cols.slice(); renderApp(); break;
@@ -1954,143 +2080,283 @@
   document.addEventListener('submit', onSubmit);
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeModal();
+    if ((e.key === 'Enter' || e.key === ' ') && e.target && e.target.classList && e.target.classList.contains('ya-cal-cell') && !e.target.classList.contains('empty')) { e.preventDefault(); e.target.click(); }
     if (e.key === 'Enter' && e.target && e.target.id === 'ya-global') runSearch();
+  });
+
+  /* keep the schedule fresh: reload when the tab is visible and nothing is being edited */
+  setInterval(() => {
+    if (!document.hidden && root() && S.user && ['calendar', 'plans', 'projects'].indexOf(S.view) >= 0 && !document.getElementById('ya-back')) syncSchedule();
+  }, 60000);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && root() && S.user && ['calendar', 'plans', 'projects', 'overview'].indexOf(S.view) >= 0 && !document.getElementById('ya-back')) syncSchedule();
   });
 
   window.YADMIN = { mount: mount };
 
   const CSS = `
-#yadmin-root{width:100%;text-align:left;color:var(--ink,#17171d);font-size:15px;line-height:1.5}
+/* Yantrika admin: same palette, borders and hard shadows as the main site, tidied for a more professional feel. */
+#yadmin-root,#ya-back,#ya-toast{
+  --ya-line:color-mix(in srgb,var(--ink,#17171d) 14%,transparent);
+  --ya-line2:color-mix(in srgb,var(--ink,#17171d) 38%,transparent);
+  --ya-muted:color-mix(in srgb,var(--ink,#17171d) 64%,transparent);
+  --ya-hover:color-mix(in srgb,var(--ink,#17171d) 5%,transparent);
+  --ya-head:color-mix(in srgb,var(--ink,#17171d) 4%,var(--card,#fff));
+  --ya-ok-bg:#dcf7ee;--ya-ok-fg:#0b6b4f;--ya-ok-bd:#7fd1b2;
+  --ya-wn-bg:#fff4d6;--ya-wn-fg:#7a5a00;--ya-wn-bd:#e6c25c;
+  --ya-bd-bg:#fde2e4;--ya-bd-fg:#8a1c2b;--ya-bd-bd:#f0a3ad;
+  --ya-in-bg:#e3f0fc;--ya-in-fg:#175a9c;--ya-in-bd:#9cc7ef;
+  --ya-ne-bg:#ececf0;--ya-ne-fg:#4a4a57;--ya-ne-bd:#c9c9d3;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #yadmin-root,:root:not([data-theme="light"]) #ya-back,:root:not([data-theme="light"]) #ya-toast{
+  --ya-ok-bg:#12382d;--ya-ok-fg:#8be3c1;--ya-ok-bd:#1f6b55;
+  --ya-wn-bg:#3b3010;--ya-wn-fg:#f3d36b;--ya-wn-bd:#7a6420;
+  --ya-bd-bg:#3d1a20;--ya-bd-fg:#ff9aa8;--ya-bd-bd:#7d2c39;
+  --ya-in-bg:#14304a;--ya-in-fg:#9ccdf5;--ya-in-bd:#2b5a86;
+  --ya-ne-bg:#2c2c36;--ya-ne-fg:#c7c7d3;--ya-ne-bd:#464656}}
+:root[data-theme="dark"] #yadmin-root,:root[data-theme="dark"] #ya-back,:root[data-theme="dark"] #ya-toast{
+  --ya-ok-bg:#12382d;--ya-ok-fg:#8be3c1;--ya-ok-bd:#1f6b55;
+  --ya-wn-bg:#3b3010;--ya-wn-fg:#f3d36b;--ya-wn-bd:#7a6420;
+  --ya-bd-bg:#3d1a20;--ya-bd-fg:#ff9aa8;--ya-bd-bd:#7d2c39;
+  --ya-in-bg:#14304a;--ya-in-fg:#9ccdf5;--ya-in-bd:#2b5a86;
+  --ya-ne-bg:#2c2c36;--ya-ne-fg:#c7c7d3;--ya-ne-bd:#464656}
+
+#yadmin-root{width:100%;text-align:left;color:var(--ink,#17171d);font-size:14.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
 #yadmin-root *,#ya-back *{box-sizing:border-box}
-.ya-wrap{display:grid;grid-template-columns:250px minmax(0,1fr);gap:24px;align-items:start}
-.ya-side{position:sticky;top:84px;background:var(--card,#fff);border:3px solid var(--dk,#17171d);border-radius:14px;padding:14px;box-shadow:5px 5px 0 var(--dk,#17171d);display:flex;flex-direction:column;gap:10px}
-.ya-brand{font-weight:700;font-size:1.1rem;padding:4px 8px}
-.ya-nav{display:flex;flex-direction:column;gap:8px}
+#yadmin-root h1,#yadmin-root h2,#yadmin-root h3,#ya-back h3{font-family:inherit;letter-spacing:-.01em}
+.ya-ico{flex:0 0 auto;vertical-align:-3px}
+.ya-wrap{display:grid;grid-template-columns:256px minmax(0,1fr);gap:28px;align-items:start}
+
+/* sidebar */
+.ya-side{position:sticky;top:84px;background:var(--card,#fff);border:2px solid var(--dk,#17171d);border-radius:12px;padding:14px;box-shadow:4px 4px 0 var(--dk,#17171d);display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 100px);overflow:hidden}
+.ya-brand{display:flex;align-items:center;gap:10px;padding:2px 4px 12px;border-bottom:1px solid var(--ya-line)}
+.ya-logo{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:var(--yel,#f1c40f);color:#17171d;border:2px solid var(--dk,#17171d);box-shadow:2px 2px 0 var(--dk,#17171d)}
+.ya-brand-t{display:flex;flex-direction:column;line-height:1.15}
+.ya-brand-t b{font-family:'Permanent Marker',cursive,sans-serif;font-weight:400;font-size:1.15rem;letter-spacing:.01em}
+.ya-brand-t small{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--ya-muted);font-weight:700}
+.ya-nav{display:flex;flex-direction:column;gap:14px;overflow-y:auto;flex:1 1 auto;min-height:0;padding-right:2px}
 .ya-nav-grp{display:flex;flex-direction:column;gap:2px}
-.ya-nav-lbl{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6;font-weight:700;padding:4px 10px 2px}
-.ya-nav-btn{display:flex;justify-content:space-between;align-items:center;background:none;border:0;text-align:left;cursor:pointer;padding:8px 10px;border-radius:8px;font:inherit;font-size:.92rem;color:inherit}
-.ya-nav-btn:hover{background:rgba(128,128,128,.12)}
-.ya-nav-btn.on{background:var(--yel,#f1c40f);color:#17171d;font-weight:700;border:2px solid var(--dk,#17171d)}
-.ya-nav-badge{font-size:.72rem;font-weight:700;padding:1px 7px;border-radius:99px;background:rgba(128,128,128,.2)}
-.ya-nav-badge.warn{background:#ff8c37;color:#17171d}
-.ya-side-foot{border-top:1px solid rgba(128,128,128,.25);padding-top:10px;display:flex;flex-direction:column;gap:8px}
-.ya-user{font-size:.8rem;opacity:.75;word-break:break-all}
+.ya-nav-lbl{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--ya-muted);font-weight:700;padding:2px 10px 4px}
+.ya-nav-btn{display:flex;justify-content:space-between;align-items:center;gap:8px;background:none;border:2px solid transparent;text-align:left;cursor:pointer;padding:7px 10px;border-radius:8px;font:inherit;font-size:.9rem;font-weight:500;color:inherit;transition:background .12s}
+.ya-nav-l{display:flex;align-items:center;gap:10px;min-width:0}
+.ya-nav-l .ya-ico{opacity:.75}
+.ya-nav-btn:hover{background:var(--ya-hover)}
+.ya-nav-btn.on{background:var(--yel,#f1c40f);color:#17171d;font-weight:700;border-color:var(--dk,#17171d)}
+.ya-nav-btn.on .ya-ico{opacity:1}
+.ya-nav-badge{font-size:.7rem;font-weight:700;min-width:20px;text-align:center;padding:1px 7px;border-radius:99px;background:var(--ya-hover);color:inherit;border:1px solid var(--ya-line)}
+.ya-nav-btn.on .ya-nav-badge{background:rgba(0,0,0,.12);border-color:transparent}
+.ya-nav-badge.warn{background:var(--or,#ff8c37);color:#17171d;border-color:transparent}
+.ya-side-foot{border-top:1px solid var(--ya-line);padding-top:12px;display:flex;flex-direction:column;gap:10px}
+.ya-user{display:flex;align-items:center;gap:10px;min-width:0}
+.ya-avatar{display:grid;place-items:center;flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:var(--cy,#33d6a6);color:#17171d;font-weight:700;border:2px solid var(--dk,#17171d)}
+.ya-user-t{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.ya-user-t strong{font-size:.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ya-role{font-size:.72rem;color:var(--ya-muted);font-weight:600}
 .ya-main{min-width:0}
-.ya-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
-.ya-top h1{margin:0;font-size:1.55rem}
-.ya-h2{font-size:1.1rem;margin:20px 0 10px}
-.ya-note{font-size:.85rem;margin:8px 0 0}
-.ya-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
-.ya-stat{text-align:left;cursor:pointer;font:inherit;color:inherit;background:var(--card,#fff);border:2px solid var(--dk,#17171d);border-radius:12px;padding:14px;box-shadow:4px 4px 0 var(--dk,#17171d);border-top:5px solid #999;transition:transform .1s}
-.ya-stat:hover{transform:translate(-1px,-1px)}
-.ya-stat span{display:block;font-size:.82rem;opacity:.75}
-.ya-stat strong{font-size:1.75rem;line-height:1.2}
+
+/* page header */
+.ya-top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:20px;flex-wrap:wrap;padding-bottom:16px;border-bottom:1px solid var(--ya-line)}
+.ya-top h1{margin:0;font-size:1.65rem;line-height:1.2}
+.ya-sub{margin:4px 0 0;color:var(--ya-muted);font-size:.9rem}
+.ya-top-r{display:flex;gap:8px;align-items:center;flex-wrap:nowrap}
+.ya-searchbar{display:flex;gap:6px;align-items:center;position:relative;width:min(320px,100%)}
+.ya-searchbar input{flex:1;min-width:0;padding-left:34px}
+.ya-search-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--ya-muted);pointer-events:none;display:flex}
+.ya-h2{font-size:1.05rem;margin:22px 0 10px;font-weight:700}
+.ya-note{font-size:.84rem;margin:8px 0 12px;color:var(--ya-muted)}
+
+/* cards, stats */
+.ya-card{background:var(--card,#fff);border:2px solid var(--dk,#17171d);border-radius:12px;padding:18px 20px;box-shadow:3px 3px 0 var(--dk,#17171d)}
+.ya-card .ya-h2:first-child{margin-top:0}
+.ya-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+.ya-stat{text-align:left;cursor:pointer;font:inherit;color:inherit;background:var(--card,#fff);border:2px solid var(--dk,#17171d);border-radius:12px;padding:14px 16px;box-shadow:3px 3px 0 var(--dk,#17171d);border-top:5px solid var(--ya-ne-bd);transition:transform .12s,box-shadow .12s;display:block;width:100%}
+.ya-stat:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--dk,#17171d)}
+.ya-stat span{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;font-weight:700;color:var(--ya-muted)}
+.ya-stat strong{display:block;font-size:2rem;line-height:1.15;margin-top:4px;font-variant-numeric:tabular-nums}
 .ya-stat.warn{border-top-color:#e0a800}.ya-stat.ok{border-top-color:#1aa37a}.ya-stat.bad{border-top-color:#ec3750}.ya-stat.bl{border-top-color:#338eda}.ya-stat.cy{border-top-color:#33d6a6}
-.ya-card{background:var(--card,#fff);border:2px solid var(--dk,#17171d);border-radius:14px;padding:18px;box-shadow:4px 4px 0 var(--dk,#17171d)}
-.ya-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
-.ya-toolbar input[type=search]{flex:1 1 220px;min-width:0}
-input,select,textarea{font:inherit;padding:9px 11px;border:1px solid rgba(128,128,128,.4);border-radius:8px;background:var(--bg,#fff);color:var(--ink,#17171d);width:100%}
+.ya-welcome{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:18px;padding:16px 20px;border:2px solid var(--dk,#17171d);border-radius:12px;background:linear-gradient(90deg,color-mix(in srgb,var(--yel,#f1c40f) 22%,var(--card,#fff)),var(--card,#fff) 70%);box-shadow:3px 3px 0 var(--dk,#17171d)}
+.ya-welcome h2{margin:0 0 2px;font-size:1.25rem}
+.ya-quick-actions{display:flex;gap:8px;flex-wrap:wrap}
+.ya-two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+
+/* toolbars and forms */
+.ya-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.ya-toolbar select{width:auto;min-width:150px}
+.ya-toolbar input[type=search]{flex:1 1 240px;min-width:0}
+input,select,textarea{font:inherit;font-size:.92rem;padding:8px 11px;border:1.5px solid var(--ya-line2);border-radius:8px;background:var(--card,#fff);color:var(--ink,#17171d);width:100%;transition:border-color .12s,box-shadow .12s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--bl,#338eda);box-shadow:0 0 0 3px color-mix(in srgb,var(--bl,#338eda) 28%,transparent)}
 textarea{resize:vertical}
-.ya-field{display:flex;flex-direction:column;gap:4px;font-size:.9rem}
-.ya-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.ya-grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.ya-field{display:flex;flex-direction:column;gap:5px;font-size:.88rem}
+.ya-field>span{font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ya-muted)}
+.ya-grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ya-grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
 .ya-grid2 .ya-field:has(textarea){grid-column:1/-1}
-.ya-btn{display:inline-block;cursor:pointer;font:inherit;font-weight:700;padding:8px 15px;border-radius:10px;border:2px solid var(--dk,#17171d);background:var(--yel,#f1c40f);color:#17171d;text-decoration:none;transition:transform .1s}
-.ya-btn:hover{transform:translateY(-1px)}
-.ya-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
-.ya-btn.ghost{background:transparent;color:var(--ink,#17171d)}
-.ya-btn.ok{background:#1aa37a;color:#fff;border-color:#17171d}
-.ya-btn.cy{background:#33d6a6;color:#17171d}
+.ya-readonly{background:var(--ya-hover);font-weight:700}
+
+/* buttons */
+.ya-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;font:inherit;font-size:.9rem;font-weight:700;padding:8px 15px;border-radius:8px;border:2px solid var(--dk,#17171d);background:var(--yel,#f1c40f);color:#17171d;text-decoration:none;box-shadow:2px 2px 0 var(--dk,#17171d);transition:transform .1s,box-shadow .1s;line-height:1.25;white-space:nowrap}
+.ya-btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--dk,#17171d)}
+.ya-btn:active{transform:translate(1px,1px);box-shadow:0 0 0 var(--dk,#17171d)}
+.ya-btn:focus-visible{outline:3px solid color-mix(in srgb,var(--bl,#338eda) 55%,transparent);outline-offset:2px}
+.ya-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.ya-btn.ghost{background:transparent;color:var(--ink,#17171d);border:1.5px solid var(--ya-line2);box-shadow:none}
+.ya-btn.ghost:hover{background:var(--ya-hover);transform:none;border-color:var(--ink,#17171d)}
+.ya-btn.ok{background:#1aa37a;color:#fff}
+.ya-btn.cy{background:var(--cy,#33d6a6);color:#17171d}
 .ya-btn.warn{background:#ffd966;color:#17171d}
-.ya-btn.danger{background:#ec3750;color:#fff;border-color:#17171d}
-.ya-btn.small{padding:5px 10px;font-size:.82rem;border-radius:8px}
+.ya-btn.danger{background:#ec3750;color:#fff}
+.ya-btn.small{padding:5px 11px;font-size:.8rem;border-radius:7px}
+.ya-btn.ya-sq{width:32px;padding:4px 0;font-size:1.1rem;line-height:1}
 .ya-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:18px}
-.ya-actions.start{justify-content:flex-start}
+.ya-actions.start{justify-content:flex-start;margin-top:14px}
+.ya-modal .ya-actions{border-top:1px solid var(--ya-line);padding-top:16px}
 .ya-acts{white-space:nowrap}
-.ya-acts .ya-btn{margin:2px 3px 2px 0}
-.ya-tablewrap{overflow-x:auto;background:var(--card,#fff);border:2px solid var(--dk,#17171d);border-radius:12px}
+.ya-acts .ya-btn{margin:2px 4px 2px 0}
+.ya-linkbtn{background:none;border:0;padding:0;font:inherit;font-weight:700;font-size:.85rem;cursor:pointer;color:var(--bl,#338eda);text-align:left}
+.ya-linkbtn:hover{text-decoration:underline}
+
+/* tables */
+.ya-tablewrap{overflow-x:auto;background:var(--card,#fff);border:2px solid var(--dk,#17171d);border-radius:12px;box-shadow:3px 3px 0 var(--dk,#17171d)}
 .ya-table{width:100%;border-collapse:collapse;font-size:.88rem}
-.ya-table th{text-align:left;padding:10px 12px;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;opacity:.75;border-bottom:2px solid rgba(128,128,128,.25)}
-.ya-table td{padding:9px 12px;border-bottom:1px solid rgba(128,128,128,.15);vertical-align:middle}
+.ya-table th{text-align:left;padding:11px 14px;font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--ya-muted);background:var(--ya-head);border-bottom:1px solid var(--ya-line2);white-space:nowrap}
+.ya-table td{padding:11px 14px;border-bottom:1px solid var(--ya-line);vertical-align:middle}
+.ya-table tbody tr{transition:background .1s}
+.ya-table tbody tr:hover{background:var(--ya-hover)}
 .ya-table tr:last-child td{border-bottom:0}
 .ya-sort-btn{background:none;border:0;padding:0;font:inherit;color:inherit;text-transform:inherit;letter-spacing:inherit;cursor:pointer;font-weight:700}
-.ya-b{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.76rem;font-weight:700;border:1px solid}
-.ya-b.pending{background:#fff4d6;color:#7a5a00;border-color:#e6c25c}
-.ya-b.approved{background:#dcf7ee;color:#0b6b4f;border-color:#7fd1b2}
-.ya-b.rejected{background:#fde2e4;color:#8a1c2b;border-color:#f0a3ad}
-.ya-tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.76rem;font-weight:700;background:rgba(128,128,128,.15)}
-.ya-empty{padding:28px;text-align:center;border:1px dashed rgba(128,128,128,.4);border-radius:12px;opacity:.8}
-.ya-error{background:#fde2e4;color:#8a1c2b;border:2px solid #f0a3ad;border-radius:10px;padding:12px 14px;margin-bottom:14px}
-.ya-quota{padding:10px 14px;border-radius:10px;border:1px solid rgba(128,128,128,.3);font-size:.9rem}
-.ya-quota.ok{background:#dcf7ee;color:#0b6b4f;border-color:#7fd1b2}
-.ya-quota.bad{background:#fde2e4;color:#8a1c2b;border-color:#f0a3ad}
-.ya-muted{opacity:.72}
-.ya-center{padding:40px;text-align:center;opacity:.8}
-.ya-login{display:flex;justify-content:center;padding:30px 0}
-.ya-login .ya-card{width:min(420px,100%)}
-.ya-login-form{display:flex;flex-direction:column;gap:12px;margin-top:12px}
-.ya-login-form label{display:flex;flex-direction:column;gap:4px;font-size:.9rem}
-.ya-two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.ya-num{text-align:right;font-weight:700}
-.ya-bar{height:8px;background:rgba(128,128,128,.2);border-radius:99px;overflow:hidden}
-.ya-bar span{display:block;height:100%;background:var(--cy,#33d6a6)}
-.ya-notice{background:#fff4d6;color:#5c4500;border:1px solid #e6c25c;border-radius:10px;padding:12px 14px;margin-bottom:14px}
-.ya-readonly{background:rgba(128,128,128,.12);font-weight:700}
-.ya-searchbar{display:flex;gap:8px;flex:1 1 320px;max-width:520px}
-.ya-searchbar input{flex:1;min-width:0}
-.ya-linkbtn{background:none;border:0;padding:0;font:inherit;font-weight:700;cursor:pointer;text-decoration:underline;color:inherit;text-align:left}
-.ya-welcome{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px}
-.ya-welcome h2{margin:0 0 2px;font-size:1.35rem}
-.ya-quick-actions{display:flex;gap:6px;flex-wrap:wrap}
+.ya-sort-btn:hover{color:var(--ink,#17171d)}
+.ya-num{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.ya-card .ya-table{font-size:.88rem}
+.ya-card .ya-table td{padding:8px 4px}
+.ya-bar{height:8px;background:var(--ya-line);border-radius:99px;overflow:hidden}
+.ya-bar span{display:block;height:100%;background:var(--cy,#33d6a6);border-radius:99px}
+
+/* badges, tags, notices */
+.ya-b{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:999px;font-size:.74rem;font-weight:700;border:1px solid;white-space:nowrap}
+.ya-b::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.ya-b.pending{background:var(--ya-wn-bg);color:var(--ya-wn-fg);border-color:var(--ya-wn-bd)}
+.ya-b.approved{background:var(--ya-ok-bg);color:var(--ya-ok-fg);border-color:var(--ya-ok-bd)}
+.ya-b.rejected{background:var(--ya-bd-bg);color:var(--ya-bd-fg);border-color:var(--ya-bd-bd)}
+.ya-b.info{background:var(--ya-in-bg);color:var(--ya-in-fg);border-color:var(--ya-in-bd)}
+.ya-b.neutral{background:var(--ya-ne-bg);color:var(--ya-ne-fg);border-color:var(--ya-ne-bd)}
+.ya-tag{display:inline-block;padding:2px 9px;border-radius:6px;font-size:.74rem;font-weight:700;background:var(--ya-hover);border:1px solid var(--ya-line)}
+.ya-muted{color:var(--ya-muted)}
+.ya-empty{padding:34px;text-align:center;border:1.5px dashed var(--ya-line2);border-radius:12px;color:var(--ya-muted)}
+.ya-error{background:var(--ya-bd-bg);color:var(--ya-bd-fg);border:1px solid var(--ya-bd-bd);border-radius:10px;padding:12px 14px;margin-bottom:14px}
+.ya-notice{background:var(--ya-wn-bg);color:var(--ya-wn-fg);border:1px solid var(--ya-wn-bd);border-radius:10px;padding:12px 14px;margin-bottom:14px}
+.ya-quota{padding:10px 14px;border-radius:10px;border:1px solid var(--ya-line);font-size:.9rem}
+.ya-quota.ok{background:var(--ya-ok-bg);color:var(--ya-ok-fg);border-color:var(--ya-ok-bd)}
+.ya-quota.bad{background:var(--ya-bd-bg);color:var(--ya-bd-fg);border-color:var(--ya-bd-bd)}
+.ya-center{padding:48px;text-align:center;color:var(--ya-muted)}
+.ya-msg{font-size:.88rem;min-height:1.2em;margin:10px 0 0;color:var(--ya-bd-fg)}
 .ya-chip-grid{display:flex;flex-wrap:wrap;gap:8px}
-.ya-chip-check{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid rgba(128,128,128,.35);border-radius:999px;font-size:.82rem;cursor:pointer}
-.ya-chip-check input{width:auto;margin:0}
+.ya-chip-check{display:inline-flex;align-items:center;gap:7px;padding:4px 11px;border:1.5px solid var(--ya-line2);border-radius:999px;font-size:.8rem;font-weight:600;cursor:pointer;user-select:none;transition:background .12s}
+.ya-chip-check:hover{background:var(--ya-hover)}
+.ya-chip-check:has(input:checked){background:var(--ya-hover);border-color:var(--ink,#17171d)}
+.ya-chip-check input{width:auto;margin:0;accent-color:var(--dk,#17171d)}
+.ya-dl{display:grid;grid-template-columns:150px 1fr;gap:10px 16px;margin:14px 0 0}
+.ya-dl dt{font-weight:700;color:var(--ya-muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.04em}
+.ya-dl dd{margin:0;word-break:break-word;white-space:pre-wrap}
+
+/* login */
+.ya-login{display:flex;justify-content:center;padding:34px 0}
+.ya-login .ya-card{width:min(420px,100%);padding:26px}
+.ya-login h1{margin:0 0 4px;font-size:1.5rem}
+.ya-login-form{display:flex;flex-direction:column;gap:14px;margin-top:16px}
+.ya-login-form label{display:flex;flex-direction:column;gap:5px;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ya-muted)}
+.ya-login-form input{text-transform:none;letter-spacing:0;font-weight:400;color:var(--ink,#17171d)}
+
+/* plans, calendar */
 .ya-pill-row{display:flex;flex-wrap:wrap;gap:8px}
-.ya-plan-pill{background:var(--yel,#f1c40f);color:#17171d;border:2px solid var(--dk,#17171d);border-radius:8px;padding:4px 10px;font:inherit;font-size:.84rem;font-weight:700;cursor:pointer}
-.ya-cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
-.ya-cal-head{text-align:center;font-weight:700;font-size:.78rem;text-transform:uppercase;opacity:.65;padding:4px 0}
-.ya-cal-cell{min-height:86px;border:1px solid rgba(128,128,128,.25);border-radius:8px;padding:5px;cursor:pointer;display:flex;flex-direction:column;gap:3px;background:var(--bg,#fff)}
+.ya-plan-pill{background:var(--yel,#f1c40f);color:#17171d;border:2px solid var(--dk,#17171d);border-radius:8px;padding:4px 10px;font:inherit;font-size:.8rem;font-weight:700;cursor:pointer;text-align:left}
+.ya-plan-pill span{font-weight:500;opacity:.7}
+.ya-plan-pill:hover{filter:brightness(.96)}
+.ya-cal-layout{display:flex;flex-direction:column;gap:18px}
+.ya-cal-side{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:18px;align-items:start}
+.ya-cal-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.ya-cal-nav{display:flex;align-items:center;gap:8px}
+.ya-cal-title{margin:0 6px;font-size:1.25rem;min-width:170px;text-align:center}
+.ya-cal-ctrl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ya-seg{display:inline-flex;border:1.5px solid var(--ya-line2);border-radius:8px;overflow:hidden}
+.ya-seg button{border:0;background:transparent;font:inherit;font-size:.8rem;font-weight:700;padding:5px 12px;cursor:pointer;color:inherit}
+.ya-seg button.on{background:var(--yel,#f1c40f);color:#17171d}
+.ya-cal-sum{margin:10px 0 14px;font-size:.82rem;color:var(--ya-muted)}
+.ya-cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.ya-cal-head{text-align:center;font-weight:700;font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ya-muted);padding:6px 0}
+.ya-cal-cell{min-height:96px;border:1px solid var(--ya-line);border-radius:8px;padding:5px 6px;cursor:pointer;display:flex;flex-direction:column;gap:3px;background:var(--card,#fff);transition:background .1s,border-color .1s;min-width:0}
+.ya-cal-cell.wkend{background:var(--ya-head)}
+.ya-cal-cell:hover{border-color:var(--ya-line2)}
+.ya-cal-cell:focus-visible{outline:3px solid color-mix(in srgb,var(--bl,#338eda) 55%,transparent);outline-offset:1px}
 .ya-cal-cell.empty{background:transparent;border-color:transparent;cursor:default}
-.ya-cal-cell.today{border:2px solid #338eda}
+.ya-cal-cell.today{border:2px solid var(--bl,#338eda)}
 .ya-cal-cell.sel{border:2px solid var(--dk,#17171d);box-shadow:3px 3px 0 var(--yel,#f1c40f)}
-.ya-cal-num{font-weight:700;font-size:.8rem}
-.ya-cal-pill{display:inline-block;padding:1px 6px;border-radius:4px;font-size:.72rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.ya-cal-num{font-weight:700;font-size:.78rem;width:24px;height:24px;line-height:24px;text-align:center;border-radius:50%}
+.ya-cal-cell.today .ya-cal-num{background:var(--bl,#338eda);color:#fff}
+.ya-cal-pill{display:inline-block;padding:1px 7px;border-radius:4px;font:inherit;font-size:.7rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;border:0;text-align:left;line-height:1.5}
+button.ya-cal-pill{cursor:pointer}
+button.ya-cal-pill:hover{filter:brightness(.93)}
 .ya-cal-pill.plan{background:#f1c40f;color:#17171d}
 .ya-cal-pill.project{background:#33d6a6;color:#17171d}
 .ya-cal-pill.task{background:#338eda;color:#fff}
+.ya-cal-pill.cont{opacity:.62}
+.ya-cal-pill.done{text-decoration:line-through;opacity:.55}
+.ya-more{font-size:.7rem;font-weight:700;color:var(--ya-muted);padding-left:2px}
 .ya-cal-dot{display:inline-block;width:9px;height:9px;border-radius:50%}
 .ya-cal-dot.plan{background:#f1c40f}.ya-cal-dot.project{background:#33d6a6}.ya-cal-dot.task{background:#338eda}
-.ya-day-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
-.ya-msg{font-size:.9rem;min-height:1.2em;margin:0}
-.ya-dl{display:grid;grid-template-columns:150px 1fr;gap:8px 14px;margin:12px 0 0}
-.ya-dl dt{font-weight:700;opacity:.75}
-.ya-dl dd{margin:0;word-break:break-word;white-space:pre-wrap}
-.ya-back{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
-.ya-modal{background:var(--card,#fff);color:var(--ink,#17171d);border:3px solid var(--dk,#17171d);border-radius:14px;padding:22px;width:min(680px,100%);max-height:90vh;overflow:auto;box-shadow:6px 6px 0 var(--dk,#17171d)}
-.ya-modal h3{margin:0 0 6px;font-size:1.3rem}
-#ya-toast{position:fixed;right:18px;bottom:90px;z-index:300;padding:12px 16px;border-radius:10px;font-weight:700;border:2px solid #17171d;box-shadow:4px 4px 0 #17171d;display:none;max-width:min(380px,90vw)}
-#ya-toast.ok{background:#dcf7ee;color:#0b6b4f}
-#ya-toast.err{background:#fde2e4;color:#8a1c2b}
+.ya-day-dow{font-size:.7rem;text-transform:uppercase;letter-spacing:.09em;font-weight:700;color:var(--ya-muted)}
+.ya-day-title{margin:2px 0 12px;font-size:1.2rem}
+.ya-day-empty{margin:4px 0 0;font-size:.88rem}
+.ya-day-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:2px}
+.ya-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-top:1px solid var(--ya-line)}
+.ya-item:first-child{border-top:0}
+.ya-item .ya-cal-pill{margin-top:2px;flex:0 0 auto}
+.ya-item-t{flex:1;min-width:0}
+.ya-item-t strong{display:block;font-size:.9rem;word-break:break-word}
+.ya-item-s{font-size:.78rem}
+.ya-item.done .ya-item-t strong{text-decoration:line-through;opacity:.6}
+.ya-side-card-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:.92rem}
+.ya-count-pill{font-size:.72rem;font-weight:700;padding:1px 9px;border-radius:99px;background:var(--ya-hover);border:1px solid var(--ya-line)}
+
+/* modal and toast */
+.ya-back{position:fixed;inset:0;background:rgba(10,10,16,.55);backdrop-filter:blur(2px);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
+.ya-modal{background:var(--card,#fff);color:var(--ink,#17171d);border:2px solid var(--dk,#17171d);border-radius:14px;padding:24px;width:min(680px,100%);max-height:90vh;overflow:auto;box-shadow:6px 6px 0 var(--dk,#17171d);animation:yaPop .16s ease-out}
+.ya-modal h3{margin:0 0 14px;font-size:1.25rem}
+@keyframes yaPop{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:none}}
+#ya-toast{position:fixed;right:18px;bottom:90px;z-index:300;padding:12px 16px;border-radius:10px;font-weight:600;font-size:.9rem;border:2px solid var(--dk,#17171d);box-shadow:3px 3px 0 var(--dk,#17171d);display:none;max-width:min(400px,90vw)}
+#ya-toast.ok{background:var(--ya-ok-bg);color:var(--ya-ok-fg)}
+#ya-toast.err{background:var(--ya-bd-bg);color:var(--ya-bd-fg)}
+
+@media (max-width:1100px){
+  .ya-cal-side{grid-template-columns:1fr}
+}
 @media (max-width:900px){
-  .ya-wrap{grid-template-columns:1fr;gap:14px}
-  .ya-side{position:static;padding:12px}
-  .ya-nav{flex-direction:row;overflow-x:auto;padding-bottom:4px;gap:12px}
+  .ya-wrap{grid-template-columns:minmax(0,1fr);gap:16px}
+  .ya-side,.ya-main{min-width:0}
+  .ya-side{position:static;padding:12px;max-height:none;overflow:visible}
+  .ya-top-r{flex-wrap:wrap}
+  .ya-brand{padding-bottom:10px}
+  .ya-nav{flex-direction:row;overflow-x:auto;overflow-y:hidden;padding-bottom:4px;gap:14px;flex:none}
   .ya-nav-grp{flex-direction:row;align-items:center;gap:4px}
   .ya-nav-lbl{display:none}
   .ya-nav-btn{white-space:nowrap}
   .ya-stats{grid-template-columns:1fr 1fr}
   .ya-two,.ya-grid2,.ya-grid3{grid-template-columns:1fr}
-  .ya-cal-cell{min-height:60px}
-  .ya-tablewrap{overflow:visible;border:0;background:none}
+  .ya-top{align-items:stretch}
+  .ya-searchbar{width:100%}
+  .ya-cal-cell{min-height:64px}
+  .ya-cal-pill{font-size:.62rem;padding:0 4px}
+  .ya-cal-title{min-width:0;font-size:1.05rem}
+  .ya-tablewrap{overflow:visible;border:0;background:none;box-shadow:none}
   .ya-table thead{display:none}
   .ya-table,.ya-table tbody,.ya-table tr,.ya-table td{display:block;width:100%}
-  .ya-table tr{background:var(--card,#fff);border:2px solid var(--dk,#17171d);border-radius:12px;padding:8px 12px;margin-bottom:10px}
-  .ya-table td{display:flex;justify-content:space-between;gap:12px;border:0;padding:4px 0;text-align:right}
-  .ya-table td::before{content:attr(data-l);font-weight:700;opacity:.65;text-align:left}
+  .ya-table tr{background:var(--card,#fff);border:2px solid var(--dk,#17171d);border-radius:12px;padding:8px 14px;margin-bottom:12px;box-shadow:3px 3px 0 var(--dk,#17171d)}
+  .ya-table td{display:flex;justify-content:space-between;gap:12px;border:0;padding:5px 0;text-align:right}
+  .ya-table td::before{content:attr(data-l);font-weight:700;color:var(--ya-muted);text-align:left;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em}
   .ya-table td.ya-acts{justify-content:flex-end;flex-wrap:wrap}
   .ya-table td.ya-acts::before{content:none}
   .ya-dl{grid-template-columns:1fr}
   #ya-toast{left:12px;right:12px;bottom:80px;max-width:none}
 }
+@media (prefers-reduced-motion:reduce){.ya-btn,.ya-stat,.ya-modal{transition:none;animation:none}}
 `;
 })();
