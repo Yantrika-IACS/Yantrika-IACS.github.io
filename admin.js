@@ -22,35 +22,35 @@
     {
       label: 'Workspace',
       items: [
-        ['overview', 'Dashboard Overview', '📊'],
-        ['calendar', 'Plans Calendar', '📅']
+        ['overview', 'Dashboard Overview'],
+        ['calendar', 'Plans Calendar']
       ]
     },
     {
       label: 'People & Org',
       items: [
-        ['members', 'All Members', '👥'],
-        ['structure', 'Groups & Positions', '🏛️'],
-        ['pending', 'Pending Applications', '⏳'],
-        ['approved', 'Approved Applications', '✅'],
-        ['rejected', 'Rejected Applications', '❌']
+        ['members', 'All Members'],
+        ['structure', 'Groups & Positions'],
+        ['pending', 'Pending Applications'],
+        ['approved', 'Approved Applications'],
+        ['rejected', 'Rejected Applications']
       ]
     },
     {
       label: 'Planning & Ops',
       items: [
-        ['plans', 'Club Plans', '🗺️'],
-        ['projects', 'Projects Planned', '🤖'],
-        ['tasks', 'Tasks', '☑️']
+        ['plans', 'Club Plans'],
+        ['projects', 'Projects Planned'],
+        ['tasks', 'Tasks']
       ]
     },
     {
       label: 'Comms & Tools',
       items: [
-        ['email', 'Send Email', '✉️'],
-        ['export', 'Export Data', '📤'],
-        ['activity', 'Activity Log', '📜'],
-        ['admins', 'Admin Users', '🔐']
+        ['email', 'Send Email'],
+        ['export', 'Export Data'],
+        ['activity', 'Activity Log'],
+        ['admins', 'Admin Users']
       ]
     }
   ];
