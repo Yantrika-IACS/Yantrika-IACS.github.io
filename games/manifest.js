@@ -12,6 +12,7 @@ YK.manifest={
  games:[
   // Learn
   'circuit','binary','walk','echo',
+  'lakh-links',
   // Build
   'bot','breadboard','pd',
   // Compete
