@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="One lakh as one hundred thousand">
+  <rect width="800" height="800" fill="#173a43"/>
+  <g font-family="sans-serif" text-anchor="middle" font-weight="bold">
+    <text x="400" y="178" fill="#fff" font-size="66">ONE LAKH</text>
+    <g fill="#d5f2d9"><rect x="45" y="250" width="176" height="180" rx="23"/><rect x="235" y="250" width="192" height="180" rx="23"/><rect x="442" y="250" width="311" height="180" rx="23"/></g>
+    <g fill="#173a43" font-size="112"><text x="132" y="376">1</text><text x="331" y="376">00</text><text x="599" y="376">000</text></g>
+    <text x="400" y="563" fill="#ffe399" font-size="48">100 × 1,000</text>
+  </g>
+</svg>
